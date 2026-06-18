@@ -2,24 +2,20 @@ import pyautogui
 import time
 import sys
 
-# Tiempo de espera en segundos (2 minutos = 120 segundos)
-INTERVALO = 120 
+INTERVALO = 120  # 2 minutos
 
-print("Script iniciado. Moviendo el mouse cada 2 minutos para mantener la sesión activa.")
-print("Para detener el script, presiona Ctrl + C en la terminal.")
+print("Script optimizado iniciado. Presionando tecla invisible cada 2 minutos.")
+print("Para detener el script, presiona Ctrl + C.")
 
 try:
     while True:
-        # Espera los 2 minutos
         time.sleep(INTERVALO)
         
-        # Mueve el mouse 5 píxeles a la derecha y 5 hacia abajo (movimiento relativo)
-        pyautogui.moveRel(5, 5, duration=0.2)
+        # F15 es una tecla real en Windows pero no tiene ninguna función asignada,
+        # así que no interrumpirá lo que estés escribiendo o haciendo.
+        pyautogui.press('f15')
         
-        # Lo regresa a su posición original
-        pyautogui.moveRel(-5, -5, duration=0.2)
-        
-        print("Mousse movido sutilmente para evitar suspensión.")
+        print("Señor de actividad enviado a Windows (F15).")
 
 except KeyboardInterrupt:
     print("\nScript detenido por el usuario.")
