@@ -1,0 +1,153 @@
+Version: '2012-10-17'
+Statement:
+  - Sid: DMSManagement
+    Effect: Allow
+    Action:
+      - dms:ModifyReplicationTask
+      - dms:StartReplicationTask
+      - dms:StopReplicationTask
+      - dms:DescribeReplicationTasks
+      - dms:TestConnection
+      - dms:DescribeEndpoints
+      - dms:DescribeReplicationInstances
+    Resource:
+      - arn:aws:dms:us-east-1:730335252934:rep:KG7ODX6ZXVDCDLIZI7NQZZBP5Q
+      - arn:aws:dms:us-east-1:730335252934:task:JZUKWPVYG5GD5L3VMSTGVYAXKY
+      - arn:aws:dms:us-east-1:730335252934:endpoint:E3FXQE45WZGONFWSSSITW553HU
+
+  - Sid: LambdaManagement
+    Effect: Allow
+    Action:
+      - lambda:UpdateFunctionCode
+      - lambda:UpdateFunctionConfiguration
+      - lambda:GetFunction
+      - lambda:ListFunctions
+      - lambda:CreateEventSourceMapping
+      - lambda:UpdateEventSourceMapping
+      - lambda:InvokeFunction
+    Resource: arn:aws:lambda:us-east-1:730335252934:function:co-hdi-partnerships-dms-code-lambda-prod
+
+  - Sid: StepFunctionsManagement
+    Effect: Allow
+    Action:
+      - states:UpdateStateMachine
+      - states:DescribeStateMachine
+      - states:ListStateMachines
+      - states:StartExecution
+      - states:StopExecution
+      - states:DescribeExecution
+      - states:ListExecutions
+      - states:GetExecutionHistory
+    Resource: arn:aws:states:us-east-1:730335252934:stateMachine:* --Aplicar lo mismo del dynamodb
+
+  - Sid: IAMPassRoleForArchitecture
+    Effect: Allow
+    Action:
+      - iam:PassRole
+    Resource: arn:aws:iam::730335252934:role/partnerships-dms-Role-prod
+    Condition:
+      StringEquals:
+        iam:PassedToService:
+          - lambda.amazonaws.com
+          - dms.amazonaws.com
+          - redshift.amazonaws.com
+          - events.amazonaws.com
+          - scheduler.amazonaws.com
+          - states.amazonaws.com
+
+  - Sid: S3BucketTransitAccess
+    Effect: Allow
+    Action:
+      - s3:GetObject
+      - s3:List*
+      - s3:*Object  -- dejar las acciones especificas, entre las acciones no se puede eliminar
+      - s3:PutObject
+      - s3:GetBucketLocation
+      - s3:GetObjectVersion
+      - s3:PutObjectTagging
+      - s3:GetObjectTagging
+    Resource:
+      - arn:aws:s3:::hdi-co-put-data-replication-oracle-dms-partnership-prod
+      - arn:aws:s3:::hdi-co-put-data-replication-oracle-dms-partnership-prod/*
+
+  - Sid: RedshiftDataAPIAccess
+    Effect: Allow
+    Action:
+      - redshift:GetClusterCredentials
+      - redshift-data:ExecuteStatement
+      - redshift-data:DescribeStatement
+      - redshift-data:GetStatementResult
+      - redshift-data:ListStatements
+      - redshift-data:CancelStatement
+      - redshift:DescribeClusters
+    Resource: '*'
+
+  - Sid: EventBridgeAndSchedulerManagement
+    Effect: Allow
+    Action:
+      - events:DescribeRule
+      - events:ListTargetsByRule
+      - scheduler:UpdateSchedule
+      - scheduler:GetSchedule
+    Resource: '*'
+
+  - Sid: CloudWatchAndLogsMonitoring
+    Effect: Allow
+    Action:
+      - logs:PutLogEvents
+      - logs:GetLogEvents
+      - logs:FilterLogEvents
+      - cloudwatch:PutMetricAlarm
+      - cloudwatch:GetMetricData
+      - cloudwatch:ListMetrics
+    Resource:
+      - arn:aws:logs:us-east-1:730335252934:log-group:/aws/lambda/co-hdi-partnerships-dms-code-lambda-prod
+      - arn:aws:logs:us-east-1:730335252934:log-group:/aws/lambda/co-hdi-partnerships-dms-code-lambda-prod:*
+
+  - Sid: SNSAlerting
+    Effect: Allow
+    Action:
+      - sns:Subscribe
+      - sns:Publish
+      - sns:ListTopics
+      - sns:GetTopicAttributes
+    Resource: arn:aws:sns:us-east-1:730335252934:hdi-co-put-data-replication-oracle-dms-partnership-prod:*
+
+  - Sid: LambdaVPCManagementOptional
+    Effect: Allow
+    Action:
+      - ec2:CreateNetworkInterface
+      - ec2:DescribeNetworkInterfaces
+    Resource: '*'
+
+  - Sid: DynamoDBManagement
+    Effect: Allow
+    Action:
+      - dynamodb:DescribeTable
+      - dynamodb:PutItem
+      - dynamodb:GetItem
+      - dynamodb:UpdateItem
+      - dynamodb:Scan
+      - dynamodb:Query
+      - dynamodb:BatchWriteItem
+      - dynamodb:BatchGetItem
+    Resource: arn:aws:dynamodb:us-east-1:730335252934:hdi-co-put-data-replication-partnership-prod/*
+
+  - Sid: S3BucketNotificationManagement
+    Effect: Allow
+    Action:
+      - s3:GetBucketNotification
+      - s3:PutBucketNotification
+    Resource: arn:aws:s3:::hdi-co-put-data-replication-oracle-dms-partnership-prod
+
+  - # --- NUEVO COMPONENTE INTEGRADO ---
+    Sid: SQSFIFOBufferAccess
+    Effect: Allow
+    Action:
+      - sqs:ReceiveMessage
+      - sqs:DeleteMessage
+      - sqs:GetQueueAttributes
+      - sqs:SendMessage
+      - sqs:GetQueueUrl
+      - sqs:ChangeMessageVisibility
+    Resource: arn:aws:sqs:us-east-1:730335252934:co-hdi-partnerships-dms-buffer-prod.fifo
