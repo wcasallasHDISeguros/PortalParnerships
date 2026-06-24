@@ -38,7 +38,7 @@ Statement:
       - states:DescribeExecution
       - states:ListExecutions
       - states:GetExecutionHistory
-    Resource: arn:aws:states:us-east-1:730335252934:stateMachine:hdi-co-put-data-replication-partnership-prod*
+    Resource: arn:aws:states:us-east-1:730335252934:stateMachine:hdi_partnership_orquestacion*
 
   - Sid: IAMPassRoleForArchitecture
     Effect: Allow
@@ -132,7 +132,7 @@ Statement:
       - dynamodb:Query
       - dynamodb:BatchWriteItem
       - dynamodb:BatchGetItem
-    Resource: arn:aws:dynamodb:us-east-1:730335252934:table/hdi-co-put-data-replication-partnership-prod
+    Resource: arn:aws:dynamodb:us-east-1:730335252934:table/hdi_partnership_control
 
   - Sid: S3BucketNotificationManagement
     Effect: Allow
