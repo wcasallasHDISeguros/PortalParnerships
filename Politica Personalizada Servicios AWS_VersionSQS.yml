@@ -38,7 +38,7 @@ Statement:
       - states:DescribeExecution
       - states:ListExecutions
       - states:GetExecutionHistory
-    Resource: arn:aws:states:us-east-1:730335252934:stateMachine:* --Aplicar lo mismo del dynamodb
+    Resource: arn:aws:states:us-east-1:730335252934:stateMachine:hdi-co-put-data-replication-partnership-prod*
 
   - Sid: IAMPassRoleForArchitecture
     Effect: Allow
@@ -59,8 +59,8 @@ Statement:
     Effect: Allow
     Action:
       - s3:GetObject
-      - s3:List*
-      - s3:*Object  -- dejar las acciones especificas, entre las acciones no se puede eliminar
+      - s3:ListBucket
+      - s3:ListBucketVersions
       - s3:PutObject
       - s3:GetBucketLocation
       - s3:GetObjectVersion
@@ -103,6 +103,7 @@ Statement:
     Resource:
       - arn:aws:logs:us-east-1:730335252934:log-group:/aws/lambda/co-hdi-partnerships-dms-code-lambda-prod
       - arn:aws:logs:us-east-1:730335252934:log-group:/aws/lambda/co-hdi-partnerships-dms-code-lambda-prod:*
+      - '*'
 
   - Sid: SNSAlerting
     Effect: Allow
@@ -111,7 +112,7 @@ Statement:
       - sns:Publish
       - sns:ListTopics
       - sns:GetTopicAttributes
-    Resource: arn:aws:sns:us-east-1:730335252934:hdi-co-put-data-replication-oracle-dms-partnership-prod:*
+    Resource: arn:aws:sns:us-east-1:730335252934:hdi-co-put-data-replication-oracle-dms-partnership-prod
 
   - Sid: LambdaVPCManagementOptional
     Effect: Allow
@@ -131,7 +132,7 @@ Statement:
       - dynamodb:Query
       - dynamodb:BatchWriteItem
       - dynamodb:BatchGetItem
-    Resource: arn:aws:dynamodb:us-east-1:730335252934:hdi-co-put-data-replication-partnership-prod/*
+    Resource: arn:aws:dynamodb:us-east-1:730335252934:table/hdi-co-put-data-replication-partnership-prod
 
   - Sid: S3BucketNotificationManagement
     Effect: Allow
@@ -140,8 +141,7 @@ Statement:
       - s3:PutBucketNotification
     Resource: arn:aws:s3:::hdi-co-put-data-replication-oracle-dms-partnership-prod
 
-  - # --- NUEVO COMPONENTE INTEGRADO ---
-    Sid: SQSFIFOBufferAccess
+  - Sid: SQSFIFOBufferAccess
     Effect: Allow
     Action:
       - sqs:ReceiveMessage
