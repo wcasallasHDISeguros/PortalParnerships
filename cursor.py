@@ -2,7 +2,7 @@ import pyautogui
 import time
 import sys
 
-INTERVALO = 120  # 2 minutos
+INTERVALO = 280  # 2 minutos
 
 print("Script optimizado iniciado. Presionando tecla invisible cada 2 minutos.")
 print("Para detener el script, presiona Ctrl + C.")
