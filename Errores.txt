@@ -1,0 +1,17 @@
+PS C:\Users\Wilson.Casallas\adp_DWH\Repositorio\PortalParnerships> & C:/Users/Wilson.Casallas/AppData/Local/Programs/Python/Python314/python.exe c:/Users/Wilson.Casallas/adp_DWH/Repositorio/PortalParnerships/cursor.py
+Script optimizado iniciado. Presionando tecla invisible cada 2 minutos.
+Para detener el script, presiona Ctrl + C.
+Señor de actividad enviado a Windows (F15).
+Señor de actividad enviado a Windows (F15).
+Traceback (most recent call last):
+  File "c:\Users\Wilson.Casallas\adp_DWH\Repositorio\PortalParnerships\cursor.py", line 16, in <module>
+    pyautogui.press('f15')
+    ~~~~~~~~~~~~~~~^^^^^^^
+  File "C:\Users\Wilson.Casallas\AppData\Local\Programs\Python\Python314\Lib\site-packages\pyautogui\__init__.py", line 593, in wrapper
+    failSafeCheck()
+    ~~~~~~~~~~~~~^^
+  File "C:\Users\Wilson.Casallas\AppData\Local\Programs\Python\Python314\Lib\site-packages\pyautogui\__init__.py", line 1734, in failSafeCheck
+    raise FailSafeException(
+        "PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED."
+    )
+pyautogui.FailSafeException: PyAutoGUI fail-safe triggered from mouse moving to a corner of the screen. To disable this fail-safe, set pyautogui.FAILSAFE to False. DISABLING FAIL-SAFE IS NOT RECOMMENDED.
