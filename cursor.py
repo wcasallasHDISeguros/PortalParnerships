@@ -4,7 +4,7 @@ import sys
 
 pyautogui.FAILSAFE = False
 
-INTERVALO = 180  # 2 minutos
+INTERVALO = 120  # 2 minutos
 
 print("Script optimizado iniciado. Presionando tecla invisible cada 2 minutos.")
 print("Para detener el script, presiona Ctrl + C.")
