@@ -208,3 +208,11 @@ END pac_parametros;
 ----Forma de obtener el DDL "Encabezado y Cuerpo" del paquete desde consulta 
 SELECT DBMS_METADATA.GET_DDL('PACKAGE_BODY', 'PAC_PARAMETROS', 'AXIS') 
   FROM DUAL;
+
+
+SELECT text 
+  FROM all_source 
+ WHERE owner = 'AXIS' 
+   AND name = 'PAC_PARAMETROS' 
+   AND type = 'PACKAGE BODY'
+ ORDER BY line;  
