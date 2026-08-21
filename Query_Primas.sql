@@ -143,18 +143,24 @@ decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro 
 --pac_isqlfor.f_dades_persona(pp_tom.sperson, 4, 8, 'POL')||' '||pac_isqlfor.f_dades_persona(pp_tom.sperson, 5, 8, 'POL') tom_nombres,
 r.TRAMO ramo,
 --COALESCE((
---    SELECT CASE
---             WHEN ff_desvalorfijo(61, 8, cer.csituac) = 'Vigente'
---             THEN t2.cantidad_cert
---             ELSE 0
---           END
---    FROM (
---            SELECT npoliza,
---                   COUNT(*) cantidad_cert
---            FROM gde_adp_ods.axis_seguros WHERE ncertif <> 0
---            GROUP BY npoliza
---         ) t2
---    WHERE car.npoliza = t2.npoliza
+    SELECT 
+    CASE 
+        WHEN dv.tatribu = 'Vigente' THEN t2.cantidad_cert
+        ELSE 0
+    END AS cantidad_vigente
+FROM (
+    SELECT 
+        npoliza,
+        COUNT(*) AS cantidad_cert
+    FROM gde_adp_ods.axis_seguros 
+    WHERE ncertif <> 0
+    GROUP BY npoliza
+) t2
+LEFT JOIN axis.detvalores dv
+       ON dv.catribu = cer.csituac  -- pcatribu
+      AND dv.cidioma = 8            -- pcidioma
+      AND dv.cvalor  = 61           -- pcvalor
+WHERE car.npoliza = t2.npoliza
 --),0) AS num_certificado,
 car.NPOLIZA num_poliza,
 --ff_desvalorfijo(61, 8, car.csituac) estado_caratula,
