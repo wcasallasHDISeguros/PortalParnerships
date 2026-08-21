@@ -151,12 +151,12 @@ r.TRAMO ramo,
 --    FROM (
 --            SELECT npoliza,
 --                   COUNT(*) cantidad_cert
---            FROM axis.seguros WHERE ncertif <> 0
+--            FROM gde_adp_ods.axis_seguros WHERE ncertif <> 0
 --            GROUP BY npoliza
 --         ) t2
 --    WHERE car.npoliza = t2.npoliza
 --),0) AS num_certificado,
-car.NPOLIZA num_poliza
+car.NPOLIZA num_poliza,
 --ff_desvalorfijo(61, 8, car.csituac) estado_caratula,
 --substr(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate),length(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate))-2,3)||'-'||ff_desagente(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate)) sucursal,
 TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_car,
