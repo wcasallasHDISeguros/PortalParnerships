@@ -30,7 +30,7 @@ COALESCE((
              WHEN ff_desvalorfijo(61, 8, cer.csituac) = 'Vigente'
              THEN t2.cantidad_cert
              ELSE 0
-           END
++           END
     FROM (
             SELECT npoliza,
                    COUNT(*) cantidad_cert
@@ -48,7 +48,7 @@ TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision_car,
 TO_CHAR(car.FEMISIO ,'YYYY')  ano_periodo_contable_car,
 TO_CHAR(car.FEMISIO ,'MM')  mes_periodo_contable_car,
 F_SEGPRIMA2(car.sseguro, sysdate) prima_emitida_car,
-(SELECT nvl(sum(nvl(V.itotalr,0)),0) prima_total
+(SELECT nvl(sum(nvl(V.itotalr,0)),0) prima_total --Este campo se debe obtener del SP de Hugo
  FROM RECIBOS R
  LEFT JOIN VDETRECIBOS V ON R.nrecibo = V.nrecibo
  WHERE R.sseguro = car.sseguro) prima_total_car,
