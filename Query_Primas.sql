@@ -115,6 +115,7 @@ SELECT * FROM primas
 
 
 
+
 -----Version Redshift
 --WITH primas AS (
 SELECT 
