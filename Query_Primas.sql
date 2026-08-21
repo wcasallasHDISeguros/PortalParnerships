@@ -126,17 +126,17 @@ car.sproduc as producto,
 --'C'
 --ELSE 'I' END) tipo_poliza, 
 --DECODE(pac_preguntas.f_get_pregunpolseg_resp(car.sseguro,6117,'POL'),-1,'',pac_preguntas.f_get_pregunpolseg_resp(car.sseguro,6117,'POL')) modalidad,
---(case when to_CHAR(car.sproduc) in('10024','900742','LGP','900746','900747','900774','900776','900751','22','2') then 'EMP'
---when to_CHAR(car.sproduc) in('900753','6031','6048','6033','6034','6047','6039','6042','6046','6049','6045','6043','6035','6038','6041','6036') then 'AUT'
---when to_CHAR(car.sproduc) in ('6071','10003','900758','10001','10000')then 'HOG'
---WHEN to_CHAR(car.SPRODUC) IN('7469','6023','6025','900720','6026','900719','6024','6028','7468','7467','6029','900721','6052')then 'VID'
---WHEN to_CHAR(car.SPRODUC) IN ('E1','ADU','Z1','H1','SE','T1')then 'SAL'
---WHEN to_CHAR(car.SPRODUC) IN ('BO','LB','10004','10005','1') THEN 'CUM'
---WHEN to_CHAR(car.SPRODUC) IN ('TRC','10','70107','70108','900731','TRM','900777','8092','900778')THEN 'TRA'
---WHEN to_CHAR(car.SPRODUC) IN ('DO1','LA1','111715','900775','900752','RCL','RCM','REO','RCP')THEN 'RCE'
---WHEN to_CHAR(car.SPRODUC) IN ('900745','19','900779','17')THEN 'ING'
---WHEN to_CHAR(car.SPRODUC) IN ('900730') THEN 'SOA'
---END ) as agrupacion,
+(case when car.sproduc::varchar in('10024','900742','LGP','900746','900747','900774','900776','900751','22','2') then 'EMP'
+when car.sproduc::varchar in('900753','6031','6048','6033','6034','6047','6039','6042','6046','6049','6045','6043','6035','6038','6041','6036') then 'AUT'
+when car.sproduc::varchar in ('6071','10003','900758','10001','10000')then 'HOG'
+WHEN car.SPRODUC::varchar IN('7469','6023','6025','900720','6026','900719','6024','6028','7468','7467','6029','900721','6052')then 'VID'
+WHEN car.SPRODUC::varchar IN ('E1','ADU','Z1','H1','SE','T1')then 'SAL'
+WHEN car.SPRODUC::varchar IN ('BO','LB','10004','10005','1') THEN 'CUM'
+WHEN car.SPRODUC::varchar IN ('TRC','10','70107','70108','900731','TRM','900777','8092','900778')THEN 'TRA'
+WHEN car.SPRODUC::varchar IN ('DO1','LA1','111715','900775','900752','RCL','RCM','REO','RCP')THEN 'RCE'
+WHEN car.SPRODUC::varchar IN ('900745','19','900779','17')THEN 'ING'
+WHEN car.SPRODUC::varchar IN ('900730') THEN 'SOA'
+END ) as agrupacion,
 1 as newcore,
 pp_tom.NNUMIDE as inden_tomador,
 --decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') as tipo_identomador,
@@ -159,11 +159,11 @@ r.TRAMO ramo,
 car.NPOLIZA num_poliza
 --ff_desvalorfijo(61, 8, car.csituac) estado_caratula,
 --substr(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate),length(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate))-2,3)||'-'||ff_desagente(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate)) sucursal,
---TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_car,
+TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_car,
 --TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_vencimiento_car,
---TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision_car,
---TO_CHAR(car.FEMISIO ,'YYYY')  ano_periodo_contable_car,
---TO_CHAR(car.FEMISIO ,'MM')  mes_periodo_contable_car
+TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision_car,
+TO_CHAR(car.FEMISIO ,'YYYY')  ano_periodo_contable_car,
+TO_CHAR(car.FEMISIO ,'MM')  mes_periodo_contable_car
 from gde_adp_ods.axis_seguros car
 INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
