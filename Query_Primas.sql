@@ -169,7 +169,7 @@ WHEN car.SPRODUC::varchar IN ('DO1','LA1','111715','900775','900752','RCL','RCM'
 WHEN car.SPRODUC::varchar IN ('900745','19','900779','17')THEN 'ING'
 WHEN car.SPRODUC::varchar IN ('900730') THEN 'SOA'
 END ) as ramo,
---ff_desvalorfijo(61, 8, car.csituac) estado_caratula,
+dv_car.tatribu AS estado_caratula,
 null vistag,
 --(CASE WHEN NVL (f_parproductos_v (car.sproduc, 'ADMITE_CERTIFICADOS'), 0) = 1 THEN
 --'C'
@@ -178,21 +178,12 @@ null vistag,
 car.cagente as intermediario,
 --f_por_comi_financiero (car.sseguro, null, car.fefecto, car.cagente, null, 'POL', null) comision,
 --f_desproducto_t(car.cramo, car.cmodali, car.ctipseg, car.ccolect, 1, 8)  riesgos_vigentes,
-/*COALESCE((
-    SELECT CASE
-             WHEN ff_desvalorfijo(61, 8, cer.csituac) = 'Vigente'
-             THEN t2.cantidad_cert
-             ELSE 0
-+           END
-    FROM (
-            SELECT npoliza,
-                   COUNT(*) cantidad_cert
-            FROM axis.seguros WHERE ncertif <> 0
-            GROUP BY npoliza
-         ) t2
-    WHERE car.npoliza = t2.npoliza
-),0) AS Riesgos,*/
-pp.trespue AS nro_cotizacion
+COALESCE(
+        CASE 
+           WHEN dv.tatribu = 'Vigente' THEN t2.cantidad_cert
+            ELSE 0
+        END,0)  AS Riesgos,
+pp.trespue AS nro_cotizacion,
 --prima_total_car Este campo se debe obtener del SP "sp_insert_dwh_fact_query_renewal"
 car.sseguro as sseguro_caratula
 from gde_adp_ods.axis_seguros car
@@ -207,6 +198,8 @@ LEFT JOIN gde_adp_ods.axis_AUTRIESGOS ar ON aseg_cer.SSEGURO =ar.sseguro
 LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON aseg_cer.SSEGURO = pp.sseguro AND pp.cpregun = 795
 -- Reemplazo de la función ff_desvalorfijo(61, 8, cer.csituac)
 LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
+--Reemplazo de ff_desvalorfijo(61, 8, car.csituac)
+LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
 -- Conteo previo de certificados por póliza (reemplazo de subconsulta)
 LEFT JOIN (
     SELECT npoliza, COUNT(*) AS cantidad_cert
@@ -217,6 +210,6 @@ LEFT JOIN (
 WHERE
 --car.sproduc in (900730,10024,900747,6031, 6042, 6041, 6042, 6043, 6044, 6045, 6046, 6047, 6048, 6049, 6048, 6032,6033,6034,6035,6038, 6047, 6039,6045,6024,6025,809,6023,6026,6027,6028,6029,6030,6052,7467,70106,8201,8202,8203,8204,8205,8206,8207,8208,8209,8210,8211,900748,10004,10011,900753,
 --10012,10013,10014,10015,10016,10017,10018,10019, 10003,6071,900731,10024,900753,900758,10020, 10001, 10000,10000, 7467, 900719,10021,10022,10023,111715,10002,7469,900745,900719,900720,70107,900744,7452,807,808,900720,10009,7468,900755,900719,900759,900762,900774,900776,900775,900778,900777,900779,900771,900746, 10024, 10003,6071, 900742, 900758, 10003, 10001, 10000) 
---AND car.npoliza IN (27174632, 27174743, 27174765, 27174770, 27174832, 27174841, 27174844, 27175001, 27175002, 27175003, 27174885, 27174639)
---AND 
+--car.npoliza IN (27174491, 27174494, 27174496, 27174509,27174510,27174511,27174513, 27174507, 27174635)
+--and 
 car.ncertif=0
