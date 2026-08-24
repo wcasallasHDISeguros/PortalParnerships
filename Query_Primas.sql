@@ -121,7 +121,8 @@ SELECT
             WHEN dv.tatribu = 'Vigente' THEN t2.cantidad_cert
             ELSE 0
         END,
-    0) AS num_certificado
+    0) AS num_certificado,
+--ff_desvalorfijo(61, 8, car.csituac) estado_caratula,    
 from gde_adp_ods.axis_seguros car
 INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
@@ -145,20 +146,16 @@ WHERE car.ncertif = 0
 
 
 
-
-
-
------Version Redshift
+----Version Redshift
 --WITH primas AS (
 SELECT 
-car.sseguro as seguro,
-car.cramo as codramo,
-car.cagente as agente,
-car.sproduc as producto,
---(CASE WHEN NVL (f_parproductos_v (car.sproduc, 'ADMITE_CERTIFICADOS'), 0) = 1 THEN
---'C'
---ELSE 'I' END) tipo_poliza, 
---DECODE(pac_preguntas.f_get_pregunpolseg_resp(car.sseguro,6117,'POL'),-1,'',pac_preguntas.f_get_pregunpolseg_resp(car.sseguro,6117,'POL')) modalidad,
+TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
+--TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_fin_vigencia,
+TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision,
+decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') tipo_documento,
+pp_tom.NNUMIDE as numero_identificacion_tomador,
+--pac_isqlfor.f_dades_persona(pp_tom.sperson, 4, 8, 'POL')||' '||pac_isqlfor.f_dades_persona(pp_tom.sperson, 5, 8, 'POL') nombre_tomador,
+car.NPOLIZA numero_poliza,
 (case when car.sproduc::varchar in('10024','900742','LGP','900746','900747','900774','900776','900751','22','2') then 'EMP'
 when car.sproduc::varchar in('900753','6031','6048','6033','6034','6047','6039','6042','6046','6049','6045','6043','6035','6038','6041','6036') then 'AUT'
 when car.sproduc::varchar in ('6071','10003','900758','10001','10000')then 'HOG'
@@ -169,40 +166,33 @@ WHEN car.SPRODUC::varchar IN ('TRC','10','70107','70108','900731','TRM','900777'
 WHEN car.SPRODUC::varchar IN ('DO1','LA1','111715','900775','900752','RCL','RCM','REO','RCP')THEN 'RCE'
 WHEN car.SPRODUC::varchar IN ('900745','19','900779','17')THEN 'ING'
 WHEN car.SPRODUC::varchar IN ('900730') THEN 'SOA'
-END ) as agrupacion,
-1 as newcore,
-pp_tom.NNUMIDE as inden_tomador,
-decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') as tipo_identomador,
---pac_isqlfor.f_dades_persona(pp_tom.sperson, 4, 8, 'POL')||' '||pac_isqlfor.f_dades_persona(pp_tom.sperson, 5, 8, 'POL') tom_nombres,
-r.TRAMO ramo,
---COALESCE((
-    SELECT 
-    CASE 
-        WHEN dv.tatribu = 'Vigente' THEN t2.cantidad_cert
-        ELSE 0
-    END AS cantidad_vigente
-    FROM (
-        SELECT 
-            npoliza,
-            COUNT(*) AS cantidad_cert
-        FROM gde_adp_ods.axis_seguros 
-        WHERE ncertif <> 0
-        GROUP BY npoliza
-    ) t2
-    LEFT JOIN axis.detvalores dv
-          ON dv.catribu = cer.csituac  -- pcatribu
-          AND dv.cidioma = 8            -- pcidioma
-          AND dv.cvalor  = 61           -- pcvalor
-    WHERE car.npoliza = t2.npoliza
---),0) AS num_certificado,
-car.NPOLIZA num_poliza,
+END ) as ramo,
 --ff_desvalorfijo(61, 8, car.csituac) estado_caratula,
+null vistag,
+--(CASE WHEN NVL (f_parproductos_v (car.sproduc, 'ADMITE_CERTIFICADOS'), 0) = 1 THEN
+--'C'
+--ELSE 'I' END) tipo_poliza, 
 --substr(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate),length(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate))-2,3)||'-'||ff_desagente(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate)) sucursal,
-TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_car,
---TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_vencimiento_car,
-TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision_car,
-TO_CHAR(car.FEMISIO ,'YYYY')  ano_periodo_contable_car,
-TO_CHAR(car.FEMISIO ,'MM')  mes_periodo_contable_car
+car.cagente as intermediario,
+--f_por_comi_financiero (car.sseguro, null, car.fefecto, car.cagente, null, 'POL', null) comision,
+--f_desproducto_t(car.cramo, car.cmodali, car.ctipseg, car.ccolect, 1, 8)  riesgos_vigentes,
+/*COALESCE((
+    SELECT CASE
+             WHEN ff_desvalorfijo(61, 8, cer.csituac) = 'Vigente'
+             THEN t2.cantidad_cert
+             ELSE 0
++           END
+    FROM (
+            SELECT npoliza,
+                   COUNT(*) cantidad_cert
+            FROM axis.seguros WHERE ncertif <> 0
+            GROUP BY npoliza
+         ) t2
+    WHERE car.npoliza = t2.npoliza
+),0) AS Riesgos,*/
+pp.trespue AS nro_cotizacion
+--prima_total_car Este campo se debe obtener del SP "sp_insert_dwh_fact_query_renewal"
+car.sseguro as sseguro_caratula
 from gde_adp_ods.axis_seguros car
 INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
@@ -213,6 +203,15 @@ LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer ON aseg_cer.SSEGURO =cer.sseguro
 LEFT JOIN gde_adp_ods.axis_PER_PERSONAS pp_aseg ON pp_aseg.SPERSON=aseg_cer.SPERSON
 LEFT JOIN gde_adp_ods.axis_AUTRIESGOS ar ON aseg_cer.SSEGURO =ar.sseguro
 LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON aseg_cer.SSEGURO = pp.sseguro AND pp.cpregun = 795
+-- Reemplazo de la función ff_desvalorfijo(61, 8, cer.csituac)
+LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
+-- Conteo previo de certificados por póliza (reemplazo de subconsulta)
+LEFT JOIN (
+    SELECT npoliza, COUNT(*) AS cantidad_cert
+    FROM gde_adp_ods.axis_seguros 
+    WHERE ncertif <> 0
+    GROUP BY npoliza
+) t2 ON car.npoliza = t2.npoliza
 WHERE
 --car.sproduc in (900730,10024,900747,6031, 6042, 6041, 6042, 6043, 6044, 6045, 6046, 6047, 6048, 6049, 6048, 6032,6033,6034,6035,6038, 6047, 6039,6045,6024,6025,809,6023,6026,6027,6028,6029,6030,6052,7467,70106,8201,8202,8203,8204,8205,8206,8207,8208,8209,8210,8211,900748,10004,10011,900753,
 --10012,10013,10014,10015,10016,10017,10018,10019, 10003,6071,900731,10024,900753,900758,10020, 10001, 10000,10000, 7467, 900719,10021,10022,10023,111715,10002,7469,900745,900719,900720,70107,900744,7452,807,808,900720,10009,7468,900755,900719,900759,900762,900774,900776,900775,900778,900777,900779,900771,900746, 10024, 10003,6071, 900742, 900758, 10003, 10001, 10000) 
