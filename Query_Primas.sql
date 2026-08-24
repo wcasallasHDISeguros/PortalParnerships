@@ -122,7 +122,7 @@ SELECT
             ELSE 0
         END,
     0) AS num_certificado,
---ff_desvalorfijo(61, 8, car.csituac) estado_caratula,    
+dv_car.tatribu AS estado_caratula    
 from gde_adp_ods.axis_seguros car
 INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
@@ -133,8 +133,10 @@ LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer ON aseg_cer.SSEGURO =cer.sseguro
 LEFT JOIN gde_adp_ods.axis_PER_PERSONAS pp_aseg ON pp_aseg.SPERSON=aseg_cer.SPERSON
 LEFT JOIN gde_adp_ods.axis_AUTRIESGOS ar ON aseg_cer.SSEGURO =ar.sseguro
 LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON aseg_cer.SSEGURO = pp.sseguro AND pp.cpregun = 795
-    -- Reemplazo de la función ff_desvalorfijo(61, 8, cer.csituac)
+--Reemplazo de la función ff_desvalorfijo(61, 8, cer.csituac)
 LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
+--Reemplazo de ff_desvalorfijo(61, 8, car.csituac)
+LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
 -- Conteo previo de certificados por póliza (reemplazo de subconsulta)
 LEFT JOIN (
     SELECT npoliza, COUNT(*) AS cantidad_cert
