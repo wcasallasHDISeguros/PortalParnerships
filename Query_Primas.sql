@@ -169,7 +169,7 @@ WHEN car.SPRODUC::varchar IN ('DO1','LA1','111715','900775','900752','RCL','RCM'
 WHEN car.SPRODUC::varchar IN ('900745','19','900779','17')THEN 'ING'
 WHEN car.SPRODUC::varchar IN ('900730') THEN 'SOA'
 END ) as ramo,
-dv_car.tatribu AS estado_caratula,
+dv_car.tatribu AS estado,
 null vistag,
 --(CASE WHEN NVL (f_parproductos_v (car.sproduc, 'ADMITE_CERTIFICADOS'), 0) = 1 THEN
 --'C'
