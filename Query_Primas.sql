@@ -156,7 +156,7 @@ TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
 TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision,
 decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') tipo_documento,
 pp_tom.NNUMIDE as numero_identificacion_tomador,
---pac_isqlfor.f_dades_persona(pp_tom.sperson, 4, 8, 'POL')||' '||pac_isqlfor.f_dades_persona(pp_tom.sperson, 5, 8, 'POL') nombre_tomador,
+rtrim(ltrim(coalesce(t3.tapelli1,'')||' '||coalesce(t3.tapelli2,'')||' '||coalesce(t3.tnombre1,''))) nombre_tomador,
 car.NPOLIZA numero_poliza,
 (case when car.sproduc::varchar in('10024','900742','LGP','900746','900747','900774','900776','900751','22','2') then 'EMP'
 when car.sproduc::varchar in('900753','6031','6048','6033','6034','6047','6039','6042','6046','6049','6045','6043','6035','6038','6041','6036') then 'AUT'
