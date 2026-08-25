@@ -156,7 +156,7 @@ TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
 TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision,
 decode(pp_tom.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') tipo_documento,
 pp_tom.NNUMIDE as numero_identificacion_tomador,
-TRIM(NVL(t3.tapelli1, '') || ' ' || NVL(t3.tapelli2, '') || ' ' || NVL(t3.tnombre1, '')) AS nombre_tomador,
+TRIM(NVL(per_det.tapelli1, '') || ' ' || NVL(per_det.tapelli2, '') || ' ' || NVL(per_det.tnombre1, '')) AS nombre_tomador,
 car.NPOLIZA numero_poliza,
 (case when car.sproduc::varchar in('10024','900742','LGP','900746','900747','900774','900776','900751','22','2') then 'EMP'
 when car.sproduc::varchar in('900753','6031','6048','6033','6034','6047','6039','6042','6046','6049','6045','6043','6035','6038','6041','6036') then 'AUT'
@@ -171,9 +171,7 @@ WHEN car.SPRODUC::varchar IN ('900730') THEN 'SOA'
 END ) as ramo,
 dv_car.tatribu AS estado,
 null vistag,
---(CASE WHEN NVL (f_parproductos_v (car.sproduc, 'ADMITE_CERTIFICADOS'), 0) = 1 THEN
---'C'
---ELSE 'I' END) tipo_poliza, 
+case when lower(car.sproduc) in ('7469','900753','6023','6025','10024','6048','900720','6026','e1','lgp','6047','adu','900747','6024','6042','6046','z1','6029','900774','6049','6045','6043','6041','h1','6071','10003','900752','900731','trm') then 'C' else 'I' end as tipo_poliza,
 --substr(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate),length(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate))-2,3)||'-'||ff_desagente(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate)) sucursal,
 car.cagente as intermediario,
 --f_por_comi_financiero (car.sseguro, null, car.fefecto, car.cagente, null, 'POL', null) comision,
@@ -192,7 +190,7 @@ INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
 INNER JOIN gde_adp_ods.axis_PER_PERSONAS pp_tom ON pp_tom.SPERSON=t.SPERSON
 INNER JOIN gde_adp_ods.axis_seguros cer ON cer.npoliza=car.npoliza 
 INNER JOIN gde_adp_ods.axis_movseguro mov_cer ON mov_cer.SSEGURO=cer.SSEGURO AND mov_cer.NMOVIMI = (SELECT max(nmovimi) FROM gde_adp_ods.axis_movseguro m2 WHERE m2.sseguro=cer.sseguro AND m2.CMOVSEG <> 52)
-INNER JOIN gde_adp_ods.axis_per_detper per_det ON per_det.sperson = t.sperson
+INNER JOIN gde_adp_ods.axis_per_detper per_det ON per_det.sperson = t.sperson --and pp_tom.SPERSON = per_det.sperson
 LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer ON aseg_cer.SSEGURO =cer.sseguro
 LEFT JOIN gde_adp_ods.axis_PER_PERSONAS pp_aseg ON pp_aseg.SPERSON=aseg_cer.SPERSON
 LEFT JOIN gde_adp_ods.axis_AUTRIESGOS ar ON aseg_cer.SSEGURO =ar.sseguro
@@ -214,3 +212,6 @@ WHERE
 --car.npoliza IN (27174491, 27174494, 27174496, 27174509,27174510,27174511,27174513, 27174507, 27174635)
 --and 
 car.ncertif=0
+and pp_tom.NNUMIDE=8904059747
+order by car.sseguro ASC
+
