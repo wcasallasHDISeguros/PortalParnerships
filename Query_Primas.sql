@@ -149,7 +149,7 @@ WHERE car.ncertif = 0
 
 
 ----Version Redshift
---WITH primas AS (
+
 SELECT 
 TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
 --TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_fin_vigencia,
@@ -176,7 +176,7 @@ case when lower(car.sproduc) in ('7469','900753','6023','6025','10024','6048','9
 --substr(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate),length(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate))-2,3)||'-'||ff_desagente(pac_redcomercial.f_busca_padre(12,car.cagente,NULL,sysdate)) sucursal,
 car.cagente as intermediario,
 --f_por_comi_financiero (car.sseguro, null, car.fefecto, car.cagente, null, 'POL', null) comision,
---f_desproducto_t(car.cramo, car.cmodali, car.ctipseg, car.ccolect, 1, 8)  riesgos_vigentes,
+DECODE(1, 1, tp.ttitulo, 2, tp.trotulo) AS riesgos_vigentes,
 COALESCE(
         CASE 
            WHEN dv.tatribu = 'Vigente' THEN t2.cantidad_cert
@@ -218,12 +218,11 @@ LEFT JOIN (
 ) t2 ON car.npoliza = t2.npoliza
 -- Reemplazo de la función F_DESPRODUCTO_T adaptada a Redshift mediante LEFT JOIN
 LEFT JOIN gde_adp_ods.axis_titulopro tp ON tp.ctipseg = car.ctipseg 
-                                       AND tp.cramo = car.cramo 
-                                       AND tp.cmodali = car.cmodali 
-                                       AND tp.ccolect = car.ccolect 
-                                       AND tp.cidioma = 8
-
-where car.cagente in ('4015907','4096183')
+                                        AND tp.cramo = car.cramo 
+                                        AND tp.cmodali = car.cmodali 
+                                        AND tp.ccolect = car.ccolect 
+                                        AND tp.cidioma = 8 
+Where car.cagente in ('4015907','4096183')
 and car.sproduc in ('6071','10003','900753','10024')
 --car.sproduc in (900730,10024,900747,6031, 6042, 6041, 6042, 6043, 6044, 6045, 6046, 6047, 6048, 6049, 6048, 6032,6033,6034,6035,6038, 6047, 6039,6045,6024,6025,809,6023,6026,6027,6028,6029,6030,6052,7467,70106,8201,8202,8203,8204,8205,8206,8207,8208,8209,8210,8211,900748,10004,10011,900753,
 --10012,10013,10014,10015,10016,10017,10018,10019, 10003,6071,900731,10024,900753,900758,10020, 10001, 10000,10000, 7467, 900719,10021,10022,10023,111715,10002,7469,900745,900719,900720,70107,900744,7452,807,808,900720,10009,7468,900755,900719,900759,900762,900774,900776,900775,900778,900777,900779,900771,900746, 10024, 10003,6071, 900742, 900758, 10003, 10001, 10000) 
@@ -236,48 +235,4 @@ and car.ncertif=0
 
 
 
-
-CREATE OR REPLACE FUNCTION AXIS."F_DESPRODUCTO_T" (
-   pccodram IN NUMBER,
-   pcmodali IN NUMBER,
-   pctipseg IN NUMBER,
-   pccolect IN NUMBER,
-   pntexto IN NUMBER,
-   pcidioma IN NUMBER)
-   RETURN VARCHAR2 IS
-   /******************************************************************************
-         NOM:  f_desproducto_t
-         DESC: Recupera la descripciÃ³ d'un producte
-
-         REVISIONES:
-         Ver        Fecha        Autor             DescripciÃ³n
-         ---------  ----------  ---------------  ------------------------------------
-         1.0
-         2.0        01/06/2009   NMM             2. 9648: IAX - Mantenim. Impostos.
-         3.0        21/10/2024   GZG             3. AITSSD-23156 cambio de marca  (  nombre de producto- pregutnas y amparos  reemplaza al AITSSD-21636
-   ******************************************************************************/
-   num_err        NUMBER;
-   w_texto        VARCHAR2(60);--se aumenta limite 40-60 AITSSD-23156 GZG 21/10/2024
-BEGIN
-   num_err := 0;
-   w_texto := NULL;
-
-   SELECT DECODE(pntexto, 1, ttitulo, 2, trotulo)
-     INTO w_texto
-     FROM titulopro
-    WHERE ctipseg = pctipseg
-      AND cramo = pccodram
-      AND cmodali = pcmodali
-      AND ccolect = pccolect
-      AND cidioma = pcidioma;
-
-   RETURN(w_texto);
---
-EXCEPTION
-   WHEN NO_DATA_FOUND THEN
-      -- Mantis 9648.NMM.IAX - Mantenim. Impostos.i.
-      RETURN(NULL);   -- .f.
-   WHEN OTHERS THEN
-      RETURN('Error : ' || TO_CHAR(SQLCODE));
-END f_desproducto_t;
 
