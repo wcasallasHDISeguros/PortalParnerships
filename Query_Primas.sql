@@ -217,3 +217,51 @@ and car.ncertif=0
 --and pp_tom.NNUMIDE=8904059747
 --order by car.sseguro ASC
 
+
+
+
+
+CREATE OR REPLACE FUNCTION AXIS."F_DESPRODUCTO_T" (
+   pccodram IN NUMBER,
+   pcmodali IN NUMBER,
+   pctipseg IN NUMBER,
+   pccolect IN NUMBER,
+   pntexto IN NUMBER,
+   pcidioma IN NUMBER)
+   RETURN VARCHAR2 IS
+   /******************************************************************************
+         NOM:  f_desproducto_t
+         DESC: Recupera la descripciÃ³ d'un producte
+
+         REVISIONES:
+         Ver        Fecha        Autor             DescripciÃ³n
+         ---------  ----------  ---------------  ------------------------------------
+         1.0
+         2.0        01/06/2009   NMM             2. 9648: IAX - Mantenim. Impostos.
+         3.0        21/10/2024   GZG             3. AITSSD-23156 cambio de marca  (  nombre de producto- pregutnas y amparos  reemplaza al AITSSD-21636
+   ******************************************************************************/
+   num_err        NUMBER;
+   w_texto        VARCHAR2(60);--se aumenta limite 40-60 AITSSD-23156 GZG 21/10/2024
+BEGIN
+   num_err := 0;
+   w_texto := NULL;
+
+   SELECT DECODE(pntexto, 1, ttitulo, 2, trotulo)
+     INTO w_texto
+     FROM titulopro
+    WHERE ctipseg = pctipseg
+      AND cramo = pccodram
+      AND cmodali = pcmodali
+      AND ccolect = pccolect
+      AND cidioma = pcidioma;
+
+   RETURN(w_texto);
+--
+EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+      -- Mantis 9648.NMM.IAX - Mantenim. Impostos.i.
+      RETURN(NULL);   -- .f.
+   WHEN OTHERS THEN
+      RETURN('Error : ' || TO_CHAR(SQLCODE));
+END f_desproducto_t;
+
