@@ -190,16 +190,25 @@ INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
 INNER JOIN gde_adp_ods.axis_PER_PERSONAS pp_tom ON pp_tom.SPERSON=t.SPERSON
 INNER JOIN gde_adp_ods.axis_seguros cer ON cer.npoliza=car.npoliza 
-INNER JOIN gde_adp_ods.axis_movseguro mov_cer ON mov_cer.SSEGURO=cer.SSEGURO AND mov_cer.NMOVIMI = (SELECT max(nmovimi) FROM gde_adp_ods.axis_movseguro m2 WHERE m2.sseguro=cer.sseguro AND m2.CMOVSEG <> 52)
+INNER JOIN gde_adp_ods.axis_movseguro mov_cer ON mov_cer.SSEGURO=cer.SSEGURO 
+                                              AND mov_cer.NMOVIMI = (SELECT max(nmovimi)
+                                                                     FROM gde_adp_ods.axis_movseguro m2 
+                                                                     WHERE m2.sseguro=cer.sseguro 
+                                                                     AND m2.CMOVSEG <> 52)
 INNER JOIN gde_adp_ods.axis_per_detper per_det ON per_det.sperson = t.sperson --and pp_tom.SPERSON = per_det.sperson
 LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer ON aseg_cer.SSEGURO =cer.sseguro
 LEFT JOIN gde_adp_ods.axis_PER_PERSONAS pp_aseg ON pp_aseg.SPERSON=aseg_cer.SPERSON
 LEFT JOIN gde_adp_ods.axis_AUTRIESGOS ar ON aseg_cer.SSEGURO =ar.sseguro
-LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON aseg_cer.SSEGURO = pp.sseguro AND pp.cpregun = 795
+LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON aseg_cer.SSEGURO = pp.sseguro 
+                                           AND pp.cpregun = 795
 -- Reemplazo de la función ff_desvalorfijo(61, 8, cer.csituac)
-LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
+LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 
+                                         AND dv.cidioma = 8 
+                                         AND dv.catribu = cer.csituac
 --Reemplazo de ff_desvalorfijo(61, 8, car.csituac)
-LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
+LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 
+                                             AND dv_car.cidioma = 8 
+                                             AND dv_car.catribu = car.csituac
 -- Conteo previo de certificados por póliza (reemplazo de subconsulta)
 LEFT JOIN (
     SELECT npoliza, COUNT(*) AS cantidad_cert
@@ -207,6 +216,13 @@ LEFT JOIN (
     WHERE ncertif <> 0
     GROUP BY npoliza
 ) t2 ON car.npoliza = t2.npoliza
+-- Reemplazo de la función F_DESPRODUCTO_T adaptada a Redshift mediante LEFT JOIN
+LEFT JOIN gde_adp_ods.axis_titulopro tp ON tp.ctipseg = car.ctipseg 
+                                       AND tp.cramo = car.cramo 
+                                       AND tp.cmodali = car.cmodali 
+                                       AND tp.ccolect = car.ccolect 
+                                       AND tp.cidioma = 8
+
 where car.cagente in ('4015907','4096183')
 and car.sproduc in ('6071','10003','900753','10024')
 --car.sproduc in (900730,10024,900747,6031, 6042, 6041, 6042, 6043, 6044, 6045, 6046, 6047, 6048, 6049, 6048, 6032,6033,6034,6035,6038, 6047, 6039,6045,6024,6025,809,6023,6026,6027,6028,6029,6030,6052,7467,70106,8201,8202,8203,8204,8205,8206,8207,8208,8209,8210,8211,900748,10004,10011,900753,
