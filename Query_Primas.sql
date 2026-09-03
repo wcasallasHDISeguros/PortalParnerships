@@ -493,6 +493,9 @@ EXCEPTION
 END;
 
 
+-------------------------------------------------------------------------------------------
+----------------------------------- funcion f_desagente------------------------------------
+-------------------------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION AXIS."F_DESAGENTE" (
    pcagente   IN       NUMBER,
    ptnombre   IN OUT   VARCHAR2
@@ -521,4 +524,177 @@ EXCEPTION
 END;  
 
 
+--------------------------------------------------------------------------------------------
+--------------------------------- funcion f_nombre------------------------------------------
+--------------------------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION AXIS.f_nombre(
+   psperson IN NUMBER,
+   pnformat IN NUMBER,
+   pcagente IN agentes.cagente%TYPE DEFAULT NULL)
+   RETURN VARCHAR2 AUTHID CURRENT_USER IS
+/****************************************************************************
+    F_NOMBRE: DEVUELVE EL NOMBRE DE UNA PERSONA FORMATEADO, SEGÚN EL
+            FORMATO DESEADO.
+            PNFORMAT = 1 => < APELLIDOS, NOMBRE >
+            PNFORMAT = 2 => < NIF   APELLIDOS, NOMBRE >
+            PNFORMAT = 3 => < NOMBRE APELLIDOS >
+    ALLIBMFM.
+    MODIFICO EL FORMAT 2, PER FER-LO UNA MICA MÉS ESPAIAT.
 
+   REVISIONES:
+   Ver        Fecha        Autor             Descripción
+   ---------  ----------  ---------------  ------------------------------------
+   2.0        01/09/2010   JMF              1. 0015857: ENSA101 - Canvi ordre nom i cognoms en transferencies
+   3.0        17/06/2019   CASL             1. 0053334: REQUERIMIENTO SFC - VISITA SARLAFT
+   4.0        08/11/2022   GZG              4. AITSSD-2811: PDF Póliz no muestra nombre intermediario
+   5.0        21/12/2022   MAV              5. AITSSD-4350: Disminuir llamados a la vista personas en la función f_nombre
+****************************************************************************/
+   vntraza        NUMBER := 0;
+   pnombre        VARCHAR2(2000);-- AITSSD-2811 GZG 08/11/2022
+   vnombre        VARCHAR2(2000);-- BUG 0053334 - 17/06/2019 - CASL - Se crea nueva variable
+   pnombre2       VARCHAR2(200);
+   letra1         VARCHAR2(1);
+   pnnumnif       per_personas.nnumide%TYPE;
+   -- BUG 0015857 - 01/09/2010 - JMF
+   v_tapelli1     per_detper.tapelli1%TYPE;
+   v_tapelli2     per_detper.tapelli2%TYPE;
+   v_tnombre      per_detper.tnombre%TYPE;
+BEGIN
+   BEGIN
+      vntraza := 1;
+
+      -- PERSONA PÚBLICA
+      -- BUG 0015857 - 01/09/2010 - JMF
+      SELECT LTRIM(RTRIM(pd.tapelli1)), LTRIM(RTRIM(pd.tapelli2)), LTRIM(RTRIM(pd.tnombre)),
+             p.nnumide
+        INTO v_tapelli1, v_tapelli2, v_tnombre,
+             pnnumnif
+        FROM per_personas p, per_detper pd
+       WHERE p.sperson = pd.sperson
+         AND p.sperson = psperson
+         AND p.swpubli = 1   -- Persona Pública, nos da igual el agente.
+         -- Bug 29166/160004 - 29/11/2013 - AMC
+         /*AND pd.fmovimi = (SELECT MAX(d.fmovimi)
+                             FROM per_detper d
+                            WHERE d.sperson = pd.sperson)*/
+         AND pd.cagente = p.cagente;
+
+      vntraza := 2;
+   EXCEPTION
+      WHEN NO_DATA_FOUND THEN
+         vntraza := 3;
+
+         IF pcagente IS NOT NULL THEN
+            vntraza := 4;
+
+            -- BUG 0015857 - 01/09/2010 - JMF
+            SELECT LTRIM(RTRIM(pd.tapelli1)), LTRIM(RTRIM(pd.tapelli2)),
+                   LTRIM(RTRIM(pd.tnombre)), p.nnumide
+              INTO v_tapelli1, v_tapelli2,
+                   v_tnombre, pnnumnif
+              FROM per_detper pd, per_personas p
+             WHERE pd.sperson = psperson
+               AND pd.cagente = ff_agente_cpervisio(pcagente)
+               AND pd.sperson = p.sperson;
+
+            vntraza := 5;
+         ELSE
+            vntraza := 6;
+            -- INI MAV AITSSD-4350 21/12/2022
+            BEGIN
+             -- consulta con las mismas condiciones que la parte 3 de la vista personas
+             -- persona no publica del agente que está conectado
+             SELECT LTRIM(RTRIM(pd.tapelli1)), LTRIM(RTRIM(pd.tapelli2)), LTRIM(RTRIM(pd.tnombre)),
+             pp.nnumide
+             INTO v_tapelli1, v_tapelli2, v_tnombre,pnnumnif
+             FROM per_personas pp, per_detper pd
+             WHERE pp.sperson = pd.sperson
+             AND pp.sperson = psperson
+             AND pp.swpubli = 0
+             AND pd.cagente = ff_agenteprod();
+            exception when others then
+            -- FIN MAV AITSSD-4350 21/12/2022
+
+            -- BUG 0015857 - 01/09/2010 - JMF
+            SELECT LTRIM(RTRIM(pd.tapelli1)), LTRIM(RTRIM(pd.tapelli2)),
+                   LTRIM(RTRIM(pd.tnombre)), nnumnif
+              INTO v_tapelli1, v_tapelli2,
+                   v_tnombre, pnnumnif
+              FROM personas pd
+             WHERE sperson = psperson;
+             -- INI MAV AITSSD-4350 21/12/2022
+             END;
+             -- FIN MAV AITSSD-4350 21/12/2022
+
+            vntraza := 7;
+         END IF;
+   END;
+
+   vntraza := 8;
+
+   -- ini BUG 0015857 - 01/09/2010 - JMF
+   IF pnformat = 3 THEN
+      pnombre := v_tnombre || ' ' || v_tapelli1 || ' ' || v_tapelli2;
+   ELSE
+      -- Para pnformat 1 y 2.
+      IF v_tnombre IS NULL THEN
+         pnombre := v_tapelli1 || ' ' || v_tapelli2;
+      ELSE
+         pnombre := v_tapelli1 || ' ' || v_tapelli2 || ', ' || v_tnombre;
+      END IF;
+   END IF;
+   --
+   -- INI BUG 0053334 - 17/06/2019 - CASL - Se obtiene el nombre con carateres especiales
+   --
+   BEGIN
+      --
+      SELECT tapenom
+        INTO vnombre
+        FROM per_detper_ce
+       WHERE sperson = psperson;
+      --
+      pnombre := vnombre;
+      --
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         --
+         NULL;
+         --
+   END;
+   --
+   -- FIN BUG 0053334 - 17/06/2019 - CASL
+   --
+   -- fin BUG 0015857 - 01/09/2010 - JMF
+   IF pnformat IN(1, 3) THEN
+      vntraza := 9;
+      RETURN pnombre;
+   ELSIF pnformat = 2 THEN
+      vntraza := 10;
+
+      IF pnnumnif IS NOT NULL THEN
+         vntraza := 11;
+
+         --letra1 := SUBSTR (pnnumnif, 1, 1);
+         IF SUBSTR(pnnumnif, 1, 2) = 'ZZ' THEN
+            vntraza := 12;
+            pnombre2 := SUBSTR('            ' || pnombre, 1, 80);
+         ELSE
+            vntraza := 13;
+            pnombre2 := SUBSTR(pnnumnif || '   ' || pnombre, 1, 80);
+         END IF;
+      END IF;
+
+      vntraza := 14;
+      RETURN pnombre2;
+   END IF;
+EXCEPTION
+   WHEN NO_DATA_FOUND THEN
+      RETURN('**');
+   WHEN OTHERS THEN
+      p_tab_error(f_sysdate, f_user, 'F_NOMBRE', vntraza,
+                  'Parametros - psperson = ' || psperson || '  nformat = ' || pnformat
+                  || ' pcagente = ' || pcagente,
+                  SQLERRM);
+      RETURN('**');
+END;
