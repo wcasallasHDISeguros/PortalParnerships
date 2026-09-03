@@ -149,14 +149,7 @@ WHERE car.ncertif = 0
 
 
 ----Version Redshift
-
 SELECT 
-cer.ncertif AS certificado_asegurado,
-cer.sseguro AS sseguro_certificado,
-TO_CHAR(cer.fefecto, 'YYYY-MM-DD') AS fecha_inicio_certificado,
-TO_CHAR(cer.femisio, 'YYYY-MM-DD') AS fecha_emision_certificado,
-dv.tatribu AS estado_certificado,
-mov_cer.cmovseg AS ultimo_movimiento_certificado
 TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
 --TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_fin_vigencia,
 TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision,
@@ -190,7 +183,14 @@ COALESCE(
         END,0)  AS Riesgos,
 pp.trespue AS nro_cotizacion,
 --prima_total_car Este campo se debe obtener del SP "sp_insert_dwh_fact_query_renewal"
-car.sseguro as sseguro_caratula
+car.sseguro as sseguro_caratula,
+---Estos campos identifican registro unico por poliza
+cer.ncertif AS certificado_asegurado,
+cer.sseguro AS sseguro_certificado,
+TO_CHAR(cer.fefecto, 'YYYY-MM-DD') AS fecha_inicio_certificado,
+TO_CHAR(cer.femisio, 'YYYY-MM-DD') AS fecha_emision_certificado,
+dv.tatribu AS estado_certificado,
+mov_cer.cmovseg AS ultimo_movimiento_certificado
 from gde_adp_ods.axis_seguros car
 INNER JOIN gde_adp_ods.axis_ramos r ON r.CRAMO=car.CRAMO AND r.CIDIOMA =8
 INNER JOIN gde_adp_ods.axis_TOMADORES t ON t.sseguro=car.sseguro
@@ -236,7 +236,7 @@ and car.sproduc in ('6071','10003','900753','10024')
 --and 
 and car.ncertif=0
 --and pp_tom.NNUMIDE=8904059747
---order by car.sseguro ASC
+order by car.NPOLIZA,cer.ncertif  ASC
 
 
 
