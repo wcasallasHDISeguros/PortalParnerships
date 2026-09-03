@@ -30,7 +30,7 @@ COALESCE((
              WHEN ff_desvalorfijo(61, 8, cer.csituac) = 'Vigente'
              THEN t2.cantidad_cert
              ELSE 0
-+           END
+           END
     FROM (
             SELECT npoliza,
                    COUNT(*) cantidad_cert
