@@ -235,4 +235,206 @@ and car.ncertif=0
 
 
 
+---Funciones a reeemplazar campo sucursal
+CREATE OR REPLACE PACKAGE AXIS.pac_redcomercial AUTHID CURRENT_USER IS
+/******************************************************************************
+   NOMBRE:  pac_redcomercial
+   PROPySITO:     funcionalidades para la red comercial.
+   REVISIONES:
+   Ver        Fecha        Autor             Descripcion
+   ---------  ----------  ---------------  ------------------------------------
+   1.0        ??/??/????   ???                1. Creacion del objeto.
+   2.0        10/10/2016   JMC                2. Previo Renovacion Autos
+******************************************************************************/
+
+/*************************************************************************
+      Retorna el agente padre del agente que se especifica
+      O retorna el agente padre el tipo que se especifica del agente
+      return             : null error
+                           ID agente padre
+   *************************************************************************/
+-- Bug 20071 - JTS - 23/12/2011 - se crea la funcion
+   FUNCTION f_busca_padre(
+      pcempres IN NUMBER,
+      pcagente IN NUMBER,
+      pctipage IN NUMBER,
+      pfbusca IN DATE)
+      RETURN NUMBER;
+
+
+/*************************************************************************
+Retorna el agente padre del agente que se especifica
+O retorna el agente padre el tipo que se especifica del agente
+return             : null error
+ID agente padre
+*************************************************************************/
+-- Bug 20071 - JTS - 23/12/2011 - se crea la funcion
+FUNCTION f_busca_padre(
+    pcempres IN NUMBER,
+    pcagente IN NUMBER,
+    pctipage IN NUMBER,
+    pfbusca  IN DATE)
+  RETURN NUMBER
+IS
+  v_padre   NUMBER;
+  v_padre2  NUMBER;
+  v_ctipage NUMBER := pctipage;
+  v_fbusca  DATE   := pfbusca;
+BEGIN
+  IF pcempres IS NULL OR pcagente IS NULL THEN
+    p_tab_error(f_sysdate, f_user, 'pac_redcomercial.f_busca_padre', 1, 'Parametros incorrectos', '');
+    RETURN NULL;
+  END IF;
+  IF v_fbusca IS NULL THEN
+    v_fbusca  := TRUNC(f_sysdate);
+  END IF;
+  IF pctipage IS NULL THEN
+    BEGIN
+      SELECT cpadre
+      INTO v_padre
+      FROM redcomercial
+      WHERE cagente = pcagente
+      AND cempres   = pcempres
+      AND fmovini  <= v_fbusca
+      AND(fmovfin   > v_fbusca
+      OR fmovfin   IS NULL);
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      --  INI Bug 0034491/0198329 - JMG - 13/02/2015
+      BEGIN
+        SELECT cpadre,
+          ctipage
+        INTO v_padre,
+          v_ctipage
+        FROM redcomercial c
+        WHERE c.cagente      = pcagente
+        AND TRUNC(c.fmodifi) =
+          (SELECT MAX(TRUNC(fmodifi)) FROM redcomercial WHERE cagente = c.cagente
+          );
+      EXCEPTION
+      WHEN OTHERS THEN
+        --No tiene padre
+        RETURN NULL;
+      END;
+      --  FIN Bug 0034491/0198329 - JMG - 13/02/2015
+    END;
+  ELSE
+    BEGIN
+      SELECT cpadre,
+        ctipage
+      INTO v_padre,
+        v_ctipage
+      FROM redcomercial
+      WHERE cagente = pcagente
+      AND cempres   = pcempres
+      AND fmovini  <= v_fbusca
+      AND(fmovfin   > v_fbusca
+      OR fmovfin   IS NULL);
+      IF v_ctipage  = pctipage THEN
+        RETURN v_padre;
+      END IF;
+      WHILE TRUE
+      LOOP
+        SELECT cpadre,
+          ctipage
+        INTO v_padre2,
+          v_ctipage
+        FROM redcomercial
+        WHERE cagente = v_padre
+        AND cempres   = pcempres
+        AND fmovini  <= v_fbusca
+        AND(fmovfin   > v_fbusca
+        OR fmovfin   IS NULL);
+        IF v_ctipage  = pctipage THEN
+          RETURN v_padre;
+        ELSE
+          v_padre := v_padre2;
+        END IF;
+      END LOOP;
+      v_padre := NULL;
+    EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+      --No tiene padre de este tipo
+      RETURN NULL;
+    END;
+  END IF;
+  RETURN v_padre;
+EXCEPTION
+WHEN OTHERS THEN
+  p_tab_error(f_sysdate, f_user, 'pac_redcomercial.f_busca_padre', 2, SQLCODE, SQLERRM);
+  RETURN NULL;
+END f_busca_padre;
+END pac_redcomercial;
+
+
+
+
+
+
+
+
+------------------------------------------------------FF_DESAGENTE
+----------------------------------------------------------
+CREATE OR REPLACE FUNCTION AXIS."FF_DESAGENTE" (pcagente IN agentes.cagente%TYPE)
+   RETURN VARCHAR2 AUTHID CURRENT_USER
+IS
+   vobjectname      VARCHAR2 (500) := 'FF_DESAGENTE';
+   vparam           VARCHAR2 (500) := 'parámetros - pcagente:' || pcagente;
+   vpasexec         NUMBER (5)     := 1;
+   vdesagente       VARCHAR2 (500);
+   vnum_err         NUMBER;
+   e_object_error   EXCEPTION;
+   e_param_error    EXCEPTION;
+BEGIN
+   --Comprovació de paràmetres d'entrada
+   IF pcagente IS NULL
+   THEN
+      RAISE e_param_error;
+   END IF;
+
+   vnum_err := f_desagente (pcagente, vdesagente);
+
+   IF vnum_err <> 0
+   THEN
+      RAISE e_object_error;
+   END IF;
+
+   RETURN vdesagente;
+EXCEPTION
+   WHEN e_param_error
+   THEN
+      p_tab_error (f_sysdate,
+                   f_user,
+                   vobjectname,
+                   vpasexec,
+                   vparam,
+                   'Objeto invocado con parámetros erroneos'
+                  );
+      RETURN '**';
+   WHEN e_object_error
+   THEN
+      p_tab_error (f_sysdate,
+                   f_user,
+                   vobjectname,
+                   vpasexec,
+                   vparam,
+                   'Error F_DESAGENTE. Num_err:' || vnum_err
+                  );
+      RETURN '**';
+   WHEN OTHERS
+   THEN
+      p_tab_error (f_sysdate,
+                   f_user,
+                   vobjectname,
+                   vpasexec,
+                   vparam,
+                   'SQLERROR: ' || SQLCODE || ' - ' || SQLERRM
+                  );
+      RETURN '**';
+END;
+
+
+
+
+
 
