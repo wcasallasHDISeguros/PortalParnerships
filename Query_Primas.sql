@@ -151,6 +151,12 @@ WHERE car.ncertif = 0
 ----Version Redshift
 
 SELECT 
+cer.ncertif AS certificado_asegurado,
+cer.sseguro AS sseguro_certificado,
+TO_CHAR(cer.fefecto, 'YYYY-MM-DD') AS fecha_inicio_certificado,
+TO_CHAR(cer.femisio, 'YYYY-MM-DD') AS fecha_emision_certificado,
+dv.tatribu AS estado_certificado,
+mov_cer.cmovseg AS ultimo_movimiento_certificado
 TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_vigencia,
 --TO_CHAR (nvl(pac_isqlfor_lcol.F_FVENCIM(car.sseguro, 'POL',NULL),sysdate),'YYYY-MM-DD') fecha_fin_vigencia,
 TO_CHAR(car.FEMISIO ,'YYYY-MM-DD') fecha_emision,
