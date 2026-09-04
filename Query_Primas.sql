@@ -873,8 +873,6 @@ CREATE OR REPLACE PACKAGE BODY AXIS."PAC_CONTEXTO" IS
 END pac_contexto;
 
 
-
-
 SUCURSAL
   │
   ├── PAC_REDCOMERCIAL.F_BUSCA_PADRE()
@@ -893,10 +891,6 @@ SUCURSAL
                           ├── PER_DETPER
                           └── PER_DETPER_CE
 						  
-						  
-						  
-						  
-
 F_NOMBRE()
     │
     └── FF_AGENTEPROD()
@@ -969,8 +963,6 @@ redcomercial_ultimo AS (
 
 /* =====================================================================
    3. LISTA DE AGENTES QUE NECESITAMOS
-      Agentes obtenidos dinámicamente desde AXIS_SEGUROS
-      para los productos requeridos y certificados de carátula.
    ===================================================================== */
 agentes_consulta AS (
     SELECT DISTINCT
@@ -978,99 +970,10 @@ agentes_consulta AS (
 
     FROM gde_adp_ods.axis_seguros car
 
-    WHERE car.sproduc IN (
-        900730,
-        10024,
-        900747,
-        6031,
-        6042,
-        6041,
-        6043,
-        6044,
-        6045,
-        6046,
-        6047,
-        6048,
-        6049,
-        6032,
-        6033,
-        6034,
-        6035,
-        6038,
-        6039,
-        6024,
-        6025,
-        809,
-        6023,
-        6026,
-        6027,
-        6028,
-        6029,
-        6030,
-        6052,
-        7467,
-        70106,
-        8201,
-        8202,
-        8203,
-        8204,
-        8205,
-        8206,
-        8207,
-        8208,
-        8209,
-        8210,
-        8211,
-        900748,
-        10004,
-        10011,
-        900753,
-        10012,
-        10013,
-        10014,
-        10015,
-        10016,
-        10017,
-        10018,
-        10019,
-        10003,
-        6071,
-        900731,
-        900758,
-        10020,
-        10001,
-        10000,
-        900719,
-        10021,
-        10022,
-        10023,
-        111715,
-        10002,
-        7469,
-        900745,
-        900720,
-        70107,
-        900744,
-        7452,
-        807,
-        808,
-        10009,
-        7468,
-        900755,
-        900759,
-        900762,
-        900774,
-        900776,
-        900775,
-        900778,
-        900777,
-        900779,
-        900771,
-        900746,
-        900742
+    WHERE car.cagente IN (
+        '4015907',
+        '4096183'
     )
-
-    AND car.ncertif = 0
 ),
 
 
