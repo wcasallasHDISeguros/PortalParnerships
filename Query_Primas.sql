@@ -1592,8 +1592,7 @@ LEFT JOIN gde_adp_ods.axis_titulopro tp
 /* ================================================================
    SUCURSAL
    ================================================================ */
-LEFT JOIN sucursal_agente sa
-    ON sa.cagente = car.cagente
+LEhoia j
 WHERE car.cagente IN (
     '4015907',
     '4096183'
@@ -1609,8 +1608,8 @@ ORDER BY
     car.npoliza,
     cer.ncertif ASC;                    
 
-
-
+--- Para la Vista Personas y la tabla gde_adp_ods.axis_per_detper_ce, en la consulta estan como dummy
+    
 
 
 
