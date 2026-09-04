@@ -1224,18 +1224,18 @@ nombre_persona AS (
 
       Si existe TAPENOM, reemplaza el nombre construido.
    ===================================================================== */
-tapenom AS (
+tapenom AS (    
     SELECT
         ce.sperson,
         TRIM(ce.tapenom) AS tapenom,
+
         ROW_NUMBER() OVER (
             PARTITION BY ce.sperson
             ORDER BY ce.sperson
         ) AS rn
     FROM gde_adp_ods.axis_per_detper_ce ce
     WHERE ce.tapenom IS NOT NULL
-)
-select * from tapenom
+),
 
 
 /* =====================================================================
