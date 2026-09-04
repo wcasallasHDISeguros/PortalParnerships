@@ -1265,17 +1265,22 @@ select * from nombre_persona
 
       Si existe TAPENOM, reemplaza el nombre construido.
    ===================================================================== */
-tapenom AS (
+tapenom AS (    
     SELECT
-        ce.sperson,
-        TRIM(ce.tapenom) AS tapenom,
-
-        ROW_NUMBER() OVER (
-            PARTITION BY ce.sperson
-            ORDER BY ce.sperson
-        ) AS rn
-    FROM gde_adp_ods.axis_per_detper_ce ce
-    WHERE ce.tapenom IS NOT NULL
+        CAST(NULL AS BIGINT) AS sperson,
+        CAST(NULL AS VARCHAR(500)) AS tapenom,
+        CAST(NULL AS INTEGER) AS rn
+    WHERE 1 = 0
+    
+    --SELECT
+    --    ce.sperson,
+    --    TRIM(ce.tapenom) AS tapenom,
+    --    ROW_NUMBER() OVER (
+    --        PARTITION BY ce.sperson
+    --        ORDER BY ce.sperson
+    --    ) AS rn
+    --FROM gde_adp_ods.axis_per_detper_ce ce
+    --WHERE ce.tapenom IS NOT NULL
 ),
 
 
