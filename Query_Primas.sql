@@ -1028,16 +1028,13 @@ redcomercial_vigente AS (
         rc.fmovini,
         rc.fmovfin,
         rc.fmodifi,
-
         ROW_NUMBER() OVER (
             PARTITION BY rc.cagente, rc.cempres
             ORDER BY
                 rc.fmovini DESC,
                 rc.fmodifi DESC
         ) AS rn
-
     FROM gde_adp_ods.axis_redcomercial rc
-
     WHERE rc.cempres = 12
       AND rc.fmovini <= CURRENT_TIMESTAMP
       AND (
@@ -1045,8 +1042,6 @@ redcomercial_vigente AS (
             OR rc.fmovfin IS NULL
           )
 ),
-
-
 /* =====================================================================
    2. ÚLTIMO REGISTRO DEL AGENTE
       Equivalente al fallback de F_BUSCA_PADRE
@@ -1056,17 +1051,13 @@ redcomercial_ultimo AS (
         rc.cagente,
         rc.cpadre,
         rc.fmodifi,
-
         ROW_NUMBER() OVER (
             PARTITION BY rc.cagente
             ORDER BY
                 rc.fmodifi DESC
         ) AS rn
-
     FROM gde_adp_ods.axis_redcomercial rc
 ),
-
-
 /* =====================================================================
    3. LISTA DE AGENTES QUE NECESITAMOS
       Agentes obtenidos dinámicamente desde AXIS_SEGUROS
@@ -1075,45 +1066,33 @@ redcomercial_ultimo AS (
 agentes_consulta AS (
     SELECT DISTINCT
         car.cagente
-
     FROM gde_adp_ods.axis_seguros car
-
     WHERE car.sproduc IN (900730,10024,900747,6031,6042,6041,6043,6044,6045,6046,6047,6048,
         6049,6032,6033,6034,6035,6038,6039,6024,6025,809,6023,6026,6027,6028,6029,6030,6052,
         7467,70106,8201,8202,8203,8204,8205,8206,8207,8208,8209,8210,8211,900748,10004,10011,
         900753,10012,10013,10014,10015,10016,10017,10018,10019,10003,6071,900731,900758,10020,10001,
         10000,900719,10021,10022,10023,111715,10002,7469,900745,900720,70107,900744,7452,807,808,
         10009,7468,900755,900759,900762,900774,900776,900775,900778,900777,900779,900771,900746,900742)
-
     AND car.ncertif = 0
 ),
-
-
-
 /* =====================================================================
    4. F_BUSCA_PADRE
    ===================================================================== */
 padre_agente AS (
     SELECT
         ac.cagente,
-
         COALESCE(
             rv.cpadre,
             ru.cpadre
         ) AS cpadre
-
     FROM agentes_consulta ac
-
     LEFT JOIN redcomercial_vigente rv
         ON rv.cagente = ac.cagente
        AND rv.rn = 1
-
     LEFT JOIN redcomercial_ultimo ru
         ON ru.cagente = ac.cagente
        AND ru.rn = 1
 ),
-
-
 /* =====================================================================
    5. F_DESAGENTE
       F_DESAGENTE(cpadre)
@@ -1127,14 +1106,10 @@ desagente_base AS (
         pa.cagente,
         pa.cpadre,
         ag.sperson AS sperson_agente
-
     FROM padre_agente pa
-
     LEFT JOIN gde_adp_ods.axis_agentes ag
-        ON ag.cagente = pa.cpadre
+    	ON ag.cagente = pa.cpadre
 ),
-
-
 /* =====================================================================
    6. F_NOMBRE - PERSONA PÚBLICA
       Primera ruta de F_NOMBRE:
@@ -1147,31 +1122,24 @@ nombre_publico AS (
         db.cagente,
         db.cpadre,
         db.sperson_agente,
-
         TRIM(pd.tapelli1) AS tapelli1,
         TRIM(pd.tapelli2) AS tapelli2,
         TRIM(pd.tnombre) AS tnombre,
         p.nnumide,
-
         ROW_NUMBER() OVER (
             PARTITION BY db.cagente
             ORDER BY
                 pd.fmovimi DESC NULLS LAST
         ) AS rn
-
     FROM desagente_base db
-
     INNER JOIN gde_adp_ods.axis_per_personas p
         ON p.sperson = db.sperson_agente
        AND p.swpubli = 1
-
     INNER JOIN gde_adp_ods.axis_per_detper pd
         ON pd.sperson = p.sperson
        AND pd.cagente = p.cagente
 ),
-
-
-/* =====================================================================
+/* * =====================================================================
    7. F_NOMBRE - PERSONA NO PÚBLICA
       Segunda ruta.
 
@@ -1185,29 +1153,25 @@ nombre_publico AS (
 
       >>> CAMBIAR  POR EL CAGENTE DE PRODUCCIÓN REAL SI APLICA.
    ===================================================================== */
+
 nombre_no_publico AS (
     SELECT
         db.cagente,
         db.cpadre,
         db.sperson_agente,
-
         TRIM(pd.tapelli1) AS tapelli1,
         TRIM(pd.tapelli2) AS tapelli2,
         TRIM(pd.tnombre) AS tnombre,
         p.nnumide,
-
         ROW_NUMBER() OVER (
             PARTITION BY db.cagente
             ORDER BY
                 pd.fmovimi DESC NULLS LAST
         ) AS rn
-
     FROM desagente_base db
-
     INNER JOIN gde_adp_ods.axis_per_personas p
         ON p.sperson = db.sperson_agente
        AND p.swpubli = 0
-
     INNER JOIN gde_adp_ods.axis_per_detper pd
         ON pd.sperson = p.sperson
 
@@ -1222,8 +1186,6 @@ nombre_no_publico AS (
           Por ahora no forzamos un agente.
        */
 ),
-
-
 /* =====================================================================
    8. F_NOMBRE - PERSONA GENERAL
       Tercera ruta de Oracle:
@@ -1251,10 +1213,7 @@ nombre_persona AS (
     FROM desagente_base db
     --INNER JOIN gde_adp_ods.axis_personas p
         --ON p.sperson = db.sperson_agente
-)
-select * from nombre_persona
-
-
+),
 /* =====================================================================
    9. TAPENOM
       F_NOMBRE primero construye el nombre y posteriormente:
@@ -1269,14 +1228,14 @@ tapenom AS (
     SELECT
         ce.sperson,
         TRIM(ce.tapenom) AS tapenom,
-
         ROW_NUMBER() OVER (
             PARTITION BY ce.sperson
             ORDER BY ce.sperson
         ) AS rn
     FROM gde_adp_ods.axis_per_detper_ce ce
     WHERE ce.tapenom IS NOT NULL
-),
+)
+select * from tapenom
 
 
 /* =====================================================================
