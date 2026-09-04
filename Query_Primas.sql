@@ -1242,8 +1242,6 @@ tapenom AS (
         CAST(NULL AS INTEGER) AS rn
     WHERE 1 = 0
 ),
-
-
 /* =====================================================================
    10. CONSOLIDAR F_NOMBRE
    ===================================================================== */
@@ -1252,24 +1250,18 @@ nombre_agente AS (
         db.cagente,
         db.cpadre,
         db.sperson_agente,
-
         CASE
-
             /* =========================================================
                TAPENOM tiene prioridad
                ========================================================= */
             WHEN tn.tapenom IS NOT NULL THEN
                 tn.tapenom
-
-
             /* =========================================================
                Persona pública
                ========================================================= */
             WHEN np.sperson_agente IS NOT NULL THEN
-
                 CASE
                     WHEN np.tnombre IS NULL THEN
-
                         TRIM(
                             COALESCE(np.tapelli1, '') ||
                             CASE
@@ -1278,9 +1270,7 @@ nombre_agente AS (
                                 ELSE ''
                             END
                         )
-
                     ELSE
-
                         TRIM(
                             COALESCE(np.tapelli1, '') ||
                             CASE
@@ -1292,16 +1282,12 @@ nombre_agente AS (
                             np.tnombre
                         )
                 END
-
-
             /* =========================================================
                Persona no pública
                ========================================================= */
             WHEN nnp.sperson_agente IS NOT NULL THEN
-
                 CASE
                     WHEN nnp.tnombre IS NULL THEN
-
                         TRIM(
                             COALESCE(nnp.tapelli1, '') ||
                             CASE
@@ -1310,9 +1296,7 @@ nombre_agente AS (
                                 ELSE ''
                             END
                         )
-
                     ELSE
-
                         TRIM(
                             COALESCE(nnp.tapelli1, '') ||
                             CASE
@@ -1324,16 +1308,12 @@ nombre_agente AS (
                             nnp.tnombre
                         )
                 END
-
-
             /* =========================================================
                Tabla PERSONAS
                ========================================================= */
             WHEN per.sperson_agente IS NOT NULL THEN
-
                 CASE
                     WHEN per.tnombre IS NULL THEN
-
                         TRIM(
                             COALESCE(per.tapelli1, '') ||
                             CASE
@@ -1342,9 +1322,7 @@ nombre_agente AS (
                                 ELSE ''
                             END
                         )
-
                     ELSE
-
                         TRIM(
                             COALESCE(per.tapelli1, '') ||
                             CASE
@@ -1356,33 +1334,23 @@ nombre_agente AS (
                             per.tnombre
                         )
                 END
-
-
             ELSE
                 '**'
-
         END AS nombre_agente
-
     FROM desagente_base db
-
     LEFT JOIN nombre_publico np
         ON np.cagente = db.cagente
        AND np.rn = 1
-
     LEFT JOIN nombre_no_publico nnp
         ON nnp.cagente = db.cagente
        AND nnp.rn = 1
-
     LEFT JOIN nombre_persona per
         ON per.cagente = db.cagente
        AND per.rn = 1
-
     LEFT JOIN tapenom tn
         ON tn.sperson = db.sperson_agente
        AND tn.rn = 1
 ),
-
-
 /* =====================================================================
    11. SUCURSAL FINAL
    ===================================================================== */
@@ -1390,11 +1358,9 @@ sucursal_agente AS (
     SELECT
         na.cagente,
         na.cpadre,
-
         CASE
             WHEN na.cpadre IS NULL THEN
                 NULL
-
             ELSE
                 RIGHT(
                     CAST(na.cpadre AS VARCHAR(30)),
@@ -1406,7 +1372,6 @@ sucursal_agente AS (
                     '**'
                 )
         END AS sucursal
-
     FROM nombre_agente na
 )
 
