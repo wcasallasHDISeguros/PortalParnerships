@@ -1225,7 +1225,7 @@ nombre_persona AS (
       Si existe TAPENOM, reemplaza el nombre construido.
    ===================================================================== */
 tapenom AS (    
-    SELECT
+    /*SELECT
         ce.sperson,
         TRIM(ce.tapenom) AS tapenom,
 
@@ -1234,7 +1234,13 @@ tapenom AS (
             ORDER BY ce.sperson
         ) AS rn
     FROM gde_adp_ods.axis_per_detper_ce ce
-    WHERE ce.tapenom IS NOT NULL
+    WHERE ce.tapenom IS NOT NULL*/
+
+    SELECT
+        CAST(NULL AS BIGINT) AS sperson,
+        CAST(NULL AS VARCHAR(500)) AS tapenom,
+        CAST(NULL AS INTEGER) AS rn
+    WHERE 1 = 0
 ),
 
 
