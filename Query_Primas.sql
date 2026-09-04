@@ -885,7 +885,7 @@ SELECT per.sperson, per.nnumide, per.nordide, per.ctipide, per.csexper, per.fnac
           --Bug 29738/166355 - 14/02/2014 - AMC
           d.tapelli1 || ' ' || d.tapelli2 tapelli,
                                                   --Bug 29738/166355 - 14/02/2014 - AMC
-                                                                                          -- Se deberá quitar el substr cuando se prepare base de datos
+    A                                                                                          -- Se deberá quitar el substr cuando se prepare base de datos
                                                   d.tnombre tnombre,
                                                                     -- Se deberá quitar el substr cuando se prepare base de datos
                                                                     d.tsiglas,
@@ -1236,22 +1236,23 @@ nombre_persona AS (
         db.cagente,
         db.cpadre,
         db.sperson_agente,
-
-        TRIM(p.tapelli1) AS tapelli1,
-        TRIM(p.tapelli2) AS tapelli2,
-        TRIM(p.tnombre) AS tnombre,
-        p.nnumnif AS nnumide,
-
+        --TRIM(p.tapelli1) AS tapelli1,
+        --TRIM(p.tapelli2) AS tapelli2,
+        --TRIM(p.tnombre) AS tnombre,
+        --p.nnumnif AS nnumide,
+        'DUMMY' AS tapelli1,
+        'PERSONA' AS tapelli2,
+        'PERSONA_' || CAST(db.sperson_agente AS VARCHAR) AS tnombre,
+        CAST(NULL AS VARCHAR(50)) AS nnumide,
         ROW_NUMBER() OVER (
             PARTITION BY db.cagente
             ORDER BY db.sperson_agente
         ) AS rn
-
     FROM desagente_base db
-
-    INNER JOIN gde_adp_ods.axis_personas p
-        ON p.sperson = db.sperson_agente
-),
+    --INNER JOIN gde_adp_ods.axis_personas p
+        --ON p.sperson = db.sperson_agente
+)
+select * from nombre_persona
 
 
 /* =====================================================================
@@ -1273,9 +1274,7 @@ tapenom AS (
             PARTITION BY ce.sperson
             ORDER BY ce.sperson
         ) AS rn
-
     FROM gde_adp_ods.axis_per_detper_ce ce
-
     WHERE ce.tapenom IS NOT NULL
 ),
 
