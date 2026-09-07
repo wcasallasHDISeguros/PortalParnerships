@@ -1411,7 +1411,6 @@ prima_certificado AS (
         s.ncertif
 )
 
-
 /* =====================================================================
    CONSULTA PRINCIPAL
    ===================================================================== */
@@ -1562,6 +1561,9 @@ SELECT
         0
     ) AS riesgos,
     pp.trespue AS nro_cotizacion,
+    COALESCE(pc.prima_emitida, 0) AS prima_emitida,
+    COALESCE(pc.impuestos, 0) AS impuestos,
+    COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
     car.sseguro AS sseguro_caratula,
     cer.ncertif AS certificado_asegurado,
     cer.sseguro AS sseguro_certificado,
@@ -1630,7 +1632,13 @@ LEFT JOIN gde_adp_ods.axis_titulopro tp
 /* ================================================================
    SUCURSAL
    ================================================================ */
-LEhoia j
+LEFT JOIN sucursal_agente sa
+    ON sa.cagente = car.cagente
+/* ================================================================
+   PRIMA TOTAL   
+================================================================ */
+LEFT JOIN prima_certificado pc
+    ON pc.sseguro = cer.sseguro
 WHERE car.cagente IN (
     '4015907',
     '4096183'
