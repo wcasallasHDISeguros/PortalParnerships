@@ -1374,6 +1374,51 @@ sucursal_agente AS (
         END AS sucursal
     FROM nombre_agente na
 )
+
+/* ================================================================
+   PRIMA TOTAL POR CERTIFICADO
+   ================================================================ */
+prima_certificado AS (
+    SELECT
+        s.sseguro,
+        s.npoliza,
+        s.sproduc,
+        s.ncertif,
+
+        SUM(
+            CASE
+                WHEN d.cconcep = 0
+                THEN COALESCE(d.iconcep_monpol, 0)
+                ELSE 0
+            END
+        ) AS prima_emitida,
+
+        SUM(
+            CASE
+                WHEN d.cconcep IN (4,90,88,86,14)
+                THEN COALESCE(d.iconcep_monpol, 0)
+                ELSE 0
+            END
+        ) AS impuestos
+
+    FROM gde_adp_ods.axis_seguros s
+
+    INNER JOIN gde_adp_ods.axis_recibos r
+        ON r.sseguro = s.sseguro
+
+    INNER JOIN gde_adp_ods.axis_detrecibos d
+        ON d.nrecibo = r.nrecibo
+
+    WHERE s.ncertif >= 0
+
+    GROUP BY
+        s.sseguro,
+        s.npoliza,
+        s.sproduc,
+        s.ncertif
+)
+
+
 /* =====================================================================
    CONSULTA PRINCIPAL
    ===================================================================== */
