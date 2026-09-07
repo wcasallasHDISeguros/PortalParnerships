@@ -1384,7 +1384,6 @@ prima_certificado AS (
         s.npoliza,
         s.sproduc,
         s.ncertif,
-
         SUM(
             CASE
                 WHEN d.cconcep = 0
@@ -1392,7 +1391,6 @@ prima_certificado AS (
                 ELSE 0
             END
         ) AS prima_emitida,
-
         SUM(
             CASE
                 WHEN d.cconcep IN (4,90,88,86,14)
@@ -1400,17 +1398,12 @@ prima_certificado AS (
                 ELSE 0
             END
         ) AS impuestos
-
     FROM gde_adp_ods.axis_seguros s
-
     INNER JOIN gde_adp_ods.axis_recibos r
         ON r.sseguro = s.sseguro
-
     INNER JOIN gde_adp_ods.axis_detrecibos d
         ON d.nrecibo = r.nrecibo
-
     WHERE s.ncertif >= 0
-
     GROUP BY
         s.sseguro,
         s.npoliza,
