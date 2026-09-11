@@ -1153,7 +1153,6 @@ nombre_publico AS (
 
       >>> CAMBIAR  POR EL CAGENTE DE PRODUCCIÓN REAL SI APLICA.
    ===================================================================== */
-
 nombre_no_publico AS (
     SELECT
         db.cagente,
@@ -1373,8 +1372,7 @@ sucursal_agente AS (
                 )
         END AS sucursal
     FROM nombre_agente na
-)
-
+),
 /* ================================================================
    PRIMA TOTAL POR CERTIFICADO
    ================================================================ */
@@ -1514,7 +1512,6 @@ fecha_fin_vigencia AS (
                            12,
                            vdd
                        )
-
                        ------------------------------------------------ */
                     DATEADD(
                         day,
@@ -1540,7 +1537,6 @@ fecha_fin_vigencia AS (
                                 )
                             )::INTEGER
                         ) - 1,
-
                         DATE_TRUNC(
                             'month',
                             DATEADD(
@@ -1562,7 +1558,6 @@ fecha_fin_vigencia AS (
                ======================================================== */
             ELSE
                 COALESCE(
-
                     /* ------------------------------------------------
                        Primera prioridad:
                        pregunta 4778
