@@ -1591,7 +1591,7 @@ fecha_fin_vigencia AS (
                     )
                 )
         END AS fecha_fin_vigencia
- +   FROM seguros_vigencia sv
+   FROM seguros_vigencia sv
 ),
 /*Campos que estan en Select principal y se deben manejar con consultas independientes para evitar duplicidad de datos*/
 tomador_detalle AS (
