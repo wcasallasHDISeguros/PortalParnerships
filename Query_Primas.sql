@@ -1602,6 +1602,10 @@ SELECT
         'YYYY-MM-DD'
     ) AS fecha_inicio_vigencia,
     TO_CHAR(
+        ffv.fecha_fin_vigencia,
+        'YYYY-MM-DD'
+    ) AS fecha_fin_vigencia,
+    TO_CHAR(
         car.femisIO,
         'YYYY-MM-DD'
     ) AS fecha_emision,
@@ -1811,6 +1815,11 @@ LEFT JOIN gde_adp_ods.axis_titulopro tp
    AND tp.cmodali = car.cmodali
    AND tp.ccolect = car.ccolect
    AND tp.cidioma = 8
+/* ================================================================
+  FECHA FIN VIGENCIA
+   ================================================================ */
+LEFT JOIN fecha_fin_vigencia ffv
+    ON ffv.sseguro = car.sseguro   
 /* ================================================================
    SUCURSAL
    ================================================================ */
