@@ -1592,7 +1592,20 @@ fecha_fin_vigencia AS (
                 )
         END AS fecha_fin_vigencia
     FROM seguros_vigencia sv
-)
+),
+/*Campor que estan en Select principal y se deben manejar con consultas independientes para evitar duplicidad de datos*/
+tomador_detalle AS (
+    SELECT
+        pd.sperson,
+        pd.tapelli1,
+        pd.tapelli2,
+        pd.tnombre1,
+        ROW_NUMBER() OVER (
+            PARTITION BY pd.sperson
+            ORDER BY pd.fmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_per_detper pd
+)   
 /* =====================================================================
    CONSULTA PRINCIPAL
    ===================================================================== */
@@ -1781,14 +1794,15 @@ INNER JOIN gde_adp_ods.axis_movseguro mov_cer
         WHERE m2.sseguro = cer.sseguro
           AND m2.cmovseg <> 52
    )
-INNER JOIN gde_adp_ods.axis_per_detper per_det
+INNER JOIN tomador_detalle per_det
     ON per_det.sperson = t.sperson
+   AND per_det.rn = 1
 LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer
     ON aseg_cer.sseguro = cer.sseguro
 LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg
     ON pp_aseg.sperson = aseg_cer.sperson
-LEFT JOIN gde_adp_ods.axis_autriesgos ar
-    ON aseg_cer.sseguro = ar.sseguro
+--LEFT JOIN gde_adp_ods.axis_autriesgos ar
+--    ON aseg_cer.sseguro = ar.sseguro
 LEFT JOIN gde_adp_ods.axis_pregunpolseg pp
     ON aseg_cer.sseguro = pp.sseguro
    AND pp.cpregun = 795
