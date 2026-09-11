@@ -1593,7 +1593,7 @@ fecha_fin_vigencia AS (
         END AS fecha_fin_vigencia
  +   FROM seguros_vigencia sv
 ),
-/*CampoS que estan en Select principal y se deben manejar con consultas independientes para evitar duplicidad de datos*/
+/*Campos que estan en Select principal y se deben manejar con consultas independientes para evitar duplicidad de datos*/
 tomador_detalle AS (
     SELECT
         pd.sperson,
@@ -1605,6 +1605,19 @@ tomador_detalle AS (
             ORDER BY pd.fmovimi DESC NULLS LAST
         ) AS rn
     FROM gde_adp_ods.axis_per_detper pd
+),
+cotizacion_certificado AS (
+    SELECT
+        a.sseguro,
+        pp.trespue,
+        ROW_NUMBER() OVER (
+            PARTITION BY a.sseguro
+            ORDER BY pp.nmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_asegurados a
+    INNER JOIN gde_adp_ods.axis_pregunpolseg pp
+        ON pp.sseguro = a.sseguro
+       AND pp.cpregun = 795
 )   
 /* =====================================================================
    CONSULTA PRINCIPAL
@@ -1759,7 +1772,7 @@ SELECT
         END,
         0
     ) AS riesgos,
-    pp.trespue AS nro_cotizacion,
+    cc.trespue AS nro_cotizacion,
     COALESCE(pc.prima_emitida, 0) AS prima_emitida,
     COALESCE(pc.impuestos, 0) AS impuestos,
     COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
@@ -1797,8 +1810,9 @@ INNER JOIN gde_adp_ods.axis_movseguro mov_cer
 INNER JOIN tomador_detalle per_det
     ON per_det.sperson = t.sperson
    AND per_det.rn = 1
-LEFT JOIN gde_adp_ods.axis_asegurados aseg_cer
-    ON aseg_cer.sseguro = cer.sseguro
+LEFT JOIN cotizacion_certificado cc
+    ON cc.sseguro = cer.sseguro
+   AND cc.rn = 1
 --LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg
 --    ON pp_aseg.sperson = aseg_cer.sperson
 --LEFT JOIN gde_adp_ods.axis_autriesgos ar
