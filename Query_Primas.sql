@@ -1818,7 +1818,7 @@ LEFT JOIN cotizacion_certificado cc
 --LEFT JOIN gde_adp_ods.axis_autriesgos ar
 --    ON aseg_cer.sseguro = ar.sseguro
 LEFT JOIN gde_adp_ods.axis_pregunpolseg pp
-    ON aseg_cer.sseguro = pp.sseguro
+    ON cc.sseguro = pp.sseguro
    AND pp.cpregun = 795
 LEFT JOIN gde_adp_ods.axis_detvalores dv
     ON dv.cvalor = 61
