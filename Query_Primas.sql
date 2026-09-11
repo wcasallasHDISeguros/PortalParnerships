@@ -1618,6 +1618,17 @@ cotizacion_certificado AS (
     INNER JOIN gde_adp_ods.axis_pregunpolseg pp
         ON pp.sseguro = a.sseguro
        AND pp.cpregun = 795
+),
+ultimo_movimiento AS (
+    SELECT
+        m.sseguro,
+        m.cmovseg,
+        ROW_NUMBER() OVER (
+            PARTITION BY m.sseguro
+            ORDER BY m.nmovimi DESC
+        ) AS rn
+    FROM gde_adp_ods.axis_movseguro m
+    WHERE m.cmovseg <> 52
 )   
 /* =====================================================================
    CONSULTA PRINCIPAL
@@ -1799,14 +1810,9 @@ INNER JOIN gde_adp_ods.axis_per_personas pp_tom
     ON pp_tom.sperson = t.sperson
 INNER JOIN gde_adp_ods.axis_seguros cer
     ON cer.npoliza = car.npoliza
-INNER JOIN gde_adp_ods.axis_movseguro mov_cer
+INNER JOIN ultimo_movimiento mov_cer
     ON mov_cer.sseguro = cer.sseguro
-   AND mov_cer.nmovimi = (
-        SELECT MAX(m2.nmovimi)
-        FROM gde_adp_ods.axis_movseguro m2
-        WHERE m2.sseguro = cer.sseguro
-          AND m2.cmovseg <> 52
-   )
+   AND mov_cer.rn = 1
 INNER JOIN tomador_detalle per_det
     ON per_det.sperson = t.sperson
    AND per_det.rn = 1
