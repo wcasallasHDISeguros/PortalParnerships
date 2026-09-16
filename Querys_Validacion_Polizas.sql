@@ -837,7 +837,6 @@ SELECT
         )
         THEN 'SOA'
     END AS ramo,
-    car.sproduc,
     dv_car.tatribu AS estado,
     NULL AS vistag,
     /* ================================================================
@@ -890,6 +889,7 @@ SELECT
     COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
     car.sseguro AS sseguro_caratula,
     cer.sseguro AS sseguro_certificado,
+    car.sproduc,
     TO_CHAR(
         cer.fefecto,
         'YYYY-MM-DD'
@@ -971,4 +971,6 @@ and pp_tom.nnumide=9003542594
 ORDER BY
     car.npoliza,
     cer.ncertif ASC;                    
+
+
 
