@@ -1,4 +1,3 @@
---Query Datos Fuentes Oracle AXIS
 WITH primas AS (
 SELECT 
 TO_CHAR(car.fefecto,'YYYY-MM-DD') fecha_inicio_car,
@@ -42,6 +41,7 @@ COALESCE((
     WHERE car.npoliza = t2.npoliza
 ),0) AS num_certificado,
 pp.trespue AS nro_cotizacion,
+cer.ncertif certif_asegurado,
 (SELECT nvl(sum(nvl(V.itotalr,0)),0) prima_total
  FROM AXIS.RECIBOS R
  LEFT JOIN AXIS.VDETRECIBOS V ON R.nrecibo = V.nrecibo
@@ -59,7 +59,6 @@ axis.pac_isqlfor.f_dades_persona(aseg_cer.sperson, 1, 8, 'POL')  inden_asegurado
 decode(pp_aseg.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') 
   tipo_idenasegurado,
 axis.pac_isqlfor.f_dades_persona(aseg_cer.sperson, 4, 8, 'POL')||' '||axis.pac_isqlfor.f_dades_persona(aseg_cer.sperson, 5, 8, 'POL')  aseg_nombres,
-cer.ncertif certif_asegurado,
 cer.sseguro sseguro_cert,
 Axis.ff_desvalorfijo(61, 8, cer.csituac) estado_certif,
 TO_CHAR(cer.fefecto,'YYYY-MM-DD') fecha_inicio_cer,
@@ -885,11 +884,11 @@ SELECT
         0
     ) AS riesgos,
     cc.trespue AS nro_cotizacion,
+    cer.ncertif AS certificado_asegurado,
     COALESCE(pc.prima_emitida, 0) AS prima_emitida,
     COALESCE(pc.impuestos, 0) AS impuestos,
     COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
     car.sseguro AS sseguro_caratula,
-    cer.ncertif AS certificado_asegurado,
     cer.sseguro AS sseguro_certificado,
     TO_CHAR(
         cer.fefecto,
