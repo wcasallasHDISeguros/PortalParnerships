@@ -916,12 +916,9 @@ SELECT
     cb.ctipcom,
     cb.ctipretr,
     cb.cmodcom,
-
     ch.pcomisi_habitual,
     cep.pcomisi_especial,
-
     cpt.pcomisi_base AS comision
-
 FROM comision_base cb
 LEFT JOIN comision_habitual ch
     ON ch.sseguro = cb.sseguro
