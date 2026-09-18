@@ -613,34 +613,199 @@
         FROM gde_adp_ods.axis_movseguro m
         WHERE m.cmovseg <> 52
     ),
-    comision_base AS (
-	    SELECT
-	        car.sseguro,
-	        car.npoliza,
-	        car.ncertif,
-	        car.sproduc,
-	        car.fefecto,
-	        car.cagente,
-	        car.cramo,
-	        car.cmodali,
-	        car.ctipseg,
-	        car.ccolect,
-	        car.cactivi,
-	        car.cidioma,
-	        car.ctipcom,
-	        car.ctipretr,
-	        CASE WHEN EXISTS (
-	                SELECT 1
-	                FROM gde_adp_ods.axis_movseguro ms
-	                WHERE ms.sseguro = car.sseguro
-	                  AND ms.cmovseg = 2
-	                  AND ms.cmotmov = 404
-	            ) THEN 2
-	            ELSE 1
-	        END AS cmodcom
-	    FROM gde_adp_ods.axis_seguros car
-    ) 
-select * from comision_base  
-    
+/* =====================================================================
+   COMISION - 1. F_ES_RENOVACION
+   Busca pólizas que tienen movimiento de renovación:
+       CMOVSEG = 2
+       CMOTMOV = 404
+
+   Oracle:
+       Existe    -> F_ES_RENOVACION = 0 -> CMODCOM = 2
+       No existe -> F_ES_RENOVACION = 1 -> CMODCOM = 1
+   ===================================================================== */
+comision_renovacion AS (
+    SELECT DISTINCT
+        ms.sseguro
+    FROM gde_adp_ods.axis_movseguro ms
+    WHERE ms.cmovseg = 2
+      AND ms.cmotmov = 404
+),
+
+/* =====================================================================
+   COMISION - 2. DATOS BASE
+   Equivalente a F_POR_COMI_FINANCIERO
+   ===================================================================== */
+comision_base AS (
+    SELECT
+        car.sseguro,
+        car.npoliza,
+        car.ncertif,
+        car.sproduc,
+        car.fefecto,
+        car.cagente,
+        car.cramo,
+        car.cmodali,
+        car.ctipseg,
+        car.ccolect,
+        car.cactivi,
+        car.cidioma,
+        car.ctipcom,
+        car.ctipretr,
+
+        CASE
+            WHEN ren.sseguro IS NOT NULL THEN 2
+            ELSE 1
+        END AS cmodcom
+
+    FROM gde_adp_ods.axis_seguros car
+
+    LEFT JOIN comision_renovacion ren
+        ON ren.sseguro = car.sseguro
+)
+/* =====================================================================
+   COMISION - 2. CUADRO COMISION VIGENTE DEL AGENTE
+   ===================================================================== */
+comision_agente_vigente AS (
+    SELECT
+        cb.sseguro,
+        cva.ccomisi,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cva.finivig DESC
+        ) AS rn
+
+    FROM comision_base cb
+
+    INNER JOIN gde_adp_ods.axis_comisionvig_agente cva
+        ON cva.cagente = cb.cagente
+       AND cva.ccomind = 0
+       AND cb.fefecto::date >= cva.finivig::date
+       AND cb.fefecto::date <=
+           COALESCE(cva.ffinvig::date, cb.fefecto::date)
+
+    INNER JOIN gde_adp_ods.axis_codicomisio cc
+        ON cc.ccomisi = cva.ccomisi
+       AND cc.ctipo = 1
+),    
+/* =====================================================================
+   COMISION - 3. CUADRO COMISION FINAL DEL AGENTE
+   Oracle:
+       COMISIONVIG_AGENTE
+           ↓ no existe
+       AGENTES.CCOMISI
+   ===================================================================== */
+comision_codigo AS (
+    SELECT
+        cb.*,
+
+        COALESCE(
+            cav.ccomisi,
+            ag.ccomisi
+        ) AS ccomisi
+
+    FROM comision_base cb
+
+    LEFT JOIN comision_agente_vigente cav
+        ON cav.sseguro = cb.sseguro
+       AND cav.rn = 1
+
+    LEFT JOIN gde_adp_ods.axis_agentes ag
+        ON ag.cagente = cb.cagente
+),
+/* =====================================================================
+   COMISION - 4. COMISION POR ACTIVIDAD
+   ===================================================================== */
+comision_actividad AS (
+    SELECT
+        cc.sseguro,
+        ca.pcomisi,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY cc.sseguro
+            ORDER BY cv.finivig DESC
+        ) AS rn
+
+    FROM comision_codigo cc
+
+    INNER JOIN gde_adp_ods.axis_comisionvig cv
+        ON cv.ccomisi = cc.ccomisi
+       AND cv.cestado = 2
+       AND cc.fefecto::date >= cv.finivig::date
+       AND cc.fefecto::date <=
+           COALESCE(cv.ffinvig::date, cc.fefecto::date)
+
+    INNER JOIN gde_adp_ods.axis_comisionacti ca
+        ON ca.cramo   = cc.cramo
+       AND ca.cmodali = cc.cmodali
+       AND ca.ctipseg = cc.ctipseg
+       AND ca.ccolect = cc.ccolect
+       AND ca.cactivi = cc.cactivi
+       AND ca.cmodcom = cc.cmodcom
+       AND ca.ccomisi = cc.ccomisi
+       AND ca.finivig = cv.finivig
+
+       /* pnanuali = NULL
+          Oracle usa NVL(xnanuali,1)
+       */
+       AND 1 BETWEEN ca.ninialt AND ca.nfinalt
+),
+/* =====================================================================
+   COMISION - 5. COMISION POR PRODUCTO
+   ===================================================================== */
+comision_producto AS (
+    SELECT
+        cc.sseguro,
+        cp.pcomisi,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY cc.sseguro
+            ORDER BY cv.finivig DESC
+        ) AS rn
+
+    FROM comision_codigo cc
+
+    INNER JOIN gde_adp_ods.axis_comisionvig cv
+        ON cv.ccomisi = cc.ccomisi
+       AND cv.cestado = 2
+       AND cc.fefecto::date >= cv.finivig::date
+       AND cc.fefecto::date <=
+           COALESCE(cv.ffinvig::date, cc.fefecto::date)
+
+    INNER JOIN gde_adp_ods.axis_comisionprod cp
+        ON cp.cramo   = cc.cramo
+       AND cp.cmodali = cc.cmodali
+       AND cp.ctipseg = cc.ctipseg
+       AND cp.ccolect = cc.ccolect
+       AND cp.cmodcom = cc.cmodcom
+       AND cp.ccomisi = cc.ccomisi
+       AND cp.finivig = cv.finivig
+       AND 1 BETWEEN cp.ninialt AND cp.nfinalt
+),
+/* =====================================================================
+   COMISION - 6. COMISION HABITUAL
+   Prioridad:
+       COMISIONACTI
+       COMISIONPROD
+   ===================================================================== */
+comision_habitual AS (
+    SELECT
+        cc.sseguro,
+
+        COALESCE(
+            ca.pcomisi,
+            cp.pcomisi
+        ) AS pcomisi_habitual
+
+    FROM comision_codigo cc
+
+    LEFT JOIN comision_actividad ca
+        ON ca.sseguro = cc.sseguro
+       AND ca.rn = 1
+
+    LEFT JOIN comision_producto cp
+        ON cp.sseguro = cc.sseguro
+       AND cp.rn = 1
+),
 
 
