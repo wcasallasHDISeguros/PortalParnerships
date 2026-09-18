@@ -1766,6 +1766,10 @@ F_NOMBRE()
         ================================================================ */
         car.cagente AS intermediario,
         /* ================================================================
+        COMISION
+        ================================================================ **/        
+        --com.comision AS comision,
+        /* ================================================================
         RIESGOS VIGENTES
         ================================================================ */
         CASE
@@ -1819,10 +1823,6 @@ F_NOMBRE()
     LEFT JOIN cotizacion_certificado cc
         ON cc.sseguro = cer.sseguro
     AND cc.rn = 1
-    --LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg
-    --    ON pp_aseg.sperson = aseg_cer.sperson
-    --LEFT JOIN gde_adp_ods.axis_autriesgos ar
-    --    ON aseg_cer.sseguro = ar.sseguro
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp
         ON cc.sseguro = pp.sseguro
     AND pp.cpregun = 795
@@ -1864,6 +1864,11 @@ F_NOMBRE()
     ================================================================ */
     LEFT JOIN prima_certificado pc
         ON pc.sseguro = cer.sseguro
+    /* ================================================================
+    COMISION   
+    ================================================================ */
+    LEFT JOIN comision_final com
+    ON com.sseguro = car.sseguro
     WHERE car.cagente IN (
         '4015907',
         '4096183'

@@ -917,24 +917,412 @@ comision_por_tipo AS (
         ON cep.sseguro = cb.sseguro
        AND cep.rn = 1
 ),
-SELECT
-    cb.sseguro,
-    cb.npoliza,
-    cb.sproduc,
-    cb.cagente,
-    cb.ctipcom,
-    cb.ctipretr,
-    cb.cmodcom,
-    ch.pcomisi_habitual,
-    cep.pcomisi_especial,
-    cpt.pcomisi_base AS comision
-FROM comision_base cb
-LEFT JOIN comision_habitual ch
-    ON ch.sseguro = cb.sseguro
-LEFT JOIN comision_especial_poliza cep
-    ON cep.sseguro = cb.sseguro
-   AND cep.rn = 1
-LEFT JOIN comision_por_tipo cpt
-    ON cpt.sseguro = cb.sseguro
-ORDER BY
-    cb.npoliza;
+/* =====================================================================
+   COMISION - SOBRECOMISION VIGENTE DEL AGENTE
+
+   Oracle:
+       COMISIONVIG_AGENTE
+       + CODICOMISIO.CTIPO = 2
+
+   pccomind = 0
+   ===================================================================== */
+,sobrecomision_agente AS (
+    SELECT
+        cb.sseguro,
+        cva.ccomisi AS csobrecomisi,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cva.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN gde_adp_ods.axis_comisionvig_agente cva
+        ON cva.cagente = cb.cagente
+       AND cva.ccomind = 0
+       AND cb.fefecto::date >= cva.finivig::date
+       AND cb.fefecto::date <=
+           COALESCE(cva.ffinvig::date, cb.fefecto::date)
+    INNER JOIN gde_adp_ods.axis_codicomisio cc
+        ON cc.ccomisi = cva.ccomisi
+       AND cc.ctipo = 2
+),
+/* =====================================================================
+   COMISION - VIGENCIA DE LA SOBRECOMISION
+   ===================================================================== */
+sobrecomision_vigente AS (
+    SELECT
+        cb.sseguro,
+        sa.csobrecomisi,
+        cv.finivig,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cv.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_agente sa
+        ON sa.sseguro = cb.sseguro
+       AND sa.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionvig cv
+        ON cv.ccomisi = sa.csobrecomisi
+       AND cv.cestado = 2
+       AND cb.fefecto::date >= cv.finivig::date
+       AND cb.fefecto::date <=
+           COALESCE(cv.ffinvig::date, cb.fefecto::date)
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION POR ACTIVIDAD
+   pcgarant = NULL, por lo que COMISIONGAR no produce match.
+   ===================================================================== */
+sobrecomision_actividad AS (
+    SELECT
+        cb.sseguro,
+        ca.pcomisi AS psobrecomisi,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY ca.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_vigente sv
+        ON sv.sseguro = cb.sseguro
+       AND sv.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionacti ca
+        ON ca.cramo   = cb.cramo
+       AND ca.cmodali = cb.cmodali
+       AND ca.ctipseg = cb.ctipseg
+       AND ca.ccolect = cb.ccolect
+       AND ca.cactivi = cb.cactivi
+       AND ca.cmodcom = cb.cmodcom
+       AND ca.ccomisi = sv.csobrecomisi
+       AND ca.finivig = sv.finivig
+       /* pnanuali = NULL -> NVL(xnanuali,1) = 1 */
+       AND 1 BETWEEN ca.ninialt AND ca.nfinalt
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION POR PRODUCTO
+   Fallback de COMISIONACTI
+   ===================================================================== */
+sobrecomision_producto AS (
+    SELECT
+        cb.sseguro,
+        cp.pcomisi AS psobrecomisi,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cp.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_vigente sv
+        ON sv.sseguro = cb.sseguro
+       AND sv.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionprod cp
+        ON cp.cramo   = cb.cramo
+       AND cp.cmodali = cb.cmodali
+       AND cp.ctipseg = cb.ctipseg
+       AND cp.ccolect = cb.ccolect
+       AND cp.cmodcom = cb.cmodcom
+       AND cp.ccomisi = sv.csobrecomisi
+       AND cp.finivig = sv.finivig
+       AND 1 BETWEEN cp.ninialt AND cp.nfinalt
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION VIGENTE DEL AGENTE
+
+   Oracle:
+       COMISIONVIG_AGENTE
+       + CODICOMISIO.CTIPO = 2
+
+   pccomind = 0
+   ===================================================================== */
+,sobrecomision_agente AS (
+    SELECT
+        cb.sseguro,
+        cva.ccomisi AS csobrecomisi,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cva.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN gde_adp_ods.axis_comisionvig_agente cva
+        ON cva.cagente = cb.cagente
+       AND cva.ccomind = 0
+       AND cb.fefecto::date >= cva.finivig::date
+       AND cb.fefecto::date <=
+           COALESCE(cva.ffinvig::date, cb.fefecto::date)
+    INNER JOIN gde_adp_ods.axis_codicomisio cc
+        ON cc.ccomisi = cva.ccomisi
+       AND cc.ctipo = 2
+),
+/* =====================================================================
+   COMISION - VIGENCIA DE LA SOBRECOMISION
+   ===================================================================== */
+sobrecomision_vigente AS (
+    SELECT
+        cb.sseguro,
+        sa.csobrecomisi,
+        cv.finivig,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cv.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_agente sa
+        ON sa.sseguro = cb.sseguro
+       AND sa.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionvig cv
+        ON cv.ccomisi = sa.csobrecomisi
+       AND cv.cestado = 2
+       AND cb.fefecto::date >= cv.finivig::date
+       AND cb.fefecto::date <=
+           COALESCE(cv.ffinvig::date, cb.fefecto::date)
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION POR ACTIVIDAD
+   pcgarant = NULL, por lo que COMISIONGAR no produce match.
+   ===================================================================== */
+sobrecomision_actividad AS (
+    SELECT
+        cb.sseguro,
+        ca.pcomisi AS psobrecomisi,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY ca.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_vigente sv
+        ON sv.sseguro = cb.sseguro
+       AND sv.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionacti ca
+        ON ca.cramo   = cb.cramo
+       AND ca.cmodali = cb.cmodali
+       AND ca.ctipseg = cb.ctipseg
+       AND ca.ccolect = cb.ccolect
+       AND ca.cactivi = cb.cactivi
+       AND ca.cmodcom = cb.cmodcom
+       AND ca.ccomisi = sv.csobrecomisi
+       AND ca.finivig = sv.finivig
+       /* pnanuali = NULL -> NVL(xnanuali,1) = 1 */
+       AND 1 BETWEEN ca.ninialt AND ca.nfinalt
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION POR PRODUCTO
+   Fallback de COMISIONACTI
+   ===================================================================== */
+sobrecomision_producto AS (
+    SELECT
+        cb.sseguro,
+        cp.pcomisi AS psobrecomisi,
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cp.finivig DESC
+        ) AS rn
+    FROM comision_base cb
+    INNER JOIN sobrecomision_vigente sv
+        ON sv.sseguro = cb.sseguro
+       AND sv.rn = 1
+    INNER JOIN gde_adp_ods.axis_comisionprod cp
+        ON cp.cramo   = cb.cramo
+       AND cp.cmodali = cb.cmodali
+       AND cp.ctipseg = cb.ctipseg
+       AND cp.ccolect = cb.ccolect
+       AND cp.cmodcom = cb.cmodcom
+       AND cp.ccomisi = sv.csobrecomisi
+       AND cp.finivig = sv.finivig
+       AND 1 BETWEEN cp.ninialt AND cp.nfinalt
+),
+/* =====================================================================
+   COMISION - SOBRECOMISION FINAL
+
+   Prioridad Oracle:
+       COMISIONGAR
+       COMISIONACTI
+       COMISIONPROD
+
+   pcgarant NULL:
+       COMISIONACTI
+       COMISIONPROD
+   ===================================================================== */
+sobrecomision_final AS (
+    SELECT
+        cb.sseguro,
+        COALESCE(
+            sa.psobrecomisi,
+            sp.psobrecomisi,
+            0
+        ) AS psobrecomisi
+    FROM comision_base cb
+    LEFT JOIN sobrecomision_actividad sa
+        ON sa.sseguro = cb.sseguro
+       AND sa.rn = 1
+    LEFT JOIN sobrecomision_producto sp
+        ON sp.sseguro = cb.sseguro
+       AND sp.rn = 1
+),
+/* =====================================================================
+   COMISION - BASE + SOBRECOMISION
+   ===================================================================== */
+,comision_con_sobrecomision AS (
+    SELECT
+        cpt.sseguro,
+        cpt.pcomisi_base,
+        COALESCE(sf.psobrecomisi, 0) AS psobrecomisi,
+        COALESCE(cpt.pcomisi_base, 0)
+        + COALESCE(sf.psobrecomisi, 0) AS pcomisi_calculada
+    FROM comision_por_tipo cpt
+    LEFT JOIN sobrecomision_final sf
+        ON sf.sseguro = cpt.sseguro
+),
+/* =====================================================================
+   COMISION - PLAN
+   Pregunta 4089
+   ===================================================================== */
+,comision_plan AS (
+    SELECT
+        sseguro,
+        crespue AS plan,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY sseguro
+            ORDER BY nmovimi DESC
+        ) AS rn
+
+    FROM gde_adp_ods.axis_pregunpolseg
+    WHERE cpregun = 4089
+),
+/* =====================================================================
+   COMISION - TIPO COMISION PLAN/RIESGO
+   Pregunta 9283
+   ===================================================================== */
+,comision_tipo_plan AS (
+    SELECT
+        ps.sseguro,
+        ps.nriesgo,
+        ps.crespue AS tipo_comision_plan,
+        ROW_NUMBER() OVER (
+            PARTITION BY ps.sseguro, ps.nriesgo
+            ORDER BY ps.nmovimi DESC
+        ) AS rn
+    FROM gde_adp_ods.axis_pregunseg ps
+    WHERE ps.cpregun = 9283
+),
+/* =====================================================================
+   COMISION - ULTIMO MOVIMIENTO PREGUNSEGTAB 9284
+   ===================================================================== */
+,comision_9284_ultimo AS (
+    SELECT
+        sseguro,
+        nriesgo,
+        MAX(nmovimi) AS nmovimi
+
+    FROM gde_adp_ods.axis_pregunsegtab
+
+    WHERE cpregun = 9284
+      AND ccolumna = 1
+
+    GROUP BY
+        sseguro,
+        nriesgo
+),
+
+/* =====================================================================
+   COMISION - PORCENTAJE PLAN/RIESGO
+   ===================================================================== */
+,comision_plan_riesgo AS (
+    SELECT
+        cb.sseguro,
+
+        CAST(b.tvalor AS DECIMAL(18,6)) AS pcomisi_plan
+
+    FROM comision_base cb
+
+    INNER JOIN comision_plan pl
+        ON pl.sseguro = cb.sseguro
+       AND pl.rn = 1
+
+    INNER JOIN comision_tipo_plan tp
+        ON tp.sseguro = cb.sseguro
+       AND tp.nriesgo = CAST(pl.plan AS INTEGER)
+       AND tp.rn = 1
+
+    INNER JOIN comision_9284_ultimo um
+        ON um.sseguro = cb.sseguro
+       AND um.nriesgo = CAST(pl.plan AS INTEGER)
+
+    INNER JOIN gde_adp_ods.axis_pregunsegtab a
+        ON a.sseguro = cb.sseguro
+       AND a.nriesgo = CAST(pl.plan AS INTEGER)
+       AND a.cpregun = 9284
+       AND a.ccolumna = 1
+       AND a.nmovimi = um.nmovimi
+       AND a.nvalor = 1
+
+    INNER JOIN gde_adp_ods.axis_pregunsegtab b
+        ON b.sseguro = a.sseguro
+       AND b.nriesgo = a.nriesgo
+       AND b.cpregun = a.cpregun
+       AND b.nmovimi = a.nmovimi
+       AND b.nlinea = a.nlinea
+       AND b.ccolumna = 2
+
+    WHERE COALESCE(
+        CAST(tp.tipo_comision_plan AS INTEGER),
+        0
+    ) <> 99
+),
+/* =====================================================================
+   COMISION - HERENCIA PRODUCTO
+
+   TODO:
+   Reemplazar por la migración de:
+       PAC_PRODUCTOS.F_GET_HERENCIA_COL(sproduc,13,...)
+
+   Valor:
+       2 = hereda comisión Plan/Riesgo
+       otro = mantiene comisión calculada
+   ===================================================================== */
+,comision_herencia AS (
+    SELECT DISTINCT
+        sproduc,
+
+        /* TEMPORAL */
+        CAST(NULL AS INTEGER) AS tipo_herencia_comision
+
+    FROM comision_base
+),
+/* =====================================================================
+   COMISION FINAL
+   Equivalente al resultado final de F_PCOMISI /
+   F_POR_COMI_FINANCIERO
+   ===================================================================== */
+,comision_final AS (
+    SELECT
+        cb.sseguro,
+        cb.npoliza,
+        cb.sproduc,
+        cb.cagente,
+        cb.ctipcom,
+        cb.ctipretr,
+        cb.cmodcom,
+        cc.pcomisi_calculada,
+        pr.pcomisi_plan,
+        ch.tipo_herencia_comision,
+        CASE
+            /* =========================================================
+               Herencia Plan/Riesgo
+               Oracle:
+                   F_GET_HERENCIA_COL(...,13) = 2
+               ========================================================= */
+            WHEN ch.tipo_herencia_comision = 2
+                 AND pr.pcomisi_plan IS NOT NULL
+            THEN pr.pcomisi_plan
+            /* =========================================================
+               Comisión normal calculada
+               ========================================================= */
+            ELSE cc.pcomisi_calculada
+        END AS comision
+    FROM comision_base cb
+    LEFT JOIN comision_con_sobrecomision cc
+        ON cc.sseguro = cb.sseguro
+    LEFT JOIN comision_plan_riesgo pr
+        ON pr.sseguro = cb.sseguro
+    LEFT JOIN comision_herencia ch
+        ON ch.sproduc = cb.sproduc
+)
