@@ -703,6 +703,7 @@ comision_codigo AS (
 ),
 /* =====================================================================
    COMISION - 5. COMISION POR ACTIVIDAD
+   debemos tener la tabla gde_adp_ods.axis_comisionacti para continuar
    ===================================================================== */
 /*comision_actividad AS (
     SELECT
@@ -760,7 +761,7 @@ comision_producto AS (
        AND cp.ccomisi = cc.ccomisi
        AND cp.finivig = cv.finivig
        AND 1 BETWEEN cp.ninialt AND cp.nfinalt
-)
+),
 /* =====================================================================
    COMISION - 7. COMISION HABITUAL
    Prioridad:
@@ -781,7 +782,175 @@ comision_producto AS (
     LEFT JOIN comision_producto cp
         ON cp.sseguro = cc.sseguro
        AND cp.rn = 1
-)*/
-select * from comision_codigo
+),*/
+/* =====================================================================
+   COMISION - ULTIMO MOVIMIENTO DE COMISIONSEGU
+
+   Equivalente Oracle:
+       nmovimi = (
+           SELECT MAX(nmovimi)
+           FROM comisionsegu
+           WHERE sseguro = psseguro
+       )
+
+   Se separa para evitar correlated subquery en Redshift.
+   ===================================================================== */
+comisionsegu_ultimo_mov AS (
+    SELECT
+        sseguro,
+        MAX(nmovimi) AS nmovimi
+    FROM gde_adp_ods.axis_comisionsegu
+    GROUP BY sseguro
+),
+
+/* =====================================================================
+   COMISION - COMISION ESPECIAL POR POLIZA
+   Aplica principalmente para CTIPCOM 90 / 92
+   ===================================================================== */
+comision_especial_poliza AS (
+    SELECT
+        cb.sseguro,
+        cs.pcomisi AS pcomisi_especial,
+
+        ROW_NUMBER() OVER (
+            PARTITION BY cb.sseguro
+            ORDER BY cs.nmovimi DESC
+        ) AS rn
+
+    FROM comision_base cb
+
+    INNER JOIN comisionsegu_ultimo_mov um
+        ON um.sseguro = cb.sseguro
+
+    INNER JOIN gde_adp_ods.axis_comisionsegu cs
+        ON cs.sseguro = cb.sseguro
+       AND cs.nmovimi = um.nmovimi
+       AND cs.cmodcom = cb.cmodcom
+
+       /* Oracle:
+          NVL(xnanuali,1) BETWEEN ninialt AND nfinalt
+
+          Nuestra llamada:
+          pnanuali = NULL
+          => xnanuali = NULL
+          => NVL(NULL,1) = 1
+       */
+       AND 1 BETWEEN cs.ninialt AND cs.nfinalt
+),
+/* =====================================================================
+   COMISION - SELECCION SEGUN CTIPCOM
+
+   Oracle F_PCOMISI:
+
+       CTIPCOM = 99
+           -> Comisión forzada a 0
+
+       CTIPCOM = 0
+           -> Comisión habitual
+
+       CTIPCOM = 90
+           -> Comisión especial póliza
+
+       CTIPCOM = 92
+           -> Comisión especial póliza
+
+       CTIPCOM = 91
+           -> Comisión especial garantía
+              (no aplica normalmente aquí porque pcgarant = NULL)
+
+   Además:
+       CTIPRETR = 1
+           -> comisión = 0
+   ===================================================================== */
+comision_por_tipo AS (
+    SELECT
+        cb.sseguro,
+        cb.ctipcom,
+        cb.ctipretr,
+        cb.cmodcom,
+
+        ch.pcomisi_habitual,
+        cep.pcomisi_especial,
+        CASE
+            /* =========================================================
+               CTIPRETR = 1
+               Oracle fuerza comisión a 0
+               ========================================================= */
+            WHEN COALESCE(cb.ctipretr, 0) = 1
+                THEN 0
+            /* =========================================================
+               CTIPCOM = 99
+               Comisión forzada a cero
+               ========================================================= */
+            WHEN COALESCE(cb.ctipcom, 0) = 99
+                THEN 0
+            /* =========================================================
+               CTIPCOM = 0
+               Comisión habitual
+               ========================================================= */
+            WHEN COALESCE(cb.ctipcom, 0) = 0
+                THEN ch.pcomisi_habitual
+            /* =========================================================
+               CTIPCOM = 90
+               Comisión especial por póliza
+               ========================================================= */
+            WHEN cb.ctipcom = 90
+                THEN cep.pcomisi_especial
+            /* =========================================================
+               CTIPCOM = 92
+               Comisión especial por póliza
+               ========================================================= */
+            WHEN cb.ctipcom = 92
+                THEN cep.pcomisi_especial
+            /* =========================================================
+               CTIPCOM = 91
+               Oracle busca comisión especial por GARANTIA.
+
+               Como nuestra llamada:
+                   pcgarant = NULL
+
+               no debemos inventar una comisión.
+               ========================================================= */
+            WHEN cb.ctipcom = 91
+                THEN NULL
+            ELSE NULL
+        END AS pcomisi_base
+    FROM comision_base cb
+    LEFT JOIN comision_habitual ch
+        ON ch.sseguro = cb.sseguro
+    LEFT JOIN comision_especial_poliza cep
+        ON cep.sseguro = cb.sseguro
+       AND cep.rn = 1
+),
+
+SELECT
+    cb.sseguro,
+    cb.npoliza,
+    cb.sproduc,
+    cb.cagente,
+    cb.ctipcom,
+    cb.ctipretr,
+    cb.cmodcom,
+
+    ch.pcomisi_habitual,
+    cep.pcomisi_especial,
+
+    cpt.pcomisi_base AS comision
+
+FROM comision_base cb
+
+LEFT JOIN comision_habitual ch
+    ON ch.sseguro = cb.sseguro
+
+LEFT JOIN comision_especial_poliza cep
+    ON cep.sseguro = cb.sseguro
+   AND cep.rn = 1
+
+LEFT JOIN comision_por_tipo cpt
+    ON cpt.sseguro = cb.sseguro
+
+ORDER BY
+    cb.npoliza;
+
 
 
