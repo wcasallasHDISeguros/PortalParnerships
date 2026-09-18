@@ -802,6 +802,7 @@ comisionsegu_ultimo_mov AS (
     FROM gde_adp_ods.axis_comisionsegu
     GROUP BY sseguro
 ),
+
 /* =====================================================================
    COMISION - COMISION ESPECIAL POR POLIZA
    Aplica principalmente para CTIPCOM 90 / 92
@@ -810,6 +811,7 @@ comision_especial_poliza AS (
     SELECT
         cb.sseguro,
         cs.pcomisi AS pcomisi_especial,
+
         ROW_NUMBER() OVER (
             PARTITION BY cb.sseguro
             ORDER BY cs.nmovimi DESC
@@ -833,18 +835,25 @@ comision_especial_poliza AS (
 ),
 /* =====================================================================
    COMISION - SELECCION SEGUN CTIPCOM
+
    Oracle F_PCOMISI:
+
        CTIPCOM = 99
            -> Comisión forzada a 0
+
        CTIPCOM = 0
            -> Comisión habitual
+
        CTIPCOM = 90
            -> Comisión especial póliza
+
        CTIPCOM = 92
            -> Comisión especial póliza
+
        CTIPCOM = 91
            -> Comisión especial garantía
               (no aplica normalmente aquí porque pcgarant = NULL)
+
    Además:
        CTIPRETR = 1
            -> comisión = 0
@@ -916,12 +925,9 @@ SELECT
     cb.ctipcom,
     cb.ctipretr,
     cb.cmodcom,
-
     ch.pcomisi_habitual,
     cep.pcomisi_especial,
-
     cpt.pcomisi_base AS comision
-
 FROM comision_base cb
 LEFT JOIN comision_habitual ch
     ON ch.sseguro = cb.sseguro
@@ -932,6 +938,3 @@ LEFT JOIN comision_por_tipo cpt
     ON cpt.sseguro = cb.sseguro
 ORDER BY
     cb.npoliza;
-
-
-
