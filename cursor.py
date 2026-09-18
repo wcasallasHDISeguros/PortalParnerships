@@ -22,3 +22,4 @@ try:
 except KeyboardInterrupt:
     print("\nScript detenido por el usuario.")
     sys.exit()
+    

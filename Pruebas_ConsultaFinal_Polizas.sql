@@ -613,312 +613,34 @@
         FROM gde_adp_ods.axis_movseguro m
         WHERE m.cmovseg <> 52
     ),
-/* =====================================================================
-   COMISION - 1. DATOS BASE
-   Equivalente a F_POR_COMI_FINANCIERO
-   ===================================================================== */
-   comision_base AS (
-    SELECT
-        car.sseguro,
-        car.npoliza,
-        car.ncertif,
-        car.sproduc,
-        car.fefecto,
-        car.cagente,
-        car.cramo,
-        car.cmodali,
-        car.ctipseg,
-        car.ccolect,
-        car.cactivi,
-        car.cidioma,
-        car.ctipcom,
-        car.ctipretr,
+    comision_base AS (
+	    SELECT
+	        car.sseguro,
+	        car.npoliza,
+	        car.ncertif,
+	        car.sproduc,
+	        car.fefecto,
+	        car.cagente,
+	        car.cramo,
+	        car.cmodali,
+	        car.ctipseg,
+	        car.ccolect,
+	        car.cactivi,
+	        car.cidioma,
+	        car.ctipcom,
+	        car.ctipretr,
+	        CASE WHEN EXISTS (
+	                SELECT 1
+	                FROM gde_adp_ods.axis_movseguro ms
+	                WHERE ms.sseguro = car.sseguro
+	                  AND ms.cmovseg = 2
+	                  AND ms.cmotmov = 404
+	            ) THEN 2
+	            ELSE 1
+	        END AS cmodcom
+	    FROM gde_adp_ods.axis_seguros car
+    ) 
+select * from comision_base  
+    
 
-        CASE
-            WHEN EXISTS (
-                SELECT 1
-                FROM gde_adp_ods.axis_movseguro ms
-                WHERE ms.sseguro = car.sseguro
-                  AND ms.cmovseg = 2
-                  AND ms.cmotmov = 404
-            )
-            THEN 2
-            ELSE 1
-        END AS cmodcom
 
-    FROM gde_adp_ods.axis_seguros car
-),
-/* =====================================================================
-   COMISION - 2. CUADRO COMISION VIGENTE DEL AGENTE
-   ===================================================================== */
-comision_agente_vigente AS (
-    SELECT
-        cb.sseguro,
-        cva.ccomisi,
-
-        ROW_NUMBER() OVER (
-            PARTITION BY cb.sseguro
-            ORDER BY cva.finivig DESC
-        ) AS rn
-
-    FROM comision_base cb
-
-    INNER JOIN gde_adp_ods.axis_comisionvig_agente cva
-        ON cva.cagente = cb.cagente
-       AND cva.ccomind = 0
-       AND cb.fefecto::date >= cva.finivig::date
-       AND cb.fefecto::date <=
-           COALESCE(cva.ffinvig::date, cb.fefecto::date)
-
-    INNER JOIN gde_adp_ods.axis_codicomisio cc
-        ON cc.ccomisi = cva.ccomisi
-       AND cc.ctipo = 1
-)	
-/* =====================================================================
-    CONSULTA PRINCIPAL
-    ===================================================================== */
-    SELECT
-        TO_CHAR(
-            car.fefecto,
-            'YYYY-MM-DD'
-        ) AS fecha_inicio_vigencia,
-        TO_CHAR(
-            ffv.fecha_fin_vigencia,
-            'YYYY-MM-DD'
-        ) AS fecha_fin_vigencia,
-        TO_CHAR(
-            car.femisIO,
-            'YYYY-MM-DD'
-        ) AS fecha_emision,
-        /* ================================================================
-        TIPO DOCUMENTO
-        ================================================================ */
-        CASE pp_tom.ctipide
-            WHEN 24 THEN 'P.P'
-            WHEN 33 THEN 'C.E'
-            WHEN 34 THEN 'Tarjeta identidad'
-            WHEN 35 THEN 'Registro civil'
-            WHEN 36 THEN 'C.C'
-            WHEN 37 THEN 'NIT'
-            WHEN 38 THEN 'N.U.I.P'
-            WHEN 40 THEN 'Pasaporte'
-            WHEN 43 THEN 'BIC'
-            WHEN 44 THEN 'Carnet Diplomático'
-            WHEN 45 THEN 'NIT E.'
-            WHEN 46 THEN 'Permiso especial de permanencia'
-            WHEN 47 THEN 'PECP'
-            WHEN 99 THEN 'Identificador simulaciones'
-            WHEN 0 THEN 'Identificiacion del sistema'
-            WHEN 48 THEN 'P.P.T'
-        END AS tipo_documento,
-        pp_tom.nnumide AS numero_identificacion_tomador,
-        /* ================================================================
-        NOMBRE TOMADOR
-        ================================================================ */
-        TRIM(
-            COALESCE(per_det.tapelli1, '') ||
-            CASE
-                WHEN per_det.tapelli2 IS NOT NULL
-                THEN ' ' || TRIM(per_det.tapelli2)
-                ELSE ''
-            END ||
-            CASE
-                WHEN per_det.tnombre1 IS NOT NULL
-                THEN ' ' || TRIM(per_det.tnombre1)
-                ELSE ''
-            END
-        ) AS nombre_tomador,
-        car.npoliza AS numero_poliza,
-        /* ================================================================
-        RAMO
-        ================================================================ */
-        CASE
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '10024','900742','LGP','900746','900747',
-                '900774','900776','900751','22','2'
-            )
-            THEN 'EMP'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '900753','6031','6048','6033','6034','6047',
-                '6039','6042','6046','6049','6045','6043',
-                '6035','6038','6041','6036'
-            )
-            THEN 'AUT'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '6071','10003','900758','10001','10000'
-            )
-            THEN 'HOG'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '7469','6023','6025','900720','6026',
-                '900719','6024','6028','7468','7467',
-                '6029','900721','6052'
-            )
-            THEN 'VID'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                'E1','ADU','Z1','H1','SE','T1'
-            )
-            THEN 'SAL'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                'BO','LB','10004','10005','1'
-            )
-            THEN 'CUM'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                'TRC','10','70107','70108','900731',
-                'TRM','900777','8092','900778'
-            )
-            THEN 'TRA'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                'DO1','LA1','111715','900775','900752',
-                'RCL','RCM','REO','RCP'
-            )
-            THEN 'RCE'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '900745','19','900779','17'
-            )
-            THEN 'ING'
-            WHEN CAST(car.sproduc AS VARCHAR) IN (
-                '900730'
-            )
-            THEN 'SOA'
-        END AS ramo,
-        car.sproduc,
-        dv_car.tatribu AS estado,
-        NULL AS vistag,
-        /* ================================================================
-        TIPO POLIZA
-        ================================================================ */
-        CASE
-            WHEN LOWER(
-                CAST(car.sproduc AS VARCHAR)
-            ) IN (
-                '7469','900753','6023','6025','10024',
-                '6048','900720','6026','e1','lgp','6047',
-                'adu','900747','6024','6042','6046','z1',
-                '6029','900774','6049','6045','6043',
-                '6041','h1','6071','10003','900752',
-                '900731','trm'
-            )
-            THEN 'C'
-            ELSE 'I'
-        END AS tipo_poliza,
-        /* ================================================================
-        SUCURSAL
-        ================================================================ */
-        sa.sucursal AS sucursal,
-        /* ================================================================
-        INTERMEDIARIO
-        ================================================================ */
-        car.cagente AS intermediario,
-        /* ================================================================
-        RIESGOS VIGENTES
-        ================================================================ */
-        CASE
-            WHEN 1 = 1 THEN tp.ttitulo
-            WHEN 1 = 2 THEN tp.trotulo
-        END AS riesgos_vigentes,
-        /* ================================================================
-        RIESGOS
-        ================================================================ */
-        COALESCE(
-            CASE
-                WHEN dv.tatribu = 'Vigente'
-                THEN t2.cantidad_cert
-                ELSE 0
-            END,
-            0
-        ) AS riesgos,
-        cc.trespue AS nro_cotizacion,
-        COALESCE(pc.prima_emitida, 0) AS prima_emitida,
-        COALESCE(pc.impuestos, 0) AS impuestos,
-        COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
-        car.sseguro AS sseguro_caratula,
-        cer.ncertif AS certificado_asegurado,
-        cer.sseguro AS sseguro_certificado,
-        TO_CHAR(
-            cer.fefecto,
-            'YYYY-MM-DD'
-        ) AS fecha_inicio_certificado,
-        TO_CHAR(
-            cer.femisio,
-            'YYYY-MM-DD'
-        ) AS fecha_emision_certificado,
-        dv.tatribu AS estado_certificado,
-        mov_cer.cmovseg AS ultimo_movimiento_certificado
-    FROM gde_adp_ods.axis_seguros car
-    INNER JOIN gde_adp_ods.axis_ramos r
-        ON r.cramo = car.cramo
-    AND r.cidioma = 8
-    INNER JOIN gde_adp_ods.axis_tomadores t
-        ON t.sseguro = car.sseguro
-    INNER JOIN gde_adp_ods.axis_per_personas pp_tom
-        ON pp_tom.sperson = t.sperson
-    INNER JOIN gde_adp_ods.axis_seguros cer
-        ON cer.npoliza = car.npoliza
-    INNER JOIN ultimo_movimiento mov_cer
-        ON mov_cer.sseguro = cer.sseguro
-    AND mov_cer.rn = 1
-    INNER JOIN tomador_detalle per_det
-        ON per_det.sperson = t.sperson
-    AND per_det.rn = 1
-    LEFT JOIN cotizacion_certificado cc
-        ON cc.sseguro = cer.sseguro
-    AND cc.rn = 1
-    --LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg
-    --    ON pp_aseg.sperson = aseg_cer.sperson
-    --LEFT JOIN gde_adp_ods.axis_autriesgos ar
-    --    ON aseg_cer.sseguro = ar.sseguro
-    LEFT JOIN gde_adp_ods.axis_pregunpolseg pp
-        ON cc.sseguro = pp.sseguro
-    AND pp.cpregun = 795
-    LEFT JOIN gde_adp_ods.axis_detvalores dv
-        ON dv.cvalor = 61
-    AND dv.cidioma = 8
-    AND dv.catribu = cer.csituac
-    LEFT JOIN gde_adp_ods.axis_detvalores dv_car
-        ON dv_car.cvalor = 61
-    AND dv_car.cidioma = 8
-    AND dv_car.catribu = car.csituac
-    LEFT JOIN (
-        SELECT
-            npoliza,
-            COUNT(*) AS cantidad_cert
-        FROM gde_adp_ods.axis_seguros
-        WHERE ncertif <> 0
-        GROUP BY npoliza
-    ) t2
-        ON car.npoliza = t2.npoliza
-    LEFT JOIN gde_adp_ods.axis_titulopro tp
-        ON tp.ctipseg = car.ctipseg
-    AND tp.cramo = car.cramo
-    AND tp.cmodali = car.cmodali
-    AND tp.ccolect = car.ccolect
-    AND tp.cidioma = 8
-    /* ================================================================
-    FECHA FIN VIGENCIA
-    ================================================================ */
-    LEFT JOIN fecha_fin_vigencia ffv
-        ON ffv.sseguro = car.sseguro   
-    /* ================================================================
-    SUCURSAL
-    ================================================================ */
-    LEFT JOIN sucursal_agente sa
-        ON sa.cagente = car.cagente
-    /* ================================================================
-    PRIMA TOTAL   
-    ================================================================ */
-    LEFT JOIN prima_certificado pc
-        ON pc.sseguro = cer.sseguro
-    WHERE car.cagente IN (
-        '4015907',
-        '4096183'
-    )
-    AND car.sproduc IN (
-        '6071',
-        '10003',
-        '900753',
-        '10024'
-    )
-    AND car.ncertif = 0
-    ORDER BY
-        car.npoliza,
-        cer.ncertif ASC;                    
