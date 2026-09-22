@@ -792,7 +792,7 @@ autriesgos_ultimo AS (
         cer.ncertif AS certificado_asegurado,
         cer.sseguro AS sseguro_certificado,
         dv.tatribu AS estado_certificado,
-        ar.cversion AS cod_fasecolda
+        ar.cversion AS cod_fasecolda,
         COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total
     FROM gde_adp_ods.axis_seguros car
     INNER JOIN gde_adp_ods.axis_ramos r ON r.cramo = car.cramo AND r.cidioma = 8
