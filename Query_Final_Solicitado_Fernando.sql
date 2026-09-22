@@ -584,19 +584,34 @@
             ) AS rn
         FROM gde_adp_ods.axis_per_detper pd
     ),
-    cotizacion_certificado AS (
-        SELECT
-            a.sseguro,
-            pp.trespue,
-            ROW_NUMBER() OVER (
-                PARTITION BY a.sseguro
-                ORDER BY pp.nmovimi DESC NULLS LAST
-            ) AS rn
-        FROM gde_adp_ods.axis_asegurados a
-        INNER JOIN gde_adp_ods.axis_pregunpolseg pp
-            ON pp.sseguro = a.sseguro
-        AND pp.cpregun = 795
-    ),
+    /* ================================================================
+   ASEGURADO DEL CERTIFICADO
+   ================================================================ */
+asegurado_certificado AS (
+    SELECT
+        a.sseguro,
+        a.sperson,
+        a.norden,
+        ROW_NUMBER() OVER (
+            PARTITION BY a.sseguro
+            ORDER BY a.norden ASC
+        ) AS rn
+    FROM gde_adp_ods.axis_asegurados a
+),
+/* ================================================================
+   COTIZACIÓN - PREGUNTA 795
+   ================================================================ */
+cotizacion_certificado AS (
+    SELECT
+        pp.sseguro,
+        pp.trespue,
+        ROW_NUMBER() OVER (
+            PARTITION BY pp.sseguro
+            ORDER BY pp.nmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_pregunpolseg pp
+    WHERE pp.cpregun = 795
+),
     ultimo_movimiento AS (
         SELECT
             m.sseguro,
@@ -774,7 +789,8 @@
     INNER JOIN gde_adp_ods.axis_seguros cer ON cer.npoliza = car.npoliza
     INNER JOIN ultimo_movimiento mov_cer ON mov_cer.sseguro = cer.sseguro AND mov_cer.rn = 1
     INNER JOIN tomador_detalle per_det ON per_det.sperson = t.sperson AND per_det.rn = 1
-    LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguro AND cc.rn = 1
+    LEFT JOIN asegurado_certificado aseg_cer ON aseg_cer.sseguro = cer.sseguro AND aseg_cer.rn = 1
+    LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguroAND cc.rn = 1
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON cc.sseguro = pp.sseguro AND pp.cpregun = 795
     LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
     LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
