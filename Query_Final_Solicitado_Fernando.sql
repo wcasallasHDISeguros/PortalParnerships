@@ -612,6 +612,17 @@ cotizacion_certificado AS (
     FROM gde_adp_ods.axis_pregunpolseg pp
     WHERE pp.cpregun = 795
 ),
+autriesgos_ultimo AS (
+    SELECT
+        ar.sseguro,
+        ar.cversion,
+        ar.nmovimi,
+        ROW_NUMBER() OVER (
+            PARTITION BY ar.sseguro
+            ORDER BY ar.nmovimi DESC
+        ) AS rn
+    FROM gde_adp_ods.axis_autriesgos ar
+),
     ultimo_movimiento AS (
         SELECT
             m.sseguro,
@@ -792,6 +803,7 @@ cotizacion_certificado AS (
     LEFT JOIN asegurado_certificado aseg_cer ON aseg_cer.sseguro = cer.sseguro AND aseg_cer.rn = 1
     LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg ON pp_aseg.sperson = aseg_cer.sperson
     LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguro AND cc.rn = 1
+    LEFT JOIN autriesgos_ultimo ar ON ar.sseguro = aseg_cer.sseguro AND ar.rn = 1
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON cc.sseguro = pp.sseguro AND pp.cpregun = 795
     LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
     LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
