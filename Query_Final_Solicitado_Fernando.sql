@@ -573,16 +573,16 @@
     ),
     /*Campos que estan en Select principal y se deben manejar con consultas independientes para evitar duplicidad de datos*/
     tomador_detalle AS (
-        SELECT
-            pd.sperson,
-            pd.tapelli1,
-            pd.tapelli2,
-            pd.tnombre1,
-            ROW_NUMBER() OVER (
-                PARTITION BY pd.sperson
-                ORDER BY pd.fmovimi DESC NULLS LAST
-            ) AS rn
-        FROM gde_adp_ods.axis_per_detper pd
+    SELECT
+        pd.sperson,
+        pd.tnombre,
+        pd.tapelli1,
+        pd.tapelli2,
+        ROW_NUMBER() OVER (
+            PARTITION BY pd.sperson
+            ORDER BY pd.fmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_per_detper pd
     ),
     /* ================================================================
    ASEGURADO DEL CERTIFICADO
@@ -676,15 +676,15 @@ autriesgos_ultimo AS (
         NOMBRE TOMADOR
         ================================================================ */
         TRIM(
-            COALESCE(per_det.tapelli1, '') ||
+            COALESCE(per_det.tnombre, '') ||
             CASE
-                WHEN per_det.tapelli2 IS NOT NULL
-                THEN ' ' || TRIM(per_det.tapelli2)
+                WHEN per_det.tapelli1 IS NOT NULL
+                    THEN ' ' || TRIM(per_det.tapelli1)
                 ELSE ''
             END ||
             CASE
-                WHEN per_det.tnombre1 IS NOT NULL
-                THEN ' ' || TRIM(per_det.tnombre1)
+                WHEN per_det.tapelli2 IS NOT NULL
+                    THEN ' ' || TRIM(per_det.tapelli2)
                 ELSE ''
             END
         ) AS nombre_tomador,
