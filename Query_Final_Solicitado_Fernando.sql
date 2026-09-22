@@ -790,7 +790,7 @@ cotizacion_certificado AS (
     INNER JOIN ultimo_movimiento mov_cer ON mov_cer.sseguro = cer.sseguro AND mov_cer.rn = 1
     INNER JOIN tomador_detalle per_det ON per_det.sperson = t.sperson AND per_det.rn = 1
     LEFT JOIN asegurado_certificado aseg_cer ON aseg_cer.sseguro = cer.sseguro AND aseg_cer.rn = 1
-    LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguroAND cc.rn = 1
+    LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguro AND cc.rn = 1
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON cc.sseguro = pp.sseguro AND pp.cpregun = 795
     LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
     LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
