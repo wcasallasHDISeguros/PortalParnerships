@@ -616,11 +616,14 @@ autriesgos_ultimo AS (
     SELECT
         ar.sseguro,
         ar.cversion,
+        ar.cmatric,
         ar.nmovimi,
+
         ROW_NUMBER() OVER (
             PARTITION BY ar.sseguro
             ORDER BY ar.nmovimi DESC
         ) AS rn
+
     FROM gde_adp_ods.axis_autriesgos ar
 ),
     ultimo_movimiento AS (
