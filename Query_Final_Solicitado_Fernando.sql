@@ -796,6 +796,7 @@ autriesgos_ultimo AS (
         cer.sseguro AS sseguro_certificado,
         dv.tatribu AS estado_certificado,
         COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
+        ar.cmatric AS placa,
         decode(pp_aseg.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') tipo_documento_asegurado,
         pp_aseg.nnumide AS numero_identificacion_asegurado,
         TRIM(
