@@ -168,34 +168,453 @@
             Por ahora no forzamos un agente.
         */
     ),
-    /* =====================================================================
-    8. F_NOMBRE - PERSONA GENERAL
-        Tercera ruta de Oracle:
+/* =====================================================================
+   8. CONTEXTO ORACLE - FF_AGENTEPROD()
 
-            FROM personas
-            WHERE sperson = psperson
-    ===================================================================== */
-    nombre_persona AS (
+   Oracle:
+       FF_AGENTEPROD()
+         -> IAX_AGENTEPROD
+         -> fallback IAX_AGENTE
+
+   En Redshift no existe SYS_CONTEXT.
+   Por lo tanto agente_prod debe recibirse/configurarse para la ejecución.
+   ===================================================================== */
+/* =====================================================================
+   PARÁMETROS DE CONTEXTO ORACLE
+   =====================================================================
+
+   Oracle utiliza información almacenada en el contexto de sesión:
+
+       FF_AGENTEPROD()
+           -> PAC_CONTEXTO('IAX_AGENTEPROD')
+           -> fallback PAC_CONTEXTO('IAX_AGENTE')
+
+       F_USER
+           -> usuario actual de la sesión Oracle
+
+   Redshift no dispone directamente del contexto Oracle.
+
+   Por ahora estos valores quedan parametrizados.
+
+   PENDIENTE:
+       - Definir agente_prod real de la ejecución.
+       - Definir usuario real de la ejecución.
+
+   ===================================================================== */
+parametros_contexto AS (
+    SELECT
+        CAST(NULL AS BIGINT)       AS agente_prod,
+        CAST(NULL AS VARCHAR(100)) AS usuario
+),
+
+
+/* =====================================================================
+   PERSONAS_PUBLICAS - DUMMY TEMPORAL
+   =====================================================================
+
+   Oracle:
+
+       AXIS.PERSONAS_PUBLICAS
+
+   depende de:
+
+       PER_PERSONAS
+       AGENTES
+       AGENTES_AGENTE
+       AGEREDCOM
+       USUARIOS
+       F_USER
+
+   Actualmente AGEREDCOM NO está migrada.
+
+   Además:
+
+       AGENTES_AGENTE
+
+   también depende de AGEREDCOM:
+
+       AGEREDCOM
+           +
+       REDCOMERCIAL
+           +
+       PAC_USER.FF_GET_CAGENTE(F_USER)
+
+   Por esta razón todavía NO podemos reproducir completamente
+   las reglas de visibilidad de PERSONAS_PUBLICAS.
+
+   ---------------------------------------------------------------------
+   DUMMY TEMPORAL
+   ---------------------------------------------------------------------
+
+   Mientras se migra AGEREDCOM, consideramos como visible cualquier
+   persona marcada como pública:
+
+       PER_PERSONAS.SWPUBLI = 1
+
+   IMPORTANTE:
+
+   Esta implementación NO reproduce todavía la seguridad/visibilidad
+   dependiente del usuario que existe en Oracle.
+
+   Debe reemplazarse cuando estén disponibles:
+
+       - AGEREDCOM
+       - AGENTES_AGENTE definitiva
+       - contexto F_USER / usuario de ejecución
+
+   ===================================================================== */
+personas_publicas_rs AS (
+    SELECT DISTINCT
+        p.sperson
+    FROM gde_adp_ods.axis_per_personas p
+    WHERE p.swpubli = 1
+),
+/* =====================================================================
+   PERSONAS - MIGRACIÓN DE AXIS.PERSONAS
+   =====================================================================
+   La vista Oracle AXIS.PERSONAS tiene tres ramas:
+   1. Persona pública/autorizada
+   2. Persona privada sin detalle para FF_AGENTEPROD()
+   3. Persona privada con detalle para FF_AGENTEPROD()
+   Para F_NOMBRE solamente necesitamos:
+       sperson
+       nnumide
+       ctipide
+       swpubli
+       cagente
+       tapelli1
+       tapelli2
+       tnombre
+       fmovimi
+   PER_CCC no se incluye porque CBANCAR y CTIPBAN
+   no participan en F_NOMBRE.
+   ===================================================================== */
+/* =====================================================================
+   PERSONAS - RAMA 1
+   PERSONA PÚBLICA / AUTORIZADA
+   Oracle:
+       FROM per_personas per,
+            per_detper d,
+            per_ccc c,
+            personas_publicas pp
+       WHERE per.sperson = d.sperson
+         AND per.sperson = pp.sperson
+         AND per.cagente = d.cagente
+   PERSONAS_PUBLICAS está temporalmente representada por
+   personas_publicas_rs.
+   ===================================================================== */
+personas_rama_publica AS (
+    SELECT
+        per.sperson,
+        per.nnumide,
+        per.ctipide,
+        per.swpubli,
+        d.cagente,
+        d.cidioma,
+        d.tapelli1,
+        d.tapelli2,
+        d.tnombre,
+        d.fmovimi,
+        ROW_NUMBER() OVER (
+            PARTITION BY per.sperson
+            ORDER BY
+                d.fmovimi DESC NULLS LAST,
+                d.cagente DESC
+        ) AS rn
+    FROM gde_adp_ods.axis_per_personas per
+    INNER JOIN gde_adp_ods.axis_per_detper d
+        ON d.sperson = per.sperson
+       AND d.cagente = per.cagente
+    INNER JOIN personas_publicas_rs pp
+        ON pp.sperson = per.sperson
+),
+/* =====================================================================
+   PERSONAS - DETALLE PARA AGENTE DE PRODUCCIÓN
+   Este CTE nos permite saber si una persona privada tiene
+   PER_DETPER asociado al FF_AGENTEPROD().
+   Oracle utiliza:
+       d.cagente = FF_AGENTEPROD()
+   Redshift:
+       d.cagente = ctx.agente_prod
+   ===================================================================== */
+persona_detalle_agente_prod AS (
+    SELECT
+        d.sperson,
+        d.cagente,
+        d.cidioma,
+        d.tapelli1,
+        d.tapelli2,
+        d.tnombre,
+        d.fmovimi,
+        ROW_NUMBER() OVER (
+            PARTITION BY d.sperson
+            ORDER BY d.fmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_per_detper d
+    CROSS JOIN parametros_contexto ctx
+    WHERE d.cagente = ctx.agente_prod
+),
+/* =====================================================================
+   PERSONAS - RAMA 3 ORACLE
+   PERSONA PRIVADA CON DETALLE PARA FF_AGENTEPROD()
+   Oracle:
+       per.swpubli = 0
+       AND d.cagente = FF_AGENTEPROD()
+   Esta es la ruta preferente para una persona privada cuando existe
+   información específica para el agente de producción.
+   ===================================================================== */
+personas_rama_privada_agente AS (
+    SELECT
+        per.sperson,
+        per.nnumide,
+        per.ctipide,
+        per.swpubli,
+        d.cagente,
+        d.cidioma,
+        d.tapelli1,
+        d.tapelli2,
+        d.tnombre,
+        d.fmovimi,
+        ROW_NUMBER() OVER (
+            PARTITION BY per.sperson
+            ORDER BY d.fmovimi DESC NULLS LAST
+        ) AS rn
+    FROM gde_adp_ods.axis_per_personas per
+    INNER JOIN gde_adp_ods.axis_per_detper d
+        ON d.sperson = per.sperson
+    CROSS JOIN parametros_contexto ctx
+    WHERE per.swpubli = 0
+      AND d.cagente = ctx.agente_prod
+),
+/* =====================================================================
+   PERSONAS - ÚLTIMO DETALLE PARA FALLBACK
+   Oracle utiliza:
+       d.fmovimi = (
+           SELECT MAX(dd.fmovimi)
+           FROM per_detper dd,
+                agentes_agente aa2
+           WHERE dd.sperson = d.sperson
+             AND dd.cagente = aa2.cagente
+       )
+   AGENTES_AGENTE depende de AGEREDCOM, que todavía NO está migrada.
+   DUMMY TEMPORAL:
+       Mientras se completa AGEREDCOM / AGENTES_AGENTE,
+       seleccionamos el último PER_DETPER disponible de la persona.
+   IMPORTANTE:
+       Esta equivalencia es temporal.
+   ===================================================================== */
+persona_detalle_fallback AS (
+    SELECT
+        d.sperson,
+        d.cagente,
+        d.cidioma,
+        d.tapelli1,
+        d.tapelli2,
+        d.tnombre,
+        d.fmovimi,
+        ROW_NUMBER() OVER (
+            PARTITION BY d.sperson
+            ORDER BY
+                d.fmovimi DESC NULLS LAST,
+                d.cagente DESC
+        ) AS rn
+    FROM gde_adp_ods.axis_per_detper d
+),
+/* =====================================================================
+   PERSONAS - RAMA 2 ORACLE
+   PERSONA PRIVADA SIN DETALLE PARA FF_AGENTEPROD()
+   Oracle:
+       per.swpubli = 0
+       AND d.cagente != FF_AGENTEPROD()
+       AND NOT EXISTS (
+           SELECT 1
+           FROM per_detper dd
+           WHERE dd.sperson = per.sperson
+             AND dd.cagente = FF_AGENTEPROD()
+       )
+   Además utiliza el último detalle permitido por AGENTES_AGENTE.
+   Como AGENTES_AGENTE todavía depende de AGEREDCOM,
+   usamos persona_detalle_fallback temporalmente.
+   ===================================================================== */
+personas_rama_privada_fallback AS (
+    SELECT
+        per.sperson,
+        per.nnumide,
+        per.ctipide,
+        per.swpubli,
+        d.cagente,
+        d.cidioma,
+        d.tapelli1,
+        d.tapelli2,
+        d.tnombre,
+        d.fmovimi,
+        1 AS rn
+    FROM gde_adp_ods.axis_per_personas per
+    INNER JOIN persona_detalle_fallback d
+        ON d.sperson = per.sperson
+       AND d.rn = 1
+    CROSS JOIN parametros_contexto ctx
+    WHERE per.swpubli = 0
+      /* ---------------------------------------------------------------
+         Oracle:
+             d.cagente != FF_AGENTEPROD()
+
+         Si agente_prod todavía es NULL, permitimos el fallback temporal.
+         --------------------------------------------------------------- */
+      AND (
+            ctx.agente_prod IS NULL
+            OR d.cagente <> ctx.agente_prod
+          )
+      /* ---------------------------------------------------------------
+         Oracle:
+             NOT EXISTS detalle para FF_AGENTEPROD()
+
+         Si agente_prod es NULL todavía no existe contexto que validar.
+         --------------------------------------------------------------- */
+      AND (
+            ctx.agente_prod IS NULL
+            OR NOT EXISTS (
+                SELECT 1
+                FROM gde_adp_ods.axis_per_detper dd
+                WHERE dd.sperson = per.sperson
+                  AND dd.cagente = ctx.agente_prod
+            )
+          )
+),
+/* =====================================================================
+   CONSOLIDACIÓN DE AXIS.PERSONAS
+   Se unen las tres ramas.
+   prioridad:
+       1 = Pública
+       2 = Privada específica FF_AGENTEPROD
+       3 = Privada fallback
+   UNION ALL es intencional porque posteriormente controlamos
+   explícitamente cuál registro utilizar mediante ROW_NUMBER().
+   ===================================================================== */
+personas_base AS (
+    /* ---------------------------------------------------------------
+       RAMA 1 - Persona pública
+       --------------------------------------------------------------- */
+    SELECT
+        sperson,
+        nnumide,
+        ctipide,
+        swpubli,
+        cagente,
+        cidioma,
+        tapelli1,
+        tapelli2,
+        tnombre,
+        fmovimi,
+        1 AS prioridad
+    FROM personas_rama_publica
+    WHERE rn = 1
+    UNION ALL
+    /* ---------------------------------------------------------------
+       RAMA 3 Oracle - Privada para FF_AGENTEPROD
+       --------------------------------------------------------------- */
+    SELECT
+        sperson,
+        nnumide,
+        ctipide,
+        swpubli,
+        cagente,
+        cidioma,
+        tapelli1,
+        tapelli2,
+        tnombre,
+        fmovimi,
+        2 AS prioridad
+    FROM personas_rama_privada_agente
+    WHERE rn = 1
+    UNION ALL
+    /* ---------------------------------------------------------------
+       RAMA 2 Oracle - Privada fallback
+       --------------------------------------------------------------- */
+    SELECT
+        sperson,
+        nnumide,
+        ctipide,
+        swpubli,
+        cagente,
+        cidioma,
+        tapelli1,
+        tapelli2,
+        tnombre,
+        fmovimi,
+        3 AS prioridad
+    FROM personas_rama_privada_fallback
+    WHERE rn = 1
+),
+/* =====================================================================
+   PERSONAS_RS
+
+   Resultado final equivalente a PERSONAS para los campos que necesita
+   nuestra migración de F_NOMBRE.
+
+   Protección adicional:
+       máximo 1 registro por SPERSON.
+
+   Esto evita que el JOIN posterior pueda multiplicar pólizas.
+   ===================================================================== */
+personas_rs AS (
+    SELECT
+        sperson,
+        nnumide,
+        ctipide,
+        swpubli,
+        cagente,
+        cidioma,
+        tapelli1,
+        tapelli2,
+        tnombre,
+        fmovimi
+    FROM (
         SELECT
-            db.cagente,
-            db.cpadre,
-            db.sperson_agente,
-            --TRIM(p.tapelli1) AS tapelli1,
-            --TRIM(p.tapelli2) AS tapelli2,
-            --TRIM(p.tnombre) AS tnombre,
-            --p.nnumnif AS nnumide,
-            'DUMMY' AS tapelli1,
-            'PERSONA' AS tapelli2,
-            'PERSONA_' || CAST(db.sperson_agente AS VARCHAR) AS tnombre,
-            CAST(NULL AS VARCHAR(50)) AS nnumide,
+            pb.*,
             ROW_NUMBER() OVER (
-                PARTITION BY db.cagente
-                ORDER BY db.sperson_agente
-            ) AS rn
-        FROM desagente_base db
-        --INNER JOIN gde_adp_ods.axis_personas p
-            --ON p.sperson = db.sperson_agente
-    ),
+                PARTITION BY pb.sperson
+                ORDER BY
+                    pb.prioridad ASC,
+                    pb.fmovimi DESC NULLS LAST,
+                    pb.cagente DESC
+            ) AS rn_final
+        FROM personas_base pb
+
+    ) x
+    WHERE rn_final = 1
+),
+/* =====================================================================
+   F_NOMBRE - TERCERA RUTA
+   AXIS.PERSONAS
+
+   Oracle:
+
+       SELECT ...
+       FROM personas
+       WHERE sperson = psperson
+
+   PERSONAS ahora está representada por personas_rs.
+   ===================================================================== */
+nombre_persona AS (
+    SELECT
+        db.cagente,
+        db.cpadre,
+        db.sperson_agente,
+        p.tapelli1,
+        p.tapelli2,
+        p.tnombre,
+        p.nnumide,
+        ROW_NUMBER() OVER (
+            PARTITION BY db.cagente
+            ORDER BY
+                p.fmovimi DESC NULLS LAST,
+                p.sperson
+        ) AS rn
+    FROM desagente_base db
+    INNER JOIN personas_rs p
+        ON p.sperson = db.sperson_agente
+),  
     /* =====================================================================
     9. TAPENOM
         F_NOMBRE primero construye el nombre y posteriormente:
@@ -822,7 +1241,7 @@ autriesgos_ultimo AS (
     LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg ON pp_aseg.sperson = aseg_cer.sperson
     LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguro AND cc.rn = 1
     LEFT JOIN persona_detalle per_det_aseg ON per_det_aseg.sperson = aseg_cer.sperson AND per_det_aseg.rn = 1
-    LEFT JOIN autriesgos_ultimo ar ON ar.sseguro = cer.sseguro AND ar.rn = 1
+    LEFT JOIN autriesgos_ultimo ar ON ar.sseguro = aseg_cer.sseguro AND ar.rn = 1
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON cc.sseguro = pp.sseguro AND pp.cpregun = 795
     LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
     LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
