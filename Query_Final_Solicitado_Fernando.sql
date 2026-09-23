@@ -206,58 +206,39 @@ parametros_contexto AS (
         CAST(NULL AS BIGINT)       AS agente_prod,
         CAST(NULL AS VARCHAR(100)) AS usuario
 ),
-
-
 /* =====================================================================
    PERSONAS_PUBLICAS - DUMMY TEMPORAL
    =====================================================================
-
    Oracle:
-
        AXIS.PERSONAS_PUBLICAS
-
    depende de:
-
        PER_PERSONAS
        AGENTES
        AGENTES_AGENTE
        AGEREDCOM
        USUARIOS
        F_USER
-
    Actualmente AGEREDCOM NO está migrada.
-
    Además:
-
        AGENTES_AGENTE
-
    también depende de AGEREDCOM:
-
        AGEREDCOM
            +
        REDCOMERCIAL
            +
        PAC_USER.FF_GET_CAGENTE(F_USER)
-
    Por esta razón todavía NO podemos reproducir completamente
    las reglas de visibilidad de PERSONAS_PUBLICAS.
-
    ---------------------------------------------------------------------
    DUMMY TEMPORAL
    ---------------------------------------------------------------------
-
    Mientras se migra AGEREDCOM, consideramos como visible cualquier
    persona marcada como pública:
-
        PER_PERSONAS.SWPUBLI = 1
-
    IMPORTANTE:
-
    Esta implementación NO reproduce todavía la seguridad/visibilidad
    dependiente del usuario que existe en Oracle.
-
    Debe reemplazarse cuando estén disponibles:
-
        - AGEREDCOM
        - AGENTES_AGENTE definitiva
        - contexto F_USER / usuario de ejecución
