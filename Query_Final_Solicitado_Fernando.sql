@@ -618,7 +618,6 @@ autriesgos_ultimo AS (
         ar.cversion,
         ar.cmatric,
         ar.nmovimi,
-
         ROW_NUMBER() OVER (
             PARTITION BY ar.sseguro
             ORDER BY ar.nmovimi DESC
@@ -796,7 +795,6 @@ autriesgos_ultimo AS (
         cer.sseguro AS sseguro_certificado,
         dv.tatribu AS estado_certificado,
         COALESCE(pc.prima_emitida, 0) + COALESCE(pc.impuestos, 0) AS prima_total,
-        ar.cmatric AS placa,
         decode(pp_aseg.ctipide , 24, 'P.P',33, 'C.E',34,'Tarjeta identidad',35,'Registro civil',36,'C.C',37,'NIT',38,'N.U.I.P',40,'Pasaporte',43,'BIC',44,'Carnet Diplomático',45,'NIT E.',46,'Permiso especial de permanencia',47,'PECP',99,'Identificador simulaciones', 0, 'Identificiacion del sistema', 48, 'P.P.T') tipo_documento_asegurado,
         pp_aseg.nnumide AS numero_identificacion_asegurado,
         TRIM(
@@ -824,7 +822,7 @@ autriesgos_ultimo AS (
     LEFT JOIN gde_adp_ods.axis_per_personas pp_aseg ON pp_aseg.sperson = aseg_cer.sperson
     LEFT JOIN cotizacion_certificado cc ON cc.sseguro = cer.sseguro AND cc.rn = 1
     LEFT JOIN persona_detalle per_det_aseg ON per_det_aseg.sperson = aseg_cer.sperson AND per_det_aseg.rn = 1
-    LEFT JOIN autriesgos_ultimo ar ON ar.sseguro = aseg_cer.sseguro AND ar.rn = 1
+    LEFT JOIN autriesgos_ultimo ar ON ar.sseguro = cer.sseguro AND ar.rn = 1
     LEFT JOIN gde_adp_ods.axis_pregunpolseg pp ON cc.sseguro = pp.sseguro AND pp.cpregun = 795
     LEFT JOIN gde_adp_ods.axis_detvalores dv ON dv.cvalor = 61 AND dv.cidioma = 8 AND dv.catribu = cer.csituac
     LEFT JOIN gde_adp_ods.axis_detvalores dv_car ON dv_car.cvalor = 61 AND dv_car.cidioma = 8 AND dv_car.catribu = car.csituac
