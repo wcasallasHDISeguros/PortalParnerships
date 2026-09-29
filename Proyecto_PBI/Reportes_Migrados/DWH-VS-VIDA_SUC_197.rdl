@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1820.75</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2026-09-29T21:53:55.9337430Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2026-09-29T22:21:25.6388658Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -21,7 +21,6 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
-        <Prompt>Specify a user name and password for data source DataSource1:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>f590e58d-faaa-4c88-8407-8f0e0a1a40a5</rd:DataSourceID>
     </DataSource>
@@ -30,7 +29,6 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
-        <Prompt>Specify a user name and password for data source DataSource2:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>cdb4ca4f-e4df-41c7-ab33-ca32f3b96251</rd:DataSourceID>
     </DataSource>
@@ -39,7 +37,6 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
-        <Prompt>Specify a user name and password for data source DataSource3:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>99b994d1-0c8e-40a6-94a7-ac0ef3589b4e</rd:DataSourceID>
     </DataSource>
@@ -48,7 +45,6 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
-        <Prompt>Specify a user name and password for data source DataSource4:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>fcabff7f-c498-4211-97bc-04473ad69441</rd:DataSourceID>
     </DataSource>
@@ -57,6 +53,11 @@
     <DataSet Name="DataSet1">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
+        <QueryParameters>
+          <QueryParameter Name="@periodo_contable">
+            <Value>=Parameters!periodo_contable.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
         <CommandText>SELECT 
       PERIODO_CONTABLE
       ,RAMO_PROD
@@ -64,7 +65,7 @@
       ,TIPO_IDENTIFI_TOM
       ,NRO_IDENTIFI_TOM
       ,sum(VR_PRIMA_PESOS_COA) as PRIMA_EMITIDA
-      COD_MODALIDAD
+      ,COD_MODALIDAD
 	  , case 
 	  when COD_MODALIDAD=3 then 'PAZ Y SALVO'
 	  when COD_MODALIDAD=5 then 'PROGRAMA FUTURO PROTEGIDO-PAP'
@@ -72,6 +73,8 @@
 	  when COD_MODALIDAD=8 then 'SEGURO FUNERARIO'
 	  else 'Sin Modalidad'
 	  end as Desc_Modalidad
+	  
+
   FROM Liberty.PROD.DWH_POLIZAS_H t1
   where PERIODO_CONTABLE =@periodo_contable  and sucursal_prod=197 
   GROUP BY 
@@ -82,20 +85,67 @@
       ,NRO_IDENTIFI_TOM
       ,COD_MODALIDAD</CommandText>
       </Query>
+      <Fields>
+        <Field Name="PERIODO_CONTABLE">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>PERIODO_CONTABLE</DataField>
+        </Field>
+        <Field Name="RAMO_PROD">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>RAMO_PROD</DataField>
+        </Field>
+        <Field Name="POLIZA">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>POLIZA</DataField>
+        </Field>
+        <Field Name="TIPO_IDENTIFI_TOM">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>TIPO_IDENTIFI_TOM</DataField>
+        </Field>
+        <Field Name="NRO_IDENTIFI_TOM">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>NRO_IDENTIFI_TOM</DataField>
+        </Field>
+        <Field Name="PRIMA_EMITIDA">
+          <rd:TypeName>System.Decimal</rd:TypeName>
+          <DataField>PRIMA_EMITIDA</DataField>
+        </Field>
+        <Field Name="COD_MODALIDAD">
+          <rd:TypeName>System.Int16</rd:TypeName>
+          <DataField>COD_MODALIDAD</DataField>
+        </Field>
+        <Field Name="Desc_Modalidad">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Desc_Modalidad</DataField>
+        </Field>
+      </Fields>
     </DataSet>
     <DataSet Name="periodos">
       <Query>
         <DataSourceName>DataSource2</DataSourceName>
         <CommandText>SELECT distinct
-      PERIODO_CONTABLE
-     FROM Liberty.PROD.[DWH_POLIZAS_H t1
-  where PERIODO_CONTABLE BETWEEN 202201 AND 203001 order by PERIODO_CONTABLE</CommandText>
+      [PERIODO_CONTABLE]
+   
+  FROM [Liberty].[PROD].[DWH_POLIZAS_H] t1
+  where PERIODO_CONTABLE BETWEEN 202201 AND 203001 order by [PERIODO_CONTABLE]</CommandText>
       </Query>
+      <Fields>
+        <Field Name="PERIODO_CONTABLE">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>PERIODO_CONTABLE</DataField>
+        </Field>
+      </Fields>
     </DataSet>
     <DataSet Name="DataSet2">
       <Query>
         <DataSourceName>DataSource3</DataSourceName>
-        <CommandText>SELECT 
+        <QueryParameters>
+          <QueryParameter Name="@ANNO">
+            <Value>=Parameters!ANNO.Value</Value>
+          </QueryParameter>
+        </QueryParameters>
+        <CommandText>
+SELECT 
       PERIODO_CONTABLE
       ,sum(VR_PRIMA_PESOS_COA) as PRIMA_EMITIDA
 	  , case 
@@ -111,15 +161,36 @@
        PERIODO_CONTABLE
       ,COD_MODALIDAD</CommandText>
       </Query>
+      <Fields>
+        <Field Name="PERIODO_CONTABLE">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>PERIODO_CONTABLE</DataField>
+        </Field>
+        <Field Name="PRIMA_EMITIDA">
+          <rd:TypeName>System.Decimal</rd:TypeName>
+          <DataField>PRIMA_EMITIDA</DataField>
+        </Field>
+        <Field Name="Desc_Modalidad">
+          <rd:TypeName>System.String</rd:TypeName>
+          <DataField>Desc_Modalidad</DataField>
+        </Field>
+      </Fields>
     </DataSet>
     <DataSet Name="ANNO">
       <Query>
         <DataSourceName>DataSource4</DataSourceName>
         <CommandText>  SELECT distinct
       ANNO_CONTABLE
-  FROM Liberty.PROD.DWH_POLIZAS_H t1
+   
+  FROM [Liberty].[PROD].[DWH_POLIZAS_H] t1
   where PERIODO_CONTABLE BETWEEN 202201 AND 203001 order by ANNO_CONTABLE</CommandText>
       </Query>
+      <Fields>
+        <Field Name="ANNO_CONTABLE">
+          <rd:TypeName>System.Int32</rd:TypeName>
+          <DataField>ANNO_CONTABLE</DataField>
+        </Field>
+      </Fields>
     </DataSet>
   </DataSets>
   <ReportSections>

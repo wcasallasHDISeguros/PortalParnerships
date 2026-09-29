@@ -1,5 +1,8 @@
-The 'Group' expression for the grouping 'PERIODO_CONTABLE' refers to the field 'PERIODO_CONTABLE'.  Report item expressions can only refer to fields within the current dataset scope or, if inside an aggregate, the specified dataset scope. Letters in the names of fields must use the correct case.
+ERROR [42703] [Redshift][ODBC Driver][Server]42703:ERROR:  column "anno" does not exist in t1
+
 ----------------------------
-The definition of the report '' is invalid.
+Query execution failed for dataset 'DataSet2'.
+----------------------------
+An error has occurred during report processing.
 ----------------------------
 An error occurred during local report processing.
