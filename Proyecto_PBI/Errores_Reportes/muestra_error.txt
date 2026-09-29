@@ -1,0 +1,5 @@
+The 'Group' expression for the grouping 'PERIODO_CONTABLE' refers to the field 'PERIODO_CONTABLE'.  Report item expressions can only refer to fields within the current dataset scope or, if inside an aggregate, the specified dataset scope. Letters in the names of fields must use the correct case.
+----------------------------
+The definition of the report '' is invalid.
+----------------------------
+An error occurred during local report processing.
