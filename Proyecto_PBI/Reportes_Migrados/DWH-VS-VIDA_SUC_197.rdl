@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Report MustUnderstand="df" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:cl="http://schemas.microsoft.com/sqlserver/reporting/2010/01/componentdefinition" xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" xmlns:am="http://schemas.microsoft.com/sqlserver/reporting/authoringmetadata">
   <rd:ReportUnitType>Mm</rd:ReportUnitType>
   <rd:ReportID>de52728d-9066-45ea-86dd-2604cba9e843</rd:ReportID>
@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1820.75</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2026-09-29T22:21:25.6388658Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2026-09-30T13:45:20.9707788Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -21,6 +21,7 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
+        <Prompt>Specify a user name and password for data source DataSource1:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>f590e58d-faaa-4c88-8407-8f0e0a1a40a5</rd:DataSourceID>
     </DataSource>
@@ -29,6 +30,7 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
+        <Prompt>Specify a user name and password for data source DataSource2:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>cdb4ca4f-e4df-41c7-ab33-ca32f3b96251</rd:DataSourceID>
     </DataSource>
@@ -37,6 +39,7 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
+        <Prompt>Specify a user name and password for data source DataSource3:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>99b994d1-0c8e-40a6-94a7-ac0ef3589b4e</rd:DataSourceID>
     </DataSource>
@@ -45,6 +48,7 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
+        <Prompt>Specify a user name and password for data source DataSource4:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>fcabff7f-c498-4211-97bc-04473ad69441</rd:DataSourceID>
     </DataSource>
@@ -54,7 +58,7 @@
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
         <QueryParameters>
-          <QueryParameter Name="@periodo_contable">
+          <QueryParameter Name="?">
             <Value>=Parameters!periodo_contable.Value</Value>
           </QueryParameter>
         </QueryParameters>
@@ -76,7 +80,7 @@
 	  
 
   FROM Liberty.PROD.DWH_POLIZAS_H t1
-  where PERIODO_CONTABLE =@periodo_contable  and sucursal_prod=197 
+  where PERIODO_CONTABLE =?  and sucursal_prod=197 
   GROUP BY 
        PERIODO_CONTABLE
       ,RAMO_PROD
@@ -88,35 +92,35 @@
       <Fields>
         <Field Name="PERIODO_CONTABLE">
           <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>PERIODO_CONTABLE</DataField>
+          <DataField>periodo_contable</DataField>
         </Field>
         <Field Name="RAMO_PROD">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>RAMO_PROD</DataField>
+          <DataField>ramo_prod</DataField>
         </Field>
         <Field Name="POLIZA">
           <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>POLIZA</DataField>
+          <DataField>poliza</DataField>
         </Field>
         <Field Name="TIPO_IDENTIFI_TOM">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>TIPO_IDENTIFI_TOM</DataField>
+          <DataField>tipo_identifi_tom</DataField>
         </Field>
         <Field Name="NRO_IDENTIFI_TOM">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>NRO_IDENTIFI_TOM</DataField>
+          <DataField>nro_identifi_tom</DataField>
         </Field>
         <Field Name="PRIMA_EMITIDA">
           <rd:TypeName>System.Decimal</rd:TypeName>
-          <DataField>PRIMA_EMITIDA</DataField>
+          <DataField>prima_emitida</DataField>
         </Field>
         <Field Name="COD_MODALIDAD">
           <rd:TypeName>System.Int16</rd:TypeName>
-          <DataField>COD_MODALIDAD</DataField>
+          <DataField>cod_modalidad</DataField>
         </Field>
         <Field Name="Desc_Modalidad">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>Desc_Modalidad</DataField>
+          <DataField>desc_modalidad</DataField>
         </Field>
       </Fields>
     </DataSet>
@@ -140,7 +144,7 @@
       <Query>
         <DataSourceName>DataSource3</DataSourceName>
         <QueryParameters>
-          <QueryParameter Name="@ANNO">
+          <QueryParameter Name="?">
             <Value>=Parameters!ANNO.Value</Value>
           </QueryParameter>
         </QueryParameters>
@@ -156,7 +160,7 @@ SELECT
 	  else 'Sin Modalidad'
 	  end as Desc_Modalidad
   FROM Liberty.PROD.DWH_POLIZAS_H t1
-  where ANNO_CONTABLE = @ANNO and sucursal_prod=197
+  where ANNO_CONTABLE = ? and sucursal_prod=197
   GROUP BY 
        PERIODO_CONTABLE
       ,COD_MODALIDAD</CommandText>
@@ -164,15 +168,15 @@ SELECT
       <Fields>
         <Field Name="PERIODO_CONTABLE">
           <rd:TypeName>System.Int32</rd:TypeName>
-          <DataField>PERIODO_CONTABLE</DataField>
+          <DataField>periodo_contable</DataField>
         </Field>
         <Field Name="PRIMA_EMITIDA">
           <rd:TypeName>System.Decimal</rd:TypeName>
-          <DataField>PRIMA_EMITIDA</DataField>
+          <DataField>prima_emitida</DataField>
         </Field>
         <Field Name="Desc_Modalidad">
           <rd:TypeName>System.String</rd:TypeName>
-          <DataField>Desc_Modalidad</DataField>
+          <DataField>desc_modalidad</DataField>
         </Field>
       </Fields>
     </DataSet>

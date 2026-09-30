@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Report MustUnderstand="df" xmlns="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition" xmlns:rd="http://schemas.microsoft.com/SQLServer/reporting/reportdesigner" xmlns:df="http://schemas.microsoft.com/sqlserver/reporting/2016/01/reportdefinition/defaultfontfamily" xmlns:am="http://schemas.microsoft.com/sqlserver/reporting/authoringmetadata">
   <rd:ReportUnitType>Mm</rd:ReportUnitType>
   <rd:ReportID>d7b99018-96c5-4982-bd39-0ea19848e73a</rd:ReportID>
@@ -11,7 +11,7 @@
       <am:Name>PBIRB</am:Name>
       <am:Version>15.7.1820.75</am:Version>
     </am:UpdatedBy>
-    <am:LastModifiedTimestamp>2026-09-24T13:16:59.2506531Z</am:LastModifiedTimestamp>
+    <am:LastModifiedTimestamp>2026-09-29T19:52:04.3859104Z</am:LastModifiedTimestamp>
   </am:AuthoringMetadata>
   <df:DefaultFontFamily>Segoe UI</df:DefaultFontFamily>
   <AutoRefresh>0</AutoRefresh>
@@ -21,7 +21,6 @@
       <ConnectionProperties>
         <DataProvider>ODBC</DataProvider>
         <ConnectString>Dsn=CDP_HDI_PROD;server=corshftanltc-dprogramp.hdicolombia.com.co;uid=liberty_wh_user;db=liberty;port=9519</ConnectString>
-        <Prompt>Especifique un nombre de usuario y una contraseña para el origen de datos dwh:</Prompt>
       </ConnectionProperties>
       <rd:DataSourceID>46767d4b-433a-427f-8231-cc326ccdb037</rd:DataSourceID>
     </DataSource>
