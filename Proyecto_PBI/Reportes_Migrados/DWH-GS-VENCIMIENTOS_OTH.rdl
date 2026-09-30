@@ -36,312 +36,393 @@
         </QueryParameters>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
         <CommandText>
-select distinct sseguro,max(CRESPUE) as Indice_Variable 
-into #variable
-from [PROD].[DWH_PREGUNGARANSEG] 
-where cpregun =6124 and crespue&lt;&gt;0 
-group by sseguro
+WITH variable AS (
+    SELECT
+        sseguro,
+        MAX(CRESPUE) AS Indice_Variable
+    FROM PROD.DWH_PREGUNGARANSEG
+    WHERE cpregun = 6124
+      AND crespue &lt;&gt; 0
+    GROUP BY sseguro
+),
+polizas_ult_doc AS (
+    SELECT *
+    FROM (
+        SELECT
+            TRIM(RAMO_PROD) || '_' || POLIZA::VARCHAR AS LLAVE_POL,
+            DOCUMENTO,
+            ANEXO,
+            RECIBO,
+            SMOVREC,
+            SUM(VR_ASEG_POLIZA) AS VR_ASEG_POLIZA,
+            SUM(VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,
+            INTERMEDIARIO_LIDE,
+            SUCURSAL_EXPE,
+            TIPO_IDENTIFI_TOM,
+            NRO_IDENTIFI_TOM,
+            COD_MODALIDAD,
+            ROW_NUMBER() OVER (
+                PARTITION BY TRIM(RAMO_PROD) || '_' || POLIZA::VARCHAR
+                ORDER BY POLIZA, DOCUMENTO DESC, ANEXO DESC, RECIBO DESC, SMOVREC DESC
+            ) AS ult_doc
+        FROM Liberty.PROD.DWH_POLIZAS_H
+        WHERE PERIODO_CONTABLE &gt; TO_CHAR(DATEADD(month, -14, CURRENT_DATE), 'YYYYMM')::INTEGER
+          AND FF_CERTIFICADO BETWEEN (TO_CHAR(DATEADD(month, -1, CURRENT_DATE), 'YYYYMM') || '01')::INTEGER
+                                 AND (TO_CHAR(DATEADD(month, 4, CURRENT_DATE), 'YYYYMM') || '31')::INTEGER
+          AND RAMO_PROD IN ('70107','70108','8092  ','900742','900745','900746')
+        GROUP BY RAMO_PROD, POLIZA, CERTIFICADO, DOCUMENTO, ANEXO, RECIBO, SMOVREC,
+                 INTERMEDIARIO_LIDE, SUCURSAL_EXPE, TIPO_IDENTIFI_TOM, NRO_IDENTIFI_TOM, COD_MODALIDAD
+    ) M
+    WHERE ult_doc = 1
+),
+vencimientos_detalle AS (
+    SELECT
+        LEFT(T.FF_CERTIFICADO::VARCHAR, 6) AS PERIODO_VENCIMIENTO,
+        TRIM(T.RAMO_PROD) || '_' || T.POLIZA::VARCHAR AS LLAVE_POL,
+        TRIM(T.RAMO_PROD) || '_' || T.RIESGO::VARCHAR AS LLAVE_CARATULA,
+        TRIM(T.RAMO_PROD) || '_' || T.POLIZA::VARCHAR || '_' || T.RIESGO::VARCHAR AS LLAVE_CERT,
+        P.SUCURSAL_EXPE AS SUCURSAL_LIDER,
+        TRIM(T.RAMO_PROD) AS RAMO_PROD,
+        B.DESC_RAMO_PROD,
+        T.POLIZA,
+        T.RIESGO AS CERTIFICADOS,
+        T.AMPARO,
+        CASE
+            WHEN TRIM(T.RAMO_PROD) || '_' || T.AMPARO::VARCHAR IN (
+                '70107_5485','900742_3042','900731_8047','900742_3039','900742_3036','70107_8044','900745_9883','900745_9884','900742_3124','900742_3130',
+                '70107_8046','70107_5454','900742_3022','900742_3014','900745_9944','900742_3028','70107_8040','900742_3149','70107_5459','900731_8044','900742_3037','70107_5463','900745_9969','900742_3012',
+                '70107_8047','900742_3131','900745_9922','900742_3013','70107_5461','900742_3035','900742_3122','900731_8045','900746_9849','70107_8048','900742_3027','8092_5402','900745_754','70108_6901',
+                '70107_5460','900742_3114','900742_3212','70107_5484','900745_9937','70107_8052','900742_3158','70107_5449','70107_5450','900742_3032','900731_8040','900742_3029','8092_5386','70107_8045',
+                '900745_9921'
+            ) THEN SUM(T.valor_asegurado)
+            ELSE 0
+        END AS VR_ASEG_POLIZA,
+        SUM(T.VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,
+        MIN(T.FI_CERTIFICADO) AS FECHA_INI_VIG,
+        MAX(T.FF_CERTIFICADO) AS FECHA_FIN_VIG,
+        P.INTERMEDIARIO_LIDE AS CLAVE,
+        T.documento,
+        T.tipo_transaccion,
+        T.cod_transaccion,
+        T.tipo_transaccion::VARCHAR || '_' || T.cod_transaccion::VARCHAR AS llave_transac,
+        CASE WHEN P.TIPO_IDENTIFI_TOM = 'N' THEN 2 ELSE 1 END AS TIPO_IDENTIFI_TOM,
+        MAX(P.NRO_IDENTIFI_TOM) AS ID_TOMADOR,
+        P.COD_MODALIDAD,
+        T.anexo,
+        COALESCE(T.RECIBO, 0) AS RECIBO,
+        COALESCE(T.SMOVREC, 0) AS SMOVREC,
+        'a' AS base,
+        MAX(Z.Indice_Variable) AS Indice_Variable
+    FROM Liberty.OTH.dwh_detalle_riesgos T
+    LEFT JOIN polizas_ult_doc P
+        ON TRIM(T.RAMO_PROD) || '_' || T.POLIZA::VARCHAR = P.LLAVE_POL
+    LEFT JOIN Liberty.APOYO.DWH_SBU_RAMO_PROD B
+        ON TRIM(T.RAMO_PROD) = TRIM(B.RAMO_PROD)
+    LEFT JOIN variable Z
+        ON T.sseguro = Z.SSEGURO
+    WHERE T.PERIODO_CONTABLE &gt; TO_CHAR(DATEADD(month, -14, CURRENT_DATE), 'YYYYMM')::INTEGER
+      AND T.sucursal_prod NOT IN (97,27,214,26,199,93)
+      AND T.FF_CERTIFICADO BETWEEN (TO_CHAR(DATEADD(month, -1, CURRENT_DATE), 'YYYYMM') || '01')::INTEGER
+                               AND (TO_CHAR(DATEADD(month, 4, CURRENT_DATE), 'YYYYMM') || '31')::INTEGER
+      AND B.SBU IN ('OTH','BON')
+      AND T.RAMO_PROD NOT IN ('411','IF','01','BO','10002','10004','10005','JU','900748','900731')
+      AND T.VR_PRIMA_ANUAL &gt; 0
+    GROUP BY T.RAMO_PROD, T.POLIZA, T.RIESGO, T.AMPARO, P.SUCURSAL_EXPE, B.DESC_RAMO_PROD,
+             P.INTERMEDIARIO_LIDE, P.TIPO_IDENTIFI_TOM, T.documento, T.anexo, T.RECIBO, T.SMOVREC,
+             P.VR_ASEG_POLIZA, P.VR_PRIMA_ANUAL, T.tipo_transaccion, T.cod_transaccion,
+             LEFT(T.FF_CERTIFICADO::VARCHAR, 6), P.COD_MODALIDAD
 
+    UNION
 
-SELECT P.PERIODO_VENCIMIENTO,P.LLAVE_POL,P.LLAVE_CARATULA,P.LLAVE_CERT,P.SUCURSAL_LIDER,P.RAMO_PROD,P.DESC_RAMO_PROD,P.POLIZA,COUNT (DISTINCT(CERTIFICADOS)) AS CERTIFICADOS,SUM(VR_ASEG_POLIZA) AS VR_ASEG_POLIZA, SUM(VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,P.FECHA_INI_VIG,P.FECHA_FIN_VIG,
-P.CLAVE,P.documento,P.tipo_transaccion,P.cod_transaccion,P.llave_transac,P.TIPO_IDENTIFI_TOM,P.ID_TOMADOR,P.COD_MODALIDAD,P.anexo,P.RECIBO,P.SMOVREC,base,max(Indice_Variable) as Indice_Variable
-INTO #VENCIMIENTOS
-FROM(
-SELECT 
-left(FF_CERTIFICADO,6) as PERIODO_VENCIMIENTO,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',POLIZA)) AS LLAVE_POL,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',riesgo)) AS LLAVE_CARATULA,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',POLIZA,'_',riesgo)) AS LLAVE_CERT,
-P.SUCURSAL_EXPE as SUCURSAL_LIDER,
-ltrim(rtrim(t.RAMO_PROD)) AS RAMO_PROD,
-B.DESC_RAMO_PROD,
-t.POLIZA,
-t.RIESGO AS CERTIFICADOS,
-T.AMPARO,
-case when CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',t.amparo) in ('70107_5485','900742_3042','900731_8047','900742_3039','900742_3036','70107_8044','900745_9883','900745_9884','900742_3124','900742_3130',
-'70107_8046','70107_5454','900742_3022','900742_3014','900745_9944','900742_3028','70107_8040','900742_3149','70107_5459','900731_8044','900742_3037','70107_5463','900745_9969','900742_3012',
-'70107_8047','900742_3131','900745_9922','900742_3013','70107_5461','900742_3035','900742_3122','900731_8045','900746_9849','70107_8048','900742_3027','8092_5402','900745_754','70108_6901',
-'70107_5460','900742_3114','900742_3212','70107_5484','900745_9937','70107_8052','900742_3158','70107_5449','70107_5450','900742_3032','900731_8040','900742_3029','8092_5386','70107_8045',
-'900745_9921') then sum(t.valor_asegurado) else 0 end AS VR_ASEG_POLIZA,
-sum(t.VR_PRIMA_ANUAL) as VR_PRIMA_ANUAL,
-min (FI_CERTIFICADO) AS FECHA_INI_VIG,
-MAX(FF_CERTIFICADO) AS FECHA_FIN_VIG,
-P.INTERMEDIARIO_LIDE AS CLAVE,
-t.documento,
-t.tipo_transaccion,
-t.cod_transaccion,
-concat(t.tipo_transaccion,'_',t.cod_transaccion) as llave_transac,
-CASE WHEN P.TIPO_IDENTIFI_TOM = 'N' THEN 2 ELSE 1 END AS TIPO_IDENTIFI_TOM,
-MAX(P.NRO_IDENTIFI_TOM) AS ID_TOMADOR,
-P.COD_MODALIDAD,
-t.anexo,
-case
-when t.RECIBO is null then  0
-else t.RECIBO end as RECIBO,
-case
-when  t.[SMOVREC] is null then  0
-else t.[SMOVREC] end as SMOVREC,
-'a' as base
-,MAX(Z.Indice_Variable) AS Indice_Variable
-
-FROM  Liberty.[OTH].[dwh_detalle_riesgos] t WITH(NOLOCK)
-left join (
-
-SELECT M.* FROM (
-select (CONCAT(ltrim(rtrim(RAMO_PROD)),'_',POLIZA)) AS LLAVE_POL ,DOCUMENTO,ANEXO,RECIBO,SMOVREC,SUM(VR_ASEG_POLIZA) AS VR_ASEG_POLIZA,SUM(VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,INTERMEDIARIO_LIDE,SUCURSAL_EXPE,
-TIPO_IDENTIFI_TOM,NRO_IDENTIFI_TOM,COD_MODALIDAD,ROW_NUMBER  ()over (partition by  (CONCAT(ltrim(rtrim(RAMO_PROD)),'_',POLIZA)) order by POLIZA, [DOCUMENTO] desc , anexo desc , recibo desc, SMOVREC desc ) as ult_doc 
-from [Liberty].[PROD].[DWH_POLIZAS_H]  
-where PERIODO_CONTABLE &gt; left(CONVERT(varchar,DATEADD(month, -14, GETDATE()),112),6) 
-AND  FF_CERTIFICADO between CONCAT(left(CONVERT(varchar,DATEADD(month, -1, GETDATE()),112),6),'01') and CONCAT(left(CONVERT(varchar,DATEADD(month, 4, GETDATE()),112),6),31) 
-and RAMO_PROD IN  ('70107','70108','8092  ','900742','900745','900746') GROUP BY RAMO_PROD,POLIZA,CERTIFICADO,DOCUMENTO,ANEXO,RECIBO,SMOVREC,INTERMEDIARIO_LIDE,SUCURSAL_EXPE,TIPO_IDENTIFI_TOM,NRO_IDENTIFI_TOM,COD_MODALIDAD ) M WHERE ult_doc=1
-)P on ((CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',t.POLIZA))=P.LLAVE_POL) 
-
-LEFT JOIN Liberty.[APOYO].[DWH_SBU_RAMO_PROD] B ON (ltrim(rtrim(t.RAMO_PROD))=ltrim(rtrim(B.RAMO_PROD)))
-left join #variable Z ON (T.sseguro=Z.SSEGURO)
-
-WHERE T.PERIODO_CONTABLE &gt; left(CONVERT(varchar,DATEADD(month, -14, GETDATE()),112),6)  and t.sucursal_prod NOT IN (97,27,214,26,199,93) 
-AND  T.FF_CERTIFICADO  between CONCAT(left(CONVERT(varchar,DATEADD(month, -1, GETDATE()),112),6),'01') and CONCAT(left(CONVERT(varchar,DATEADD(month, 4, GETDATE()),112),6),31) 
-AND B.SBU IN ('OTH','BON') AND T.RAMO_PROD NOT IN ('411','IF','01','BO','10002','10004','10005','JU','900748','900731') AND t.VR_PRIMA_ANUAL&gt;0
-group by t.RAMO_PROD,t.POLIZA,t.riesgo,t.amparo,P.SUCURSAL_EXPE,t.RAMO_PROD,B.DESC_RAMO_PROD,POLIZA,t.POLIZA,P.INTERMEDIARIO_LIDE,P.TIPO_IDENTIFI_TOM,t.documento,t.anexo,t.RECIBO,t.[SMOVREC],P.VR_ASEG_POLIZA,P.VR_PRIMA_ANUAL,tipo_transaccion,cod_transaccion,left(FF_CERTIFICADO,6),P.COD_MODALIDAD
-
-union 
-
-
-SELECT 
-left(FF_CERTIFICADO,6) as PERIODO_VENCIMIENTO,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',POLIZA)) AS LLAVE_POL,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',CERTIFICADO)) AS LLAVE_CARATULA,
-(CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',POLIZA,'_',CERTIFICADO)) AS LLAVE_CERT,
-t.SUCURSAL_EXPE as SUCURSAL_LIDER,
-ltrim(rtrim(t.RAMO_PROD)) AS RAMO_PROD,
-B.DESC_RAMO_PROD,
-t.POLIZA,
-t.certificado AS CERTIFICADOS, 
-0 AS AMPARO,
-SUM(VR_ASEG_POLIZA) AS VR_ASEG_POLIZA,
-SUM(VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,
-min (FI_CERTIFICADO) AS FECHA_INI_VIG,
-MAX(FF_CERTIFICADO) AS FECHA_FIN_VIG,
-max(INTERMEDIARIO_LIDE) AS CLAVE,
-t.documento,
-T.TIPO_TRANSAC AS tipo_transaccion,
-t.cod_transac as cod_transaccion,
-concat(t.tipo_transac,'_',t.cod_transac) as llave_transac,
-CASE WHEN T.TIPO_IDENTIFI_TOM = 'N' THEN 2 ELSE 1 END AS TIPO_IDENTIFI_TOM,
-MAX(T.NRO_IDENTIFI_TOM) AS ID_TOMADOR,
-COD_MODALIDAD,
-t.anexo,
-case
-when t.RECIBO is null then  0
-else t.RECIBO end as RECIBO,
-case
-when  t.[SMOVREC] is null then  0
-else t.[SMOVREC] end as SMOVREC,
-'b' as base
-,MAX(Z.Indice_Variable) AS Indice_Variable
-
-FROM  Liberty.prod.dwh_polizas_h t WITH(NOLOCK)
-LEFT JOIN Liberty.[APOYO].[DWH_SBU_RAMO_PROD] B ON (ltrim(rtrim(t.RAMO_PROD))=ltrim(rtrim(B.RAMO_PROD)))
-left join #variable Z ON (T.sseguro=Z.SSEGURO)
-
-WHERE t.PERIODO_CONTABLE &gt; left(CONVERT(varchar,DATEADD(month, -14, GETDATE()),112),6) and t.sucursal_prod NOT IN (97,27,214,26,199,93) 
-and T.FF_CERTIFICADO between CONCAT(left(CONVERT(varchar,DATEADD(month, -1, GETDATE()),112),6),'01') and CONCAT(left(CONVERT(varchar,DATEADD(month, 4, GETDATE()),112),6),31) 
- AND B.SBU IN ('OTH','BON') AND T.RAMO_PROD NOT IN ('411','IF','70107','70108','8092  ','900742','900745','900746','01','BO','10002','10004','10005','JU','900748') AND (CONCAT(ltrim(rtrim(t.RAMO_PROD)),'_',cod_producto)) &lt;&gt; 'LB_1'
-group by t.RAMO_PROD,t.POLIZA,t.certificado,t.SUCURSAL_EXPE,t.RAMO_PROD,B.DESC_RAMO_PROD,t.POLIZA,t.documento,t.anexo,t.RECIBO,t.[SMOVREC],T.TIPO_TRANSAC,cod_transac,left(FF_CERTIFICADO,6),COD_MODALIDAD,TIPO_IDENTIFI_TOM
-)P GROUP BY P.PERIODO_VENCIMIENTO,P.CERTIFICADOS,P.LLAVE_POL,P.LLAVE_CARATULA,P.LLAVE_CERT,P.SUCURSAL_LIDER,P.RAMO_PROD,P.DESC_RAMO_PROD,P.POLIZA,P.FECHA_INI_VIG,P.FECHA_FIN_VIG,
-P.CLAVE,P.documento,P.tipo_transaccion,P.cod_transaccion,P.llave_transac,P.TIPO_IDENTIFI_TOM,P.ID_TOMADOR,P.COD_MODALIDAD,P.anexo,P.RECIBO,P.SMOVREC,base
-
-
-
-SELECT P.*
-INTO #VENCIMIENTOS_ORDENADOS
-FROM(
-select  M.*,ROW_NUMBER  ()over (partition by M.LLAVE_CERT order by M.LLAVE_CERT, M.[DOCUMENTO] desc , M.anexo desc , M.recibo desc, M.SMOVREC desc ) as ult_doc 
-from #VENCIMIENTOS M
-)P
-
-
-SELECT P.*
-INTO #VENCIMIENTOS_UNICOS
-FROM(
-select 
-PERIODO_VENCIMIENTO,
-LLAVE_POL AS LLAVE,
-SUCURSAL_LIDER,
-a.RAMO_PROD,
-DESC_RAMO_PROD,
-POLIZA,
-CONCAT(a.COD_MODALIDAD,'_',C.DESC_MODALIDAD) AS MODALIDAD,
-count(distinct(LLAVE_CERT))  as CERTIFICADOS ,
----case when a.ramo_prod in ('70107','70108','8092  ','900731','900742','900745','900746') then max(VR_ASEG_POLIZA) else 
-sum(VR_ASEG_POLIZA)   AS VALOR_ASEGURADO_POLIZA,
----case when a.ramo_prod in ('70107','70108','8092  ','900731','900742','900745','900746') then max(VR_PRIMA_ANUAL) else 
-sum((VR_PRIMA_ANUAL) )  as PRIMA_POLIZA,
-min (FECHA_INI_VIG) AS FECHA_INI_VIG,
-MAX(FECHA_FIN_VIG) AS FECHA_FIN_VIG,
-max(CLAVE) as CLAVE ,
-B.RAZON_SOCIAL AS RAZON_SOCIAL_INTERMEDIARIO,
-MAX(TIPO_IDENTIFI_TOM) AS TIPO_IDENTIFI_TOM,
-MAX(ID_TOMADOR) AS ID_TOMADOR,
-MAX(A.Indice_Variable) AS Indice_Variable
-
-from #VENCIMIENTOS_ORDENADOS a
-LEFT JOIN  liberty.apoyo.dwh_intermediarios_total B ON (B.cod_intermediario=A.CLAVE)
-left join liberty.apoyo.DWH_MODALIDADES c on(a.ramo_prod=c.ramo_prod and a.cod_modalidad=c.cod_modalidad)
-where  ult_doc=1 AND tipo_transaccion&lt;&gt;4 and llave_transac not in ('8_224','8_241','8_242','8_514','8_664','9_221','9_242','9_322','9_514') 
-GROUP BY 
-PERIODO_VENCIMIENTO,
-LLAVE_POL,
-SUCURSAL_LIDER,
-A.RAMO_PROD,
-DESC_RAMO_PROD,
-POLIZA,
-a.COD_MODALIDAD,
-C.DESC_MODALIDAD,
-B.RAZON_SOCIAL
- )P
-
-
-
-SELECT P.*
-INTO #siniestros
-FROM(
-
-SELECT (CONCAT(ltrim(rtrim(a.RAMO_PROD)),'_',a.POLIZA)) AS LLAVE_POL
-	  ,a.LLAVE_SIN
-      ,a.[AMPARO]
-	  ,case when a.SIS_ORIGEN = 'O' THEN D.DESC_SUBAMPARO ELSE E.DESCRIPCION END AS DES_AMPARO
-	  ,a.SUBAMPARO
-	  ,sum(a.[VR_NOVEDAD]) as Incurrido
-      ,a.[RAMO_PROD]
-      ,a.[POLIZA]
-	  ,b.[ANNO_SINIESTRO]
-
-
-  FROM [Liberty].[SINI].[DWH_S_NOV_CONT_D] a
-  left join [Liberty].[SINI].DWH_S_MAESTRO_D b on (a.LLAVE_SIN=b.LLAVE_SIN)
-  left join Liberty.[APOYO].[DWH_SBU_RAMO_PROD] C ON (ltrim(rtrim(a.RAMO_PROD))=ltrim(rtrim(c.RAMO_PROD)))
-  left join [Liberty].[APOYO].[DWH_S_AMPARO] d on (a.RAMO_PROD=d.RAMO_PROD and a.AMPARO=d.AMPARO and a.SUBAMPARO=d.SUBAMPARO)
-  left join [Liberty].[APOYO].[DWH_DESC_AMPARO] e on (a.AMPARO=e.AMPARO)
-  where c.SBU IN('OTH','BON') AND C.RAMO_PROD NOT IN ('411','IF','01','BO','10002','10004','10005','JU','900748') AND b.[ANNO_SINIESTRO] &gt;= YEAR(GETDATE())-2 AND a.TIPO_NOVEDAD  NOT IN (5,6) --and a.poliza=401439
-  GROUP BY  a.LLAVE_SIN
-      ,a.[AMPARO]
-	  ,a.[RAMO_PROD]
-      ,a.[POLIZA]
-      ,b.[ANNO_SINIESTRO]
-	  ,a.SUBAMPARO
-	  ,a.SIS_ORIGEN
-	  ,D.DESC_SUBAMPARO
-	  ,E.DESCRIPCION
-	  ) P
-	  	   	   
---- varias datos en una columna 
-
-
-SELECT P.*
-INTO #AMPAROS
-FROM(SELECT
-    LLAVE_POL,
-    STUFF((SELECT DISTINCT ',_,' + DES_AMPARO FROM #siniestros WHERE (t1.LLAVE_POL = LLAVE_POL)  FOR XML PATH('') ), 1, 1, '' ) as amparos
-FROM #siniestros t1	  	
-GROUP BY LLAVE_POL)p
-
-   -- transponer}
-
-
-
-SELECT P.*
-INTO #incurridos
-FROM(
-   SELECT A.*,B.amparos
-   FROM(
-	  select  LLAVE_POL,sum([2020]) as [2020],sum([2021]) as [2021] ,sum([2022]) as [2022],sum([2023]) as [2023]
-	  from #siniestros
-	  pivot
-	  (sum(Incurrido)
-	  for [ANNO_SINIESTRO] in ([2020],[2021],[2022],[2023])
-	  ) as P  group by llave_pol ) A 
-
-	  LEFT JOIN #AMPAROS B ON (A.LLAVE_POL=B.LLAVE_POL) )P
-
-
-SELECT P.*
-INTO #POLIZA_LIDER
-FROM(
-select distinct M.RAMO_PROD,M.POLIZA,M.NRO_LIDER AS POLIZA_LIDER,ROW_NUMBER  ()over (partition by M.ramo_prod,m.poliza 
-order by M.ramo_prod, M.poliza desc , M.documento desc) as ult_doc 
-from Liberty.[APOYO].DWH_POLIZAS_PRODUCTO_MODULAR M
-)P
-WHERE P.ult_doc = 1
-
-
-
-select p.* into #vencimientos_base
-from(
-SELECT PERIODO_VENCIMIENTO,LLAVE,SUCURSAL_LIDER,A.RAMO_PROD,DESC_RAMO_PROD,A.POLIZA,CERTIFICADOS,VALOR_ASEGURADO_POLIZA,
-	 PRIMA_POLIZA,FECHA_INI_VIG,FECHA_FIN_VIG,CLAVE,RAZON_SOCIAL_INTERMEDIARIO,ID_TOMADOR,max(d.nombre) as TOMADOR,MODALIDAD,
-     b.[2020],b.[2021],b.[2022],b.[2023],b.amparos, '' AS OBSERVACIONES, ''AS ESTADO,Indice_Variable,
-case when a.ramo_prod in ('410','900754','463','6071','900748','900758','10001','10000','462','10003') then 'Grupo Hogar'
-     when SUCURSAL_LIDER in (14,18,19,45,119) then 'Grupo I'
-     when SUCURSAL_LIDER in (47,87,94,95,220,221,234) then 'Grupo II'
-	 when SUCURSAL_LIDER in (12,15,17,88,143,177,222) then 'Grupo III'
-	 when SUCURSAL_LIDER in (9,11,13,16,21,42,46,49,118,124,125,171) then 'Grupo IV' 
-	 end AS GRUPO
-	  , PRIMA_POLIZA / CERTIFICADOS AS PRIMA_PROMEDIO,C.POLIZA_LIDER
-	 from #VENCIMIENTOS_UNICOS A
-	 left join  #incurridos b on (A.LLAVE=B.LLAVE_POL)
-	 LEFT JOIN #POLIZA_LIDER C ON (A.RAMO_PROD=C.RAMO_PROD AND A.POLIZA=C.POLIZA)
-	 LEFT JOIN [Liberty_Pruebas_Actuaria].[dbo].[DIM_Persona] D on (A.ID_TOMADOR= D.[ID] and A.TIPO_IDENTIFI_TOM=D.tipo_persona)
-     group by 
-	 PERIODO_VENCIMIENTO,LLAVE,SUCURSAL_LIDER,A.RAMO_PROD,DESC_RAMO_PROD,A.POLIZA,CERTIFICADOS,VALOR_ASEGURADO_POLIZA,
-	 PRIMA_POLIZA,FECHA_INI_VIG,FECHA_FIN_VIG,CLAVE,RAZON_SOCIAL_INTERMEDIARIO,ID_TOMADOR,MODALIDAD,
-     b.[2020],b.[2021],b.[2022],b.[2023],b.amparos,C.POLIZA_LIDER,Indice_Variable
-	)P
-
-
-select p.* into #conteos from(
-select periodo_vencimiento, SUCURSAL_LIDER, CLAVE,GRUPO, COUNT(LLAVE) vencimientos, ROW_NUMBER() over (
-partition by periodo_vencimiento, SUCURSAL_LIDER,GRUPO order by count(llave)) indice
-FROM #VENCIMIENTOS_BASE
-GROUP BY periodo_vencimiento, SUCURSAL_LIDER, CLAVE,GRUPO
-)p ORDER BY PERIODO_VENCIMIENTO,CLAVE
-
-
-
-select P.* into #distribucion from(
-select periodo_vencimiento, sucursal_lider, clave, GRUPO,vencimientos,
-case 
-when grupo ='Grupo Hogar' then concat('Analista ', (indice % 2)+1,'_',GRUPO) 
-when grupo ='Grupo I' then concat('Analista ', (indice % 3)+1,'_',GRUPO) 
-when grupo ='Grupo II' then concat('Analista ', (indice % 3)+1,'_',GRUPO)
-when grupo ='Grupo III' then concat('Analista ', (indice % 4)+1,'_',GRUPO)
-when grupo ='Grupo IV' then concat('Analista ', (indice % 2)+1,'_',GRUPO)
-end
-as analista 
-from #conteos
-)p
-
-
-select P.*,CASE WHEN P.GRUPO = 'Grupo Hogar' AND P.SUCURSAL_LIDER IN (9,12,18,42,47,118,221,234) THEN 'david.sanguinetti'
-                WHEN P.GRUPO = 'Grupo Hogar' THEN 'german.vargas'
-                WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 1_Grupo I' THEN 'marco.rodriguez'
-				WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 2_Grupo I' THEN 'francisco.florez'
-				WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 3_Grupo I' THEN 'mario.marin'
-				WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 1_Grupo II' THEN 'fredya.ortiz'
-				WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 2_Grupo II' THEN 'angelica.toledo'
-				WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 3_Grupo II' THEN 'fabio.cardenas'
-				WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 1_Grupo III' THEN 'edgar.lopez'
-				WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 2_Grupo III' THEN 'marllobis.cabrera'
-				WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 3_Grupo III' THEN 'daisy.castro'
-				WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 4_Grupo III' THEN 'anyela.doncels'
-				WHEN P.GRUPO = 'Grupo IV' AND Q.ANALISTA = 'Analista 1_Grupo IV' THEN 'cecilia.quinteroq'
-				WHEN P.GRUPO = 'Grupo IV' AND Q.ANALISTA = 'Analista 2_Grupo IV' THEN 'nelson.bedoya' ELSE 'VALIDAR' END AS ANALISTA
-from #vencimientos_base P
-left join #distribucion Q on (P.PERIODO_VENCIMIENTO=Q.PERIODO_VENCIMIENTO AND P.CLAVE=Q.CLAVE AND P.GRUPO=Q.GRUPO AND P.SUCURSAL_LIDER=Q.SUCURSAL_LIDER)
-WHERE P.PERIODO_VENCIMIENTO =  (@PERIODO)
-
-
-
+    SELECT
+        LEFT(T.FF_CERTIFICADO::VARCHAR, 6) AS PERIODO_VENCIMIENTO,
+        TRIM(T.RAMO_PROD) || '_' || T.POLIZA::VARCHAR AS LLAVE_POL,
+        TRIM(T.RAMO_PROD) || '_' || T.CERTIFICADO::VARCHAR AS LLAVE_CARATULA,
+        TRIM(T.RAMO_PROD) || '_' || T.POLIZA::VARCHAR || '_' || T.CERTIFICADO::VARCHAR AS LLAVE_CERT,
+        T.SUCURSAL_EXPE AS SUCURSAL_LIDER,
+        TRIM(T.RAMO_PROD) AS RAMO_PROD,
+        B.DESC_RAMO_PROD,
+        T.POLIZA,
+        T.CERTIFICADO AS CERTIFICADOS,
+        0 AS AMPARO,
+        SUM(T.VR_ASEG_POLIZA) AS VR_ASEG_POLIZA,
+        SUM(T.VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,
+        MIN(T.FI_CERTIFICADO) AS FECHA_INI_VIG,
+        MAX(T.FF_CERTIFICADO) AS FECHA_FIN_VIG,
+        MAX(T.INTERMEDIARIO_LIDE) AS CLAVE,
+        T.documento,
+        T.TIPO_TRANSAC AS tipo_transaccion,
+        T.cod_transac AS cod_transaccion,
+        T.tipo_transac::VARCHAR || '_' || T.cod_transac::VARCHAR AS llave_transac,
+        CASE WHEN T.TIPO_IDENTIFI_TOM = 'N' THEN 2 ELSE 1 END AS TIPO_IDENTIFI_TOM,
+        MAX(T.NRO_IDENTIFI_TOM) AS ID_TOMADOR,
+        T.COD_MODALIDAD,
+        T.anexo,
+        COALESCE(T.RECIBO, 0) AS RECIBO,
+        COALESCE(T.SMOVREC, 0) AS SMOVREC,
+        'b' AS base,
+        MAX(Z.Indice_Variable) AS Indice_Variable
+    FROM Liberty.PROD.dwh_polizas_h T
+    LEFT JOIN Liberty.APOYO.DWH_SBU_RAMO_PROD B
+        ON TRIM(T.RAMO_PROD) = TRIM(B.RAMO_PROD)
+    LEFT JOIN variable Z
+        ON T.sseguro = Z.SSEGURO
+    WHERE T.PERIODO_CONTABLE &gt; TO_CHAR(DATEADD(month, -14, CURRENT_DATE), 'YYYYMM')::INTEGER
+      AND T.sucursal_prod NOT IN (97,27,214,26,199,93)
+      AND T.FF_CERTIFICADO BETWEEN (TO_CHAR(DATEADD(month, -1, CURRENT_DATE), 'YYYYMM') || '01')::INTEGER
+                               AND (TO_CHAR(DATEADD(month, 4, CURRENT_DATE), 'YYYYMM') || '31')::INTEGER
+      AND B.SBU IN ('OTH','BON')
+      AND T.RAMO_PROD NOT IN ('411','IF','70107','70108','8092  ','900742','900745','900746','01','BO','10002','10004','10005','JU','900748')
+      AND TRIM(T.RAMO_PROD) || '_' || T.cod_producto::VARCHAR &lt;&gt; 'LB_1'
+    GROUP BY T.RAMO_PROD, T.POLIZA, T.CERTIFICADO, T.SUCURSAL_EXPE, B.DESC_RAMO_PROD,
+             T.documento, T.anexo, T.RECIBO, T.SMOVREC, T.TIPO_TRANSAC, T.cod_transac,
+             LEFT(T.FF_CERTIFICADO::VARCHAR, 6), T.COD_MODALIDAD, T.TIPO_IDENTIFI_TOM
+),
+vencimientos AS (
+    SELECT
+        P.PERIODO_VENCIMIENTO,
+        P.LLAVE_POL,
+        P.LLAVE_CARATULA,
+        P.LLAVE_CERT,
+        P.SUCURSAL_LIDER,
+        P.RAMO_PROD,
+        P.DESC_RAMO_PROD,
+        P.POLIZA,
+        COUNT(DISTINCT P.CERTIFICADOS) AS CERTIFICADOS,
+        SUM(P.VR_ASEG_POLIZA) AS VR_ASEG_POLIZA,
+        SUM(P.VR_PRIMA_ANUAL) AS VR_PRIMA_ANUAL,
+        P.FECHA_INI_VIG,
+        P.FECHA_FIN_VIG,
+        P.CLAVE,
+        P.documento,
+        P.tipo_transaccion,
+        P.cod_transaccion,
+        P.llave_transac,
+        P.TIPO_IDENTIFI_TOM,
+        P.ID_TOMADOR,
+        P.COD_MODALIDAD,
+        P.anexo,
+        P.RECIBO,
+        P.SMOVREC,
+        P.base,
+        MAX(P.Indice_Variable) AS Indice_Variable
+    FROM vencimientos_detalle P
+    GROUP BY P.PERIODO_VENCIMIENTO, P.CERTIFICADOS, P.LLAVE_POL, P.LLAVE_CARATULA, P.LLAVE_CERT,
+             P.SUCURSAL_LIDER, P.RAMO_PROD, P.DESC_RAMO_PROD, P.POLIZA, P.FECHA_INI_VIG,
+             P.FECHA_FIN_VIG, P.CLAVE, P.documento, P.tipo_transaccion, P.cod_transaccion,
+             P.llave_transac, P.TIPO_IDENTIFI_TOM, P.ID_TOMADOR, P.COD_MODALIDAD, P.anexo,
+             P.RECIBO, P.SMOVREC, P.base
+),
+vencimientos_ordenados AS (
+    SELECT
+        M.*,
+        ROW_NUMBER() OVER (
+            PARTITION BY M.LLAVE_CERT
+            ORDER BY M.LLAVE_CERT, M.DOCUMENTO DESC, M.anexo DESC, M.recibo DESC, M.SMOVREC DESC
+        ) AS ult_doc
+    FROM vencimientos M
+),
+vencimientos_unicos AS (
+    SELECT
+        PERIODO_VENCIMIENTO,
+        LLAVE_POL AS LLAVE,
+        SUCURSAL_LIDER,
+        A.RAMO_PROD,
+        DESC_RAMO_PROD,
+        POLIZA,
+        A.COD_MODALIDAD::VARCHAR || '_' || C.DESC_MODALIDAD AS MODALIDAD,
+        COUNT(DISTINCT LLAVE_CERT) AS CERTIFICADOS,
+        SUM(VR_ASEG_POLIZA) AS VALOR_ASEGURADO_POLIZA,
+        SUM(VR_PRIMA_ANUAL) AS PRIMA_POLIZA,
+        MIN(FECHA_INI_VIG) AS FECHA_INI_VIG,
+        MAX(FECHA_FIN_VIG) AS FECHA_FIN_VIG,
+        MAX(CLAVE) AS CLAVE,
+        B.RAZON_SOCIAL AS RAZON_SOCIAL_INTERMEDIARIO,
+        MAX(TIPO_IDENTIFI_TOM) AS TIPO_IDENTIFI_TOM,
+        MAX(ID_TOMADOR) AS ID_TOMADOR,
+        MAX(A.Indice_Variable) AS Indice_Variable
+    FROM vencimientos_ordenados A
+    LEFT JOIN Liberty.APOYO.dwh_intermediarios_total B
+        ON B.cod_intermediario = A.CLAVE
+    LEFT JOIN Liberty.APOYO.DWH_MODALIDADES C
+        ON A.ramo_prod = C.ramo_prod
+       AND A.cod_modalidad = C.cod_modalidad
+    WHERE ult_doc = 1
+      AND tipo_transaccion &lt;&gt; 4
+      AND llave_transac NOT IN ('8_224','8_241','8_242','8_514','8_664','9_221','9_242','9_322','9_514')
+    GROUP BY PERIODO_VENCIMIENTO, LLAVE_POL, SUCURSAL_LIDER, A.RAMO_PROD, DESC_RAMO_PROD,
+             POLIZA, A.COD_MODALIDAD, C.DESC_MODALIDAD, B.RAZON_SOCIAL
+),
+siniestros AS (
+    SELECT
+        TRIM(A.RAMO_PROD) || '_' || A.POLIZA::VARCHAR AS LLAVE_POL,
+        A.LLAVE_SIN,
+        A.AMPARO,
+        CASE WHEN A.SIS_ORIGEN = 'O' THEN D.DESC_SUBAMPARO ELSE E.DESCRIPCION END AS DES_AMPARO,
+        A.SUBAMPARO,
+        SUM(A.VR_NOVEDAD) AS Incurrido,
+        A.RAMO_PROD,
+        A.POLIZA,
+        B.ANNO_SINIESTRO
+    FROM Liberty.SINI.DWH_S_NOV_CONT_D A
+    LEFT JOIN Liberty.SINI.DWH_S_MAESTRO_D B
+        ON A.LLAVE_SIN = B.LLAVE_SIN
+    LEFT JOIN Liberty.APOYO.DWH_SBU_RAMO_PROD C
+        ON TRIM(A.RAMO_PROD) = TRIM(C.RAMO_PROD)
+    LEFT JOIN Liberty.APOYO.DWH_S_AMPARO D
+        ON A.RAMO_PROD = D.RAMO_PROD
+       AND A.AMPARO = D.AMPARO
+       AND A.SUBAMPARO = D.SUBAMPARO
+    LEFT JOIN Liberty.APOYO.DWH_DESC_AMPARO E
+        ON A.AMPARO = E.AMPARO
+    WHERE C.SBU IN ('OTH','BON')
+      AND C.RAMO_PROD NOT IN ('411','IF','01','BO','10002','10004','10005','JU','900748')
+      AND B.ANNO_SINIESTRO &gt;= EXTRACT(year FROM CURRENT_DATE)::INTEGER - 2
+      AND A.TIPO_NOVEDAD NOT IN (5,6)
+    GROUP BY A.LLAVE_SIN, A.AMPARO, A.RAMO_PROD, A.POLIZA, B.ANNO_SINIESTRO,
+             A.SUBAMPARO, A.SIS_ORIGEN, D.DESC_SUBAMPARO, E.DESCRIPCION
+),
+amparos AS (
+    SELECT
+        LLAVE_POL,
+        LISTAGG(DISTINCT DES_AMPARO, ',_,') WITHIN GROUP (ORDER BY DES_AMPARO) AS amparos
+    FROM siniestros
+    GROUP BY LLAVE_POL
+),
+incurridos AS (
+    SELECT
+        S.LLAVE_POL,
+        SUM(CASE WHEN S.ANNO_SINIESTRO = 2020 THEN S.Incurrido ELSE 0 END) AS "2020",
+        SUM(CASE WHEN S.ANNO_SINIESTRO = 2021 THEN S.Incurrido ELSE 0 END) AS "2021",
+        SUM(CASE WHEN S.ANNO_SINIESTRO = 2022 THEN S.Incurrido ELSE 0 END) AS "2022",
+        SUM(CASE WHEN S.ANNO_SINIESTRO = 2023 THEN S.Incurrido ELSE 0 END) AS "2023",
+        A.amparos
+    FROM siniestros S
+    LEFT JOIN amparos A
+        ON S.LLAVE_POL = A.LLAVE_POL
+    GROUP BY S.LLAVE_POL, A.amparos
+),
+poliza_lider AS (
+    SELECT RAMO_PROD, POLIZA, POLIZA_LIDER
+    FROM (
+        SELECT
+            M.RAMO_PROD,
+            M.POLIZA,
+            M.NRO_LIDER AS POLIZA_LIDER,
+            ROW_NUMBER() OVER (
+                PARTITION BY M.RAMO_PROD, M.POLIZA
+                ORDER BY M.RAMO_PROD, M.POLIZA DESC, M.documento DESC
+            ) AS ult_doc
+        FROM Liberty.APOYO.DWH_POLIZAS_PRODUCTO_MODULAR M
+    ) P
+    WHERE P.ult_doc = 1
+),
+vencimientos_base AS (
+    SELECT
+        A.PERIODO_VENCIMIENTO,
+        A.LLAVE,
+        A.SUCURSAL_LIDER,
+        A.RAMO_PROD,
+        A.DESC_RAMO_PROD,
+        A.POLIZA,
+        A.CERTIFICADOS,
+        A.VALOR_ASEGURADO_POLIZA,
+        A.PRIMA_POLIZA,
+        A.FECHA_INI_VIG,
+        A.FECHA_FIN_VIG,
+        A.CLAVE,
+        A.RAZON_SOCIAL_INTERMEDIARIO,
+        A.ID_TOMADOR,
+        MAX(D.nombre) AS TOMADOR,
+        A.MODALIDAD,
+        B."2020",
+        B."2021",
+        B."2022",
+        B."2023",
+        B.amparos,
+        ''::VARCHAR AS OBSERVACIONES,
+        ''::VARCHAR AS ESTADO,
+        A.Indice_Variable,
+        CASE
+            WHEN A.ramo_prod IN ('410','900754','463','6071','900748','900758','10001','10000','462','10003') THEN 'Grupo Hogar'
+            WHEN A.SUCURSAL_LIDER IN (14,18,19,45,119) THEN 'Grupo I'
+            WHEN A.SUCURSAL_LIDER IN (47,87,94,95,220,221,234) THEN 'Grupo II'
+            WHEN A.SUCURSAL_LIDER IN (12,15,17,88,143,177,222) THEN 'Grupo III'
+            WHEN A.SUCURSAL_LIDER IN (9,11,13,16,21,42,46,49,118,124,125,171) THEN 'Grupo IV'
+        END AS GRUPO,
+        A.PRIMA_POLIZA / NULLIF(A.CERTIFICADOS, 0) AS PRIMA_PROMEDIO,
+        C.POLIZA_LIDER
+    FROM vencimientos_unicos A
+    LEFT JOIN incurridos B
+        ON A.LLAVE = B.LLAVE_POL
+    LEFT JOIN poliza_lider C
+        ON A.RAMO_PROD = C.RAMO_PROD
+       AND A.POLIZA = C.POLIZA
+    LEFT JOIN Liberty_Pruebas_Actuaria.dbo.DIM_Persona D
+        ON A.ID_TOMADOR = D.ID
+       AND A.TIPO_IDENTIFI_TOM = D.tipo_persona
+    GROUP BY A.PERIODO_VENCIMIENTO, A.LLAVE, A.SUCURSAL_LIDER, A.RAMO_PROD, A.DESC_RAMO_PROD,
+             A.POLIZA, A.CERTIFICADOS, A.VALOR_ASEGURADO_POLIZA, A.PRIMA_POLIZA,
+             A.FECHA_INI_VIG, A.FECHA_FIN_VIG, A.CLAVE, A.RAZON_SOCIAL_INTERMEDIARIO,
+             A.ID_TOMADOR, A.MODALIDAD, B."2020", B."2021", B."2022", B."2023",
+             B.amparos, C.POLIZA_LIDER, A.Indice_Variable
+),
+conteos AS (
+    SELECT
+        periodo_vencimiento,
+        SUCURSAL_LIDER,
+        CLAVE,
+        GRUPO,
+        COUNT(LLAVE) AS vencimientos,
+        ROW_NUMBER() OVER (
+            PARTITION BY periodo_vencimiento, SUCURSAL_LIDER, GRUPO
+            ORDER BY COUNT(LLAVE)
+        ) AS indice
+    FROM vencimientos_base
+    GROUP BY periodo_vencimiento, SUCURSAL_LIDER, CLAVE, GRUPO
+),
+distribucion AS (
+    SELECT
+        periodo_vencimiento,
+        sucursal_lider,
+        clave,
+        GRUPO,
+        vencimientos,
+        CASE
+            WHEN grupo = 'Grupo Hogar' THEN 'Analista ' || ((indice % 2) + 1)::VARCHAR || '_' || GRUPO
+            WHEN grupo = 'Grupo I' THEN 'Analista ' || ((indice % 3) + 1)::VARCHAR || '_' || GRUPO
+            WHEN grupo = 'Grupo II' THEN 'Analista ' || ((indice % 3) + 1)::VARCHAR || '_' || GRUPO
+            WHEN grupo = 'Grupo III' THEN 'Analista ' || ((indice % 4) + 1)::VARCHAR || '_' || GRUPO
+            WHEN grupo = 'Grupo IV' THEN 'Analista ' || ((indice % 2) + 1)::VARCHAR || '_' || GRUPO
+        END AS analista
+    FROM conteos
+)
+SELECT
+    P.*,
+    CASE
+        WHEN P.GRUPO = 'Grupo Hogar' AND P.SUCURSAL_LIDER IN (9,12,18,42,47,118,221,234) THEN 'david.sanguinetti'
+        WHEN P.GRUPO = 'Grupo Hogar' THEN 'german.vargas'
+        WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 1_Grupo I' THEN 'marco.rodriguez'
+        WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 2_Grupo I' THEN 'francisco.florez'
+        WHEN P.GRUPO = 'Grupo I' AND Q.ANALISTA = 'Analista 3_Grupo I' THEN 'mario.marin'
+        WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 1_Grupo II' THEN 'fredya.ortiz'
+        WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 2_Grupo II' THEN 'angelica.toledo'
+        WHEN P.GRUPO = 'Grupo II' AND Q.ANALISTA = 'Analista 3_Grupo II' THEN 'fabio.cardenas'
+        WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 1_Grupo III' THEN 'edgar.lopez'
+        WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 2_Grupo III' THEN 'marllobis.cabrera'
+        WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 3_Grupo III' THEN 'daisy.castro'
+        WHEN P.GRUPO = 'Grupo III' AND Q.ANALISTA = 'Analista 4_Grupo III' THEN 'anyela.doncels'
+        WHEN P.GRUPO = 'Grupo IV' AND Q.ANALISTA = 'Analista 1_Grupo IV' THEN 'cecilia.quinteroq'
+        WHEN P.GRUPO = 'Grupo IV' AND Q.ANALISTA = 'Analista 2_Grupo IV' THEN 'nelson.bedoya'
+        ELSE 'VALIDAR'
+    END AS ANALISTA
+FROM vencimientos_base P
+LEFT JOIN distribucion Q
+    ON P.PERIODO_VENCIMIENTO = Q.PERIODO_VENCIMIENTO
+   AND P.CLAVE = Q.CLAVE
+   AND P.GRUPO = Q.GRUPO
+   AND P.SUCURSAL_LIDER = Q.SUCURSAL_LIDER
+WHERE P.PERIODO_VENCIMIENTO = ?
 </CommandText>
       </Query>
       <Fields>
@@ -463,30 +544,17 @@ WHERE P.PERIODO_VENCIMIENTO =  (@PERIODO)
       <Query>
         <DataSourceName>DWH</DataSourceName>
         <rd:UseGenericDesigner>true</rd:UseGenericDesigner>
-        <CommandText>declare
-
-@fec_inicio Date,
-
-@fec_fin Date
-
-select @fec_inicio = DATEADD(month, -1, GETDATE()), @fec_fin = DATEADD(month, 4, GETDATE())
-
-;WITH FECHAS(fecha) AS (
-
-SELECT @fec_inicio fecha
-
-UNION ALL
-
-SELECT DATEADD(month, 1, fecha) fecha
-
-FROM FECHAS
-
-WHERE fecha &lt; @fec_fin
-
-)
-
-
-select distinct  left(CONVERT(varchar,fecha,112),6) as PERIODO from FECHAS</CommandText>
+        <CommandText>SELECT
+    TO_CHAR(DATEADD(month, n, CURRENT_DATE), 'YYYYMM') AS PERIODO
+FROM (
+    SELECT -1 AS n
+    UNION ALL SELECT 0
+    UNION ALL SELECT 1
+    UNION ALL SELECT 2
+    UNION ALL SELECT 3
+    UNION ALL SELECT 4
+) meses
+ORDER BY PERIODO</CommandText>
       </Query>
       <Fields>
         <Field Name="PERIODO_1">
