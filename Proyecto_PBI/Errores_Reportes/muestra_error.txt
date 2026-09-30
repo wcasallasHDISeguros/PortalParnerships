@@ -1,4 +1,9 @@
-Cannot add multi value query parameter '@SBU' for dataset 'Ramo' because it is not supported by the data extension.
+ERROR [42601] [Redshift][ODBC Driver][Server]42601:ERROR:  syntax error at or near "a" in context "b.TIPO_TRANSACand a", at line 1
+ LINE 1, POSITION 50: ...RANSAC b on (a.tipo_transaccion=b.TIPO_TRANSACand a.cod_tran...
+                                                                           ^
+
+----------------------------
+Query execution failed for dataset 'Liberty'.
 ----------------------------
 An error has occurred during report processing.
 ----------------------------
