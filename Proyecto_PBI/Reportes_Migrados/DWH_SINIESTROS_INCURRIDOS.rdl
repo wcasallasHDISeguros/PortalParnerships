@@ -30,32 +30,13 @@
     <DataSet Name="DataSet1">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <QueryParameters>
-          <QueryParameter Name="@compania">
-            <Value>=Parameters!compania.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@ramo_comercial">
-            <Value>=Parameters!ramo_comercial.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@sucursal">
-            <Value>=Parameters!sucursal.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@fecha_desde">
-            <Value>=Parameters!fecha_desde.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@fecha_hasta">
-            <Value>=Parameters!fecha_hasta.Value</Value>
-          </QueryParameter>
-          <QueryParameter Name="@Documento_Tomador">
-            <Value>=Parameters!Documento_Tomador.Value</Value>
-          </QueryParameter>
-        </QueryParameters>
-        <CommandText>SELECT *
+        <CommandText>=&quot;SELECT *
 FROM stg_liberty.dbo.sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
-where compaa in ( @compania )  and ramo_comercial in ( @ramo_comercial )
-and sucursal in ( @sucursal ) and CAST(fecha_ocurrencia AS DATE) BETWEEN @fecha_desde AND @fecha_hasta AND nro_doc_tomador in (@Documento_Tomador)
-
-;</CommandText>
+WHERE compaa IN ('&quot; &amp; Join(Parameters!compania.Value, &quot;','&quot;) &amp; &quot;')
+  AND ramo_comercial IN ('&quot; &amp; Join(Parameters!ramo_comercial.Value, &quot;','&quot;) &amp; &quot;')
+  AND sucursal IN ('&quot; &amp; Join(Parameters!sucursal.Value, &quot;','&quot;) &amp; &quot;')
+  AND CAST(fecha_ocurrencia AS DATE) BETWEEN '&quot; &amp; Format(Parameters!fecha_desde.Value, &quot;yyyy-MM-dd&quot;) &amp; &quot;' AND '&quot; &amp; Format(Parameters!fecha_hasta.Value, &quot;yyyy-MM-dd&quot;) &amp; &quot;'
+  AND nro_doc_tomador IN ('&quot; &amp; Join(Parameters!Documento_Tomador.Value, &quot;','&quot;) &amp; &quot;')&quot;</CommandText>
       </Query>
       <Fields>
         <Field Name="fecha_desde_reporte">
