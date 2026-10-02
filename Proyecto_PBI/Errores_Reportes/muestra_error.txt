@@ -1,8 +1,7 @@
-The 'Value' expression for the query parameter 'compania' contains an error: Overload resolution failed because no Public 'Join' can be called with these arguments:
-    'Public Shared Function Join(SourceArray As String(), [Delimiter As String =  ]) As String':
-        Argument matching parameter 'SourceArray' cannot convert from 'String' to 'String()'.
-    'Public Shared Function Join(SourceArray As System.Object(), [Delimiter As String =  ]) As String':
-        Argument matching parameter 'SourceArray' cannot convert from 'String' to 'Object()'.
+ERROR [42809] [Redshift][ODBC Driver][Server]42809:ERROR:  op ANY/ALL (array) requires array on right side
+
+----------------------------
+Query execution failed for dataset 'DataSet1'.
 ----------------------------
 An error has occurred during report processing.
 ----------------------------
