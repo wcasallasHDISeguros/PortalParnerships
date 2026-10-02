@@ -1,6 +1,8 @@
-Error during processing of the CommandText expression of dataset 'DataSet1'.
-----------------------------
-Cannot set the command text for dataset 'DataSet1'.
+The 'Value' expression for the query parameter 'compania' contains an error: Overload resolution failed because no Public 'Join' can be called with these arguments:
+    'Public Shared Function Join(SourceArray As String(), [Delimiter As String =  ]) As String':
+        Argument matching parameter 'SourceArray' cannot convert from 'String' to 'String()'.
+    'Public Shared Function Join(SourceArray As System.Object(), [Delimiter As String =  ]) As String':
+        Argument matching parameter 'SourceArray' cannot convert from 'String' to 'Object()'.
 ----------------------------
 An error has occurred during report processing.
 ----------------------------
