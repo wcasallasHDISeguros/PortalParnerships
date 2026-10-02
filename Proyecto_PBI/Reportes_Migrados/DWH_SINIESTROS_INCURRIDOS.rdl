@@ -30,13 +30,16 @@
     <DataSet Name="DataSet1">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>=&quot;SELECT *
-FROM stg_liberty.dbo.sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
-WHERE compaa IN ('&quot; &amp; Join(Parameters!compania.Value, &quot;','&quot;) &amp; &quot;')
-  AND ramo_comercial IN ('&quot; &amp; Join(Parameters!ramo_comercial.Value, &quot;','&quot;) &amp; &quot;')
-  AND sucursal IN ('&quot; &amp; Join(Parameters!sucursal.Value, &quot;','&quot;) &amp; &quot;')
-  AND CAST(fecha_ocurrencia AS DATE) BETWEEN '&quot; &amp; Format(Parameters!fecha_desde.Value, &quot;yyyy-MM-dd&quot;) &amp; &quot;' AND '&quot; &amp; Format(Parameters!fecha_hasta.Value, &quot;yyyy-MM-dd&quot;) &amp; &quot;'
-  AND nro_doc_tomador IN ('&quot; &amp; Join(Parameters!Documento_Tomador.Value, &quot;','&quot;) &amp; &quot;')&quot;</CommandText>
+        <CommandText>=
+"SELECT *
+FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
+WHERE compaa IN ('" &amp; Join(Parameters!compania.Value, "','") &amp; "')
+  AND ramo_comercial IN ('" &amp; Join(Parameters!ramo_comercial.Value, "','") &amp; "')
+  AND sucursal IN ('" &amp; Join(Parameters!sucursal.Value, "','") &amp; "')
+  AND CAST(fecha_ocurrencia AS DATE) BETWEEN '" &amp; Format(Parameters!fecha_desde.Value, "yyyy-MM-dd") &amp; "'
+                                          AND '" &amp; Format(Parameters!fecha_hasta.Value, "yyyy-MM-dd") &amp; "'
+  AND nro_doc_tomador IN ('" &amp; Join(Parameters!Documento_Tomador.Value, "','") &amp; "')
+;"</CommandText>
       </Query>
       <Fields>
         <Field Name="fecha_desde_reporte">
@@ -260,8 +263,8 @@ WHERE compaa IN ('&quot; &amp; Join(Parameters!compania.Value, &quot;','&quot;) 
     <DataSet Name="DataSet2">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>SELECT distinct nro_doc_tomador
-FROM stg_liberty.dbo.sise_appgenerali_siniestros_incurridos_fusion_reporte_bi</CommandText>
+        <CommandText>SELECT DISTINCT nro_doc_tomador
+FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi</CommandText>
       </Query>
       <Fields>
         <Field Name="nro_doc_tomador">
