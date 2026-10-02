@@ -53,10 +53,10 @@
         <CommandText>SELECT *
 FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
 WHERE compaa = CAST(? AS VARCHAR)
-  AND ramo_comercial = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))
-  AND sucursal = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))
+  AND POSITION('|' || CAST(ramo_comercial AS VARCHAR) || '|' IN '|' || CAST(? AS VARCHAR) || '|') &gt; 0
+  AND POSITION('|' || CAST(sucursal AS VARCHAR) || '|' IN '|' || CAST(? AS VARCHAR) || '|') &gt; 0
   AND CAST(fecha_ocurrencia AS DATE) BETWEEN CAST(? AS DATE) AND CAST(? AS DATE)
-  AND nro_doc_tomador = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))</CommandText>
+  AND POSITION('|' || CAST(nro_doc_tomador AS VARCHAR) || '|' IN '|' || CAST(? AS VARCHAR) || '|') &gt; 0</CommandText>
       </Query>
       <Fields>
         <Field Name="fecha_desde_reporte">
