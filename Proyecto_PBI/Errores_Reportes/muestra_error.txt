@@ -1,7 +1,6 @@
-ERROR [XX000] [Redshift][ODBC Driver][Server]XX000:ERROR:  Relation amparo_asistencias__oldcore does not exist in the database.
-
+Error during processing of the CommandText expression of dataset 'DataSet1'.
 ----------------------------
-Query execution failed for dataset 'Liberty'.
+Cannot set the command text for dataset 'DataSet1'.
 ----------------------------
 An error has occurred during report processing.
 ----------------------------
