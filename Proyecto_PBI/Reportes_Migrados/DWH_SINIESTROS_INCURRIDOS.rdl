@@ -32,7 +32,7 @@
         <DataSourceName>DataSource1</DataSourceName>
         <QueryParameters>
           <QueryParameter Name="compania">
-            <Value>=Join(Parameters!compania.Value, "|")</Value>
+            <Value>=Parameters!compania.Value</Value>
           </QueryParameter>
           <QueryParameter Name="ramo_comercial">
             <Value>=Join(Parameters!ramo_comercial.Value, "|")</Value>
@@ -52,7 +52,7 @@
         </QueryParameters>
         <CommandText>SELECT *
 FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
-WHERE compaa = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))
+WHERE compaa = CAST(? AS VARCHAR)
   AND ramo_comercial = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))
   AND sucursal = ANY(SPLIT_TO_ARRAY(CAST(? AS VARCHAR), '|'))
   AND CAST(fecha_ocurrencia AS DATE) BETWEEN CAST(? AS DATE) AND CAST(? AS DATE)
