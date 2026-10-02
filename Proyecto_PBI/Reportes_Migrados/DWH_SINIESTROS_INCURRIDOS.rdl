@@ -30,16 +30,14 @@
     <DataSet Name="DataSet1">
       <Query>
         <DataSourceName>DataSource1</DataSourceName>
-        <CommandText>=
-"SELECT *
-FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi
-WHERE compaa IN ('" &amp; Join(Parameters!compania.Value, "','") &amp; "')
-  AND ramo_comercial IN ('" &amp; Join(Parameters!ramo_comercial.Value, "','") &amp; "')
-  AND sucursal IN ('" &amp; Join(Parameters!sucursal.Value, "','") &amp; "')
-  AND CAST(fecha_ocurrencia AS DATE) BETWEEN '" &amp; Format(Parameters!fecha_desde.Value, "yyyy-MM-dd") &amp; "'
-                                          AND '" &amp; Format(Parameters!fecha_hasta.Value, "yyyy-MM-dd") &amp; "'
-  AND nro_doc_tomador IN ('" &amp; Join(Parameters!Documento_Tomador.Value, "','") &amp; "')
-;"</CommandText>
+        <CommandText>="SELECT *" &amp; vbCrLf &amp;
+"FROM stg_liberty.dbo.acc_sise_appgenerali_siniestros_incurridos_fusion_reporte_bi" &amp; vbCrLf &amp;
+"WHERE compaa IN ('" &amp; Join(Parameters!compania.Value, "','") &amp; "')" &amp; vbCrLf &amp;
+"  AND ramo_comercial IN ('" &amp; Join(Parameters!ramo_comercial.Value, "','") &amp; "')" &amp; vbCrLf &amp;
+"  AND sucursal IN ('" &amp; Join(Parameters!sucursal.Value, "','") &amp; "')" &amp; vbCrLf &amp;
+"  AND CAST(fecha_ocurrencia AS DATE) BETWEEN '" &amp; Format(Parameters!fecha_desde.Value, "yyyy-MM-dd") &amp; "'" &amp; vbCrLf &amp;
+"      AND '" &amp; Format(Parameters!fecha_hasta.Value, "yyyy-MM-dd") &amp; "'" &amp; vbCrLf &amp;
+"  AND nro_doc_tomador IN ('" &amp; Join(Parameters!Documento_Tomador.Value, "','") &amp; "')"</CommandText>
       </Query>
       <Fields>
         <Field Name="fecha_desde_reporte">
