@@ -1,8 +1,4 @@
-ERROR [42809] [Redshift][ODBC Driver][Server]42809:ERROR:  op ANY/ALL (array) requires array on right side
-
-----------------------------
-Query execution failed for dataset 'DataSet1'.
-----------------------------
-An error has occurred during report processing.
-----------------------------
-An error occurred during local report processing.
+i55175pr7X9HBL
+ 
+.\hdisecurity
+ 

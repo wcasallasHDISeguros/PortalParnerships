@@ -19,7 +19,7 @@ try:
         
         print("Señor de actividad enviado a Windows (F15).")
 
-except KeyboardInterrupt:
+except KeyboardInterrupt:*
     print("\nScript detenido por el usuario.")
     sys.exit()
     
