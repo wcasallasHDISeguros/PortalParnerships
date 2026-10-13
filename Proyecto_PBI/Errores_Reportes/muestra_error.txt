@@ -151,12 +151,12 @@ in
 --Consulta validar tiempo de ejecución AmazonRedshift
 SELECT
     query_id,
+    user_id,
     status,
     start_time,
-    end_time,
     elapsed_time / 1000000.0 AS duracion_segundos,
-    query_text
+    LEFT(query_text, 300) AS consulta
 FROM sys_query_history
-WHERE start_time >= DATEADD(minute, -30, GETDATE())
+WHERE start_time >= DATEADD(hour, -2, GETDATE())
 ORDER BY start_time DESC
-LIMIT 20;
+LIMIT 100;
