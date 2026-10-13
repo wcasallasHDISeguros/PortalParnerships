@@ -154,3 +154,16 @@ let
   #"Reemplazar errores" = Table.ReplaceErrorValues(#"Transformar columnas", {{"Agrupación cotizaciones auto", null}})
 in
   #"Reemplazar errores"
+
+
+  ---prueba conexionlet
+    Source = Value.NativeQuery(
+        AmazonRedshift.Database(
+            "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+            "liberty",
+            [ProviderName = null, BatchSize = null]
+        ),
+        "SELECT 1 AS prueba_conexion"
+    )
+in
+    Source
