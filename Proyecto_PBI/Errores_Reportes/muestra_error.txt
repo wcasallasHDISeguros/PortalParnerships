@@ -1,7 +1,7 @@
 let
     Origen = AmazonRedshift.Database(
-        "TU_ENDPOINT_REDSHIFT:5439",
-        "Liberty_Pruebas_Actuaria"
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty"
     ),
 
     Resultado = Value.NativeQuery(
@@ -115,8 +115,20 @@ let
             COD_CIUDAD,
             COD_DEPARTAMENTO,
             CIUDAD
-        FROM dbo.K_BASE_AUI_CIUDAD
+        FROM Liberty_Pruebas_Actuaria.dbo.K_BASE_AUI_CIUDAD
         "
     )
 in
     Resultado
+
+
+
+
+    error --> ODBC: ERROR [08S01] [Microsoft][Amazon Redshift] (10) Error occurred while trying to connect: [SQLState 08S01] connection to server at "corshftanltc-dprogramp.hdicolombia.com.co" (172.16.6.89), port 5439 failed: timeout expired
+DetallesReason = DataSource.Error
+ErrorCode = 10478
+DataSourceKind = AmazonRedshift
+DataSourcePath = corshftanltc-dprogramp.hdicolombia.com.co:;liberty
+OdbcErrors = #table({"SQLState", "NativeError", "Message"}, {})
+NativeError = 10
+SQLState = 08S01
