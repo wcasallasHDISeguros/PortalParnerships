@@ -1,4 +1,3 @@
-i55175pr7X9HBL
- 
-.\hdisecurity
- 
+Invalid dataflow parameter value. Exception details: The AllowNativeQueries attribute of the mashup is set to true for this dataflow definition.
+For security reasons, AllowNativeQueries should be set to false on import(can be set to true after import from the Power BI service).
+Please set AllowNativeQueries to false, and try again. El id. de actividad es [d9f56205-0f71-43f3-9e9d-392c3de7b616], y el id. de solicitud, [23a8f069-98bf-4126-b2ff-58bfd6f10c85].
