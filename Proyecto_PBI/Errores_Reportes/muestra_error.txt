@@ -145,14 +145,18 @@ in
   #"Reemplazar errores"
 
 
-  ---prueba conexionlet
-    Source = Value.NativeQuery(
-        AmazonRedshift.Database(
-            "corshftanltc-dprogramp.hdicolombia.com.co:9519",
-            "liberty",
-            [ProviderName = null, BatchSize = null]
-        ),
-        "SELECT 1 AS prueba_conexion"
-    )
-in
-    Source
+
+
+
+--Consulta validar tiempo de ejecución AmazonRedshift
+SELECT
+    query_id,
+    status,
+    start_time,
+    end_time,
+    elapsed_time / 1000000.0 AS duracion_segundos,
+    query_text
+FROM sys_query_history
+WHERE start_time >= DATEADD(minute, -30, GETDATE())
+ORDER BY start_time DESC
+LIMIT 20;
