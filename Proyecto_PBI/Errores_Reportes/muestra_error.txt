@@ -132,3 +132,25 @@ DataSourcePath = corshftanltc-dprogramp.hdicolombia.com.co:;liberty
 OdbcErrors = #table({"SQLState", "NativeError", "Message"}, {})
 NativeError = 10
 SQLState = 08S01
+
+
+
+
+--guia conexion
+let
+  Source = Value.NativeQuery(AmazonRedshift.Database("corshftanltc-dprogramp.hdicolombia.com.co:9519", "liberty", [ProviderName = null, BatchSize = null]), "SELECT PERIODO_CONTABLE, ANNO_CONTABLE, MES_CONTABLE, SUCURSAL_PROD, SUC_FINAL, INTERMEDIARIO_LIDE, RAMO_PROD, DESC_RAMO_PROD, SBU, VR_PRIMA_PESOS_COA, VR_PRIMA_PESOS_COA_ANT, OFICINA_FUSION, AGRUPACION_COMERCIAL, ZONA, NOM_CLAVE_LIDER, MARCA_ACTIVA, IMPRODUCTIVO, NOMBRE_GESTOR_FINAL, R12, SEGMENTO_BASE, SEGMENTO_MES_ACTUAL, LLAVE_SEGMENTO_BASE, LLAVE_SEGMENTO_MES_ACTUAL, LLAVE_SUCURSAL_CLAVE, COTIZACIONES_AUT_IND, COTIZACIONES_AUTOGESTION, COTIZACIONES_BPM, FECHA_ACTUALIZACION, CONDICIONAL_CRECIMIENTO_2, CONDICIONAL_VENDIENDO_2, CONTEO_CRECIENDO_2, CONTEO_VENDIENDO_2, CONTEO_IMPRODUCTIVOS_2, CLLIDE, SUC_FINAL, PRESP_PRIMAS_MES, DESC_AGRUPACION_1, NOM_CLAVE_ASOC, EMISIONES_AUT_IND, CANAL, FECHA_ACTUALIZACION, COTIZACIONES_PYME_LT, COTIZACIONES_HOME FROM liberty_pruebas_actuaria.DBO.SEG_GESTION_SBU_DIA_VF WHERE PERIODO_CONTABLE >= 202001 AND PERIODO_CONTABLE <= CAST(TO_CHAR(DATEADD(day, 30, GETDATE()), 'YYYYMM') AS INT)"),
+  #"Inserted Text Before Delimiter" = Table.AddColumn(Source, "ASOCIADA", each Text.BeforeDelimiter([NOM_CLAVE_ASOC], "-"), type text),
+  #"Changed Type" = Table.TransformColumnTypes(#"Inserted Text Before Delimiter", {{"ASOCIADA", type number}}),
+  #"Inserted Division" = Table.AddColumn(#"Changed Type", "Division", each [VR_PRIMA_PESOS_COA] / 1000, type number),
+  #"Inserted Division1" = Table.AddColumn(#"Inserted Division", "Division.1", each [VR_PRIMA_PESOS_COA_ANT] / 1000, type number),
+  #"Inserted Division2" = Table.AddColumn(#"Inserted Division1", "Division.2", each [PRESP_PRIMAS_MES] / 1000, type number),
+  #"Inserted Division3" = Table.AddColumn(#"Inserted Division2", "Division.3", each [R12] / 1000, type number),
+  #"Removed Columns" = Table.RemoveColumns(#"Inserted Division3", {"vr_prima_pesos_coa", "vr_prima_pesos_coa_ant", "presp_primas_mes", "r12"}),
+  #"Renamed Columns" = Table.RenameColumns(#"Removed Columns", {{"periodo_contable", "Periodo"}, {"agrupacion_comercial", "Agrupación comercial"}, {"anno_contable", "Año"}, {"ASOCIADA", "Asociada"}, {"canal", "Canal"}, {"cllide", "Clave lider"}, {"ramo_prod", "Código Ramo"}, {"zona", "Zona"}, {"oficina_fusion", "Oficina"}, {"nombre_gestor_final", "Gestor"}, {"condicional_vendiendo_2", "Marca Vendiendo"}, {"improductivo", "Marca Productivo"}, {"marca_activa", "Marca clave activa"}, {"mes_contable", "Mes"}, {"llave_segmento_base", "Segmento año anterior"}, {"llave_segmento_mes_actual", "Segmento actual"}, {"Division", "Prima Actual"}, {"Division.1", "Prima Anterior"}, {"Division.2", "Presupuesto"}, {"nom_clave_lider", "Nombre - Clave lider"}, {"Division.3", "Prima R12"}, {"desc_agrupacion_1", "Agrupación"}, {"desc_ramo_prod", "Ramo"}, {"fecha_actualizacion", "Fecha Actualización"}}),
+  #"Added Custom" = Table.AddColumn(#"Renamed Columns", "Agrupación cotizaciones auto", each if [COTIZACIONES_AUT_IND] = 0 then "a. Sin cotizar" else if [COTIZACIONES_AUT_IND] <= 5 then "b. 1 a 5" else if [COTIZACIONES_AUT_IND] <= 10 then "c. 6 a 10" else if [COTIZACIONES_AUT_IND] <= 15 then "d. 11 a 15" else "e. Más de 15"),
+  #"Renamed Columns1" = Table.RenameColumns(#"Added Custom", {{"sucursal_prod", "Sucursal prod"}, {"cotizaciones_aut_ind", "Cotizaciones Auto Individual"}, {"cotizaciones_bpm", "Cotizaciones BPM"}, {"cotizaciones_home", "Cotizaciones Hogar"}, {"cotizaciones_pyme_lt", "Cotizaciones Pyme LT"}, {"emisiones_aut_ind", "Emisiones Auto Individual"}, {"intermediario_lide", "Intermediario Lider"}, {"nom_clave_asoc", "Nombre clave asociada"}, {"segmento_base", "Segmento Anterior"}, {"segmento_mes_actual", "Segmento mes Actual"}, {"Segmento actual", "Llave Segmento actual"}, {"Segmento año anterior", "Llave Segmento año anterior"}, {"suc_final", "Sucursal final"}}),
+  #"Removed Columns1" = Table.RemoveColumns(#"Renamed Columns1", {"fecha_actualizacion2"}),
+  #"Transformar columnas" = Table.TransformColumnTypes(#"Removed Columns1", {{"Agrupación cotizaciones auto", type text}}),
+  #"Reemplazar errores" = Table.ReplaceErrorValues(#"Transformar columnas", {{"Agrupación cotizaciones auto", null}})
+in
+  #"Reemplazar errores"
