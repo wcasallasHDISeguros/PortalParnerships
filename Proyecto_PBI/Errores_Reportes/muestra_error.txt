@@ -1,6 +1,7 @@
 
 
 
+
 let
     Source = Value.NativeQuery(
         AmazonRedshift.Database(
@@ -11,18 +12,16 @@ let
         "
         SELECT
             RAMO_PROD,
+            POLIZA,
             PERIODO,
             TRIMESTRE,
             VIGENCIA,
-            CIUDAD,
             ZONA_TOMADOR,
             F_RENO,
             MARCAS_PRINCIPALES,
             CLASE,
             COMBUSTIBLE,
-            CODIGO,
             ""tipo 1"" AS ""TIPO 1"",
-            TIPO_2,
             MARCA_NR,
             ""descuento tecnico"" AS ""DESCUENTO TECNICO"",
             ANTIGUEDAD_VEHICULO,
@@ -34,11 +33,12 @@ let
             TOMADOR_2,
             NRO_IDENTIFI_TOM,
             SUCURSAL,
-            POLIZA,
+            POLIZA AS POLIZA2,
             ""dpnr-siniestro"" AS ""DPNR-Siniestro"",
             INTERMEDIARIO,
             INI_CERT,
             FIN_CERT,
+            COD_USO_VEHIC,
             EXP_M_GLOBAL,
             EXP_T_GLOBAL,
             EXP_A_GLOBAL,
@@ -138,11 +138,12 @@ let
             NUM_CASOS_R_RCLO,
             NUM_CASOS_R_RCCO,
             NUM_CASOS_R_OTROS
-        FROM liberty_pruebas_actuaria.dbo.K_BASE_MOTOS
+        FROM liberty_pruebas_actuaria.dbo.K_BASE_PESADOS
         "
     )
 in
     Source
+
 
 
 
