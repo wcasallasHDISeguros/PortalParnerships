@@ -1,5 +1,6 @@
 
 
+
 let
     Source = Value.NativeQuery(
         AmazonRedshift.Database(
@@ -13,13 +14,15 @@ let
             PERIODO,
             TRIMESTRE,
             VIGENCIA,
+            CIUDAD,
             ZONA_TOMADOR,
             F_RENO,
             MARCAS_PRINCIPALES,
-            NRO_PLACA,
             CLASE,
             COMBUSTIBLE,
+            CODIGO,
             ""tipo 1"" AS ""TIPO 1"",
+            TIPO_2,
             MARCA_NR,
             ""descuento tecnico"" AS ""DESCUENTO TECNICO"",
             ANTIGUEDAD_VEHICULO,
@@ -51,8 +54,8 @@ let
             EXP_M_PTD,
             EXP_M_PPD,
             EXP_M_PPH,
-            EXP_M_RCLO,
             EXP_M_RCBO,
+            EXP_M_RCLO,
             EXP_M_RCCO,
             EXP_M_OTROS,
             EXP_T_RCB,
@@ -61,8 +64,8 @@ let
             EXP_T_PTD,
             EXP_T_PPD,
             EXP_T_PPH,
-            EXP_T_RCLO,
             EXP_T_RCBO,
+            EXP_T_RCLO,
             EXP_T_RCCO,
             EXP_T_OTROS,
             EXP_A_RCB,
@@ -71,8 +74,8 @@ let
             EXP_A_PTD,
             EXP_A_PPD,
             EXP_A_PPH,
-            EXP_A_RCLO,
             EXP_A_RCBO,
+            EXP_A_RCLO,
             EXP_A_RCCO,
             EXP_A_OTROS,
             DEV_RCB,
@@ -81,8 +84,8 @@ let
             DEV_PTD,
             DEV_PPD,
             DEV_PPH,
-            DEV_RCLO,
             DEV_RCBO,
+            DEV_RCLO,
             DEV_RCCO,
             DEV_OTROS,
             VAE_RCB,
@@ -91,8 +94,8 @@ let
             VAE_PTD,
             VAE_PPD,
             VAE_PPH,
-            VAE_RCLO,
             VAE_RCBO,
+            VAE_RCLO,
             VAE_RCCO,
             VAE_OTROS,
             VR_SIN_RCB,
@@ -101,8 +104,8 @@ let
             VR_SIN_PTD,
             VR_SIN_PPD,
             VR_SIN_PPH,
-            VR_SIN_RCLO,
             VR_SIN_RCBO,
+            VR_SIN_RCLO,
             VR_SIN_RCCO,
             VR_SIN_OTROS,
             NUM_CASOS_RCB,
@@ -111,8 +114,8 @@ let
             NUM_CASOS_PTD,
             NUM_CASOS_PPD,
             NUM_CASOS_PPH,
-            NUM_CASOS_RCLO,
             NUM_CASOS_RCBO,
+            NUM_CASOS_RCLO,
             NUM_CASOS_RCCO,
             NUM_CASOS_OTROS,
             VR_SIN_R_RCB,
@@ -121,8 +124,8 @@ let
             VR_SIN_R_PTD,
             VR_SIN_R_PPD,
             VR_SIN_R_PPH,
-            VR_SIN_R_RCLO,
             VR_SIN_R_RCBO,
+            VR_SIN_R_RCLO,
             VR_SIN_R_RCCO,
             VR_SIN_R_OTROS,
             NUM_CASOS_R_RCB,
@@ -131,18 +134,16 @@ let
             NUM_CASOS_R_PTD,
             NUM_CASOS_R_PPD,
             NUM_CASOS_R_PPH,
-            NUM_CASOS_R_RCLO,
             NUM_CASOS_R_RCBO,
+            NUM_CASOS_R_RCLO,
             NUM_CASOS_R_RCCO,
-            NUM_CASOS_R_OTROS,
-            GRUPO,
-            CIUDAD,
-            COD_USO_VEHIC
-        FROM liberty_pruebas_actuaria.dbo.K_FLOTAS
+            NUM_CASOS_R_OTROS
+        FROM liberty_pruebas_actuaria.dbo.K_BASE_MOTOS
         "
     )
 in
     Source
+
 
 
 
