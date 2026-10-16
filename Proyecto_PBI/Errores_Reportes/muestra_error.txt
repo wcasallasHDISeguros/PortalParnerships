@@ -1,6 +1,58 @@
-Liberty_Pruebas_Actuaria.##work_query_for_union_agrupadas
 
-##VARIABLES_AUTOS
+let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName = null, BatchSize = null]
+    ),
+
+    Resultado = Value.NativeQuery(
+        Origen,
+        "
+        SELECT *
+        FROM liberty_pruebas_actuaria.DBO.Data_Polizas_PUAC
+        WHERE tipotarifa = '18'
+        "
+    )
+in
+    Resultado
+
+
+
+
+    let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName = null, BatchSize = null]
+    ),
+
+    Resultado = Value.NativeQuery(
+        Origen,
+        "
+        SELECT *
+        FROM liberty_pruebas_actuaria.DBO.co_auto_colectivo_nb_scored
+        "
+    ),
+
+    #"Renamed columns" = Table.RenameColumns(
+        Resultado,
+        {
+            {"Actuarial.Cost.Parameter", "Actuarial Cost Parameter"},
+            {"Costo.Actuarial.sin.asistencias", "Costo Actuarial sin asistencias"},
+            {"Costo.Actuarial.sin.asistencias.ni.salvamentos", "Costo Actuarial sin asistencias ni salvamentos"},
+            {"PrimaAnual.Actual", "PrimaAnual Actual"},
+            {"Profile.ID", "Profile ID"}
+        }
+    )
+in
+    #"Renamed columns"
+
+
+
+
+
+    
 
 
 
