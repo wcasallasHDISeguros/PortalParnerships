@@ -1,77 +1,32 @@
 
 let
     Origen = AmazonRedshift.Database(
-        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
-        "liberty",
-        [ProviderName = null, BatchSize = null]
+        "ENDPOINT_REDSHIFT:5439",
+        "stg_liberty"
     ),
 
-    Resultado = Value.NativeQuery(
+    Consulta = Value.NativeQuery(
         Origen,
         "
-        SELECT *
-        FROM liberty_pruebas_actuaria.DBO.Data_Polizas_PUAC
-        WHERE tipotarifa = '18'
+        SELECT
+            SSEGURO,
+            NPOLIZA,
+            CRAMO,
+            SPRODUC,
+            NCERTIF,
+            CAGENTE,
+            suc,
+            NMOVIMI,
+            FEFECTO,
+            FMOVIMI,
+            CUSUMOV,
+            TMOTVOV,
+            CMOTMOV,
+            CMATRIC,
+            ID_INSPECCION,
+            ESTADO_INSPECCION
+        FROM dbo.dwh_suplementos
         "
     )
 in
-    Resultado
-
-
-
-
-    let
-    Origen = AmazonRedshift.Database(
-        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
-        "liberty",
-        [ProviderName = null, BatchSize = null]
-    ),
-
-    Resultado = Value.NativeQuery(
-        Origen,
-        "
-        SELECT *
-        FROM liberty_pruebas_actuaria.DBO.co_auto_colectivo_nb_scored
-        "
-    ),
-
-    #"Renamed columns" = Table.RenameColumns(
-        Resultado,
-        {
-            {"Actuarial.Cost.Parameter", "Actuarial Cost Parameter"},
-            {"Costo.Actuarial.sin.asistencias", "Costo Actuarial sin asistencias"},
-            {"Costo.Actuarial.sin.asistencias.ni.salvamentos", "Costo Actuarial sin asistencias ni salvamentos"},
-            {"PrimaAnual.Actual", "PrimaAnual Actual"},
-            {"Profile.ID", "Profile ID"}
-        }
-    )
-in
-    #"Renamed columns"
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
---Consulta validar tiempo de ejecución AmazonRedshift
-SELECT
-    query_id,
-    user_id,
-    status,
-    start_time,
-    elapsed_time / 1000000.0 AS duracion_segundos,
-    LEFT(query_text, 300) AS consulta
-FROM sys_query_history
-WHERE start_time >= DATEADD(hour, -2, GETDATE())
-ORDER BY start_time DESC
-LIMIT 100;
+    Consulta
