@@ -5,6 +5,7 @@ let
         "liberty",
         [ProviderName = null, BatchSize = null]
     ),
+
     Consulta = Value.NativeQuery(
         Origen,
         "
@@ -15,7 +16,7 @@ let
             SUM(devengada) AS DEVENGADA,
             ramo_prod,
             poliza,
-            CONCAT(ramo_prod, '-', poliza::VARCHAR) AS Ramo_poliza
+            ramo_prod::VARCHAR || '-' || poliza::VARCHAR AS Ramo_poliza
         FROM liberty_pruebas_actuaria.dbo.rt_det_devengada_gd
         WHERE ramo_prod IN ('6031', '6034')
           AND periodo_contable >= 202201
@@ -29,6 +30,7 @@ let
     )
 in
     Consulta
+
 
 
 
