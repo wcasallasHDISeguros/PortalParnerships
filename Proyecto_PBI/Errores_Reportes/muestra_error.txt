@@ -31,18 +31,6 @@ let
 in
     Consulta
 
-
-
-let
-    Origen = Sql.Databases("wdbanal-dwhp01.hdicolombia.com.co"),
-    Liberty = Origen{[Name="Liberty"]}[Data],
-    APOYO_DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS = Liberty{[Schema="APOYO",Item="DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS"]}[Data],
-    #"Adición insertada" = Table.AddColumn(APOYO_DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS, "clave-llave", each [CLAVE] + 4000000, type number)
-in
-    #"Adición insertada"
-
-
-
     let
     Origen = AmazonRedshift.Database(
         "corshftanltc-dprogramp.hdicolombia.com.co:9519",
@@ -66,3 +54,13 @@ in
     )
 in
     #"Adición insertada"
+
+
+    DataSource.Error: ODBC: ERROR [08S01] [Microsoft][Amazon Redshift] (10) Error occurred while trying to connect: [SQLState 08S01] connection to server at "corshftanltc-dprogramp.hdicolombia.com.co" (172.16.6.89), port 9519 failed: server certificate for "*.cui4m6jnnkyr.us-east-1.redshift.amazonaws.com" does not match host name "corshftanltc-dprogramp.hdicolombia.com.co"
+
+Details:
+    DataSourceKind=AmazonRedshift
+    DataSourcePath=corshftanltc-dprogramp.hdicolombia.com.co:9519;liberty
+    OdbcErrors=[Table]
+    NativeError=10
+    SQLState=08S01
