@@ -40,3 +40,29 @@ let
     #"Adición insertada" = Table.AddColumn(APOYO_DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS, "clave-llave", each [CLAVE] + 4000000, type number)
 in
     #"Adición insertada"
+
+
+
+    let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName = null, BatchSize = null]
+    ),
+
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT *
+        FROM apoyo.dwh_redcomercial_base_claves_activas
+        "
+    ),
+
+    #"Adición insertada" = Table.AddColumn(
+        Consulta,
+        "clave-llave",
+        each [CLAVE] + 4000000,
+        type number
+    )
+in
+    #"Adición insertada"
