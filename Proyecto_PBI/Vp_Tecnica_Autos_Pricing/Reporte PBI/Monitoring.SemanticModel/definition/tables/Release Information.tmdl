@@ -1,0 +1,89 @@
+table 'Release Information'
+	lineageTag: 7dcabeb0-1d85-4d37-976a-f4bf9cf13662
+
+	/// Display measure used to display Release Notes in visualizations
+	/// 
+	measure 'Release Notes Display' =
+			
+			CALCULATE (
+			    VALUES ( 'Release Information'[Release Notes] ),
+			    'Release Information'[Release Order] = 1
+			)
+		displayFolder: Release Notes
+		lineageTag: 1ad60fd4-f72f-45f4-8ca9-5df7a4afbe18
+
+	/// Display measure to combine version and release date
+	measure 'Release Information Display' =
+			
+			"Version "
+			    & CALCULATE (
+			        VALUES ( 'Release Information'[Release Number] ),
+			        'Release Information'[Release Order] = 1
+			    ) & " - released "
+			    & CALCULATE (
+			        VALUES ( 'Release Information'[Release Date] ),
+			        'Release Information'[Release Order] = 1
+			    )
+		displayFolder: Release Information
+		lineageTag: 5a90c296-09f7-40c9-b96a-405f0660e497
+
+	/// Release Date of current and prior versions (if any)
+	column 'Release Date'
+		dataType: dateTime
+		formatString: Short Date
+		displayFolder: Release Information
+		lineageTag: 4464de82-746b-45d8-9640-cca9452ff832
+		summarizeBy: none
+		sourceColumn: Release Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Release Notes'
+		dataType: string
+		displayFolder: Release Notes
+		lineageTag: c6e2ced7-a9e3-4f11-ba60-bfc68c345e26
+		summarizeBy: none
+		sourceColumn: Release Notes
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Release Number as entered into Excel Control Table
+	/// 
+	column 'Release Number'
+		dataType: string
+		displayFolder: Release Information
+		lineageTag: cc4520a3-33ea-4b77-bddc-177eda043974
+		summarizeBy: none
+		sourceColumn: Release Number
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Release Order'
+		dataType: double
+		formatString: 0
+		lineageTag: 65bbc8b2-e7b7-4e86-9baf-44565676e8a7
+		summarizeBy: sum
+		sourceColumn: Release Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Release Information-06966092-4ccb-404b-a95d-c9120f960950' = m
+		mode: import
+		queryGroup: 'DO NOT DELETE'
+		source =
+				let
+				    Source = SharePoint.Files(#"Template Control SharePoint Root URL", [ApiVersion = 15]),
+				    FileID = Source{[Name=#"Template Control File Name"&".xlsx"]}[Content],
+				    #"Import Excel to display table and sheets" = Excel.Workbook(FileID),
+				    #"Point to Release Information table" = #"Import Excel to display table and sheets"{[Item="ReleaseInformation",Kind="Table"]}[Data],
+				    #"Sort result set by Release Date" = Table.Sort(#"Point to Release Information table",{{"Release Date", Order.Descending}}),
+				    #"Add Index as Release Order to break possible ties" = Table.AddIndexColumn(#"Sort result set by Release Date", "Release Order", 1, 1)
+				in
+				    #"Add Index as Release Order to break possible ties"
+
+	annotation PBI_QueryRelationships = {"columnCount":4,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Release Information/Add Index as Release Order to break possible ties.{Release Number,0}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Date,1}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Notes,2}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Order,3}"],"ColumnCount":4,"KeyColumnNames":[],"ColumnIdentities":["Section1/Release Information/Add Index as Release Order to break possible ties.{Release Number,0}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Date,1}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Notes,2}","Section1/Release Information/Add Index as Release Order to break possible ties.{Release Order,3}"],"RelationshipInfo":[]}
+
+	annotation PBI_ResultType = Table
+

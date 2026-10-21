@@ -1,0 +1,140 @@
+table 'Pricing versions unidenfied'
+	lineageTag: e8383f86-8a5a-4f43-aa3c-4cf301687269
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: b903e699-d2fd-4a0e-9e32-131bed248125
+		summarizeBy: sum
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rule Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: 94b4287f-10e1-4132-bf26-df40b1fae345
+		summarizeBy: count
+		sourceColumn: Rule Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: e5c40357-8e8a-4141-bbe8-ae4b7e2ad554
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column encounter
+		dataType: string
+		lineageTag: dc7a0d78-be1e-4c5c-90ce-b4ed8fe8dd37
+		summarizeBy: none
+		sourceColumn: encounter
+
+		annotation SummarizationSetBy = Automatic
+
+	column released
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 53341f37-7cd1-46e6-a9ed-a1c72555e230
+		summarizeBy: none
+		sourceColumn: released
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Implementacion'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: cb1fb1b0-bdc4-43b4-a853-65c945a6ea53
+		summarizeBy: none
+		sourceColumn: Fecha Implementacion
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Fecha Termina'
+		dataType: string
+		lineageTag: 1a4076ec-2cb6-420c-90ab-a315b223f7b2
+		summarizeBy: none
+		sourceColumn: Fecha Termina
+
+		annotation SummarizationSetBy = Automatic
+
+	column comment
+		dataType: string
+		lineageTag: 28b7e734-ee6b-4b9c-8571-9242c0333ad9
+		summarizeBy: none
+		sourceColumn: comment
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Version Name'
+		dataType: string
+		lineageTag: 0703766c-b24b-4947-abec-e8f51ca98e61
+		summarizeBy: none
+		sourceColumn: Version Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column versionId
+		dataType: int64
+		formatString: 0
+		lineageTag: 0d805a06-7ca2-4619-b3ca-c7409a6ab598
+		summarizeBy: count
+		sourceColumn: versionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rule-Version
+		dataType: string
+		lineageTag: e09b8313-1d93-4ddc-8ab2-fc0f37e153b9
+		summarizeBy: none
+		sourceColumn: Rule-Version
+
+		annotation SummarizationSetBy = Automatic
+
+	column Modelo
+		dataType: string
+		lineageTag: 6153b7af-0381-4773-a57c-0c9cf7b11431
+		summarizeBy: none
+		sourceColumn: Modelo
+
+		annotation SummarizationSetBy = Automatic
+
+	column RuleID-VersionDesc
+		dataType: string
+		lineageTag: 685d3163-34d1-4e4a-b9fb-81530e927669
+		summarizeBy: none
+		sourceColumn: RuleID-VersionDesc
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column14
+		dataType: string
+		lineageTag: 6591b3b2-086c-44ed-84b0-b9a8e6f62891
+		summarizeBy: none
+		sourceColumn: Column14
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Pricing versions unidenfied-41c47655-d663-43d9-9f5b-ba3c2c70448a' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Pricing versions not identified by Pricing Tracker xlsx_https://libertymutual sharepoint com/sites/AndesPricingCommittee/Shared Documents/Colombia/" = Source{[Name="Pricing versions not identified by Pricing Tracker.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Pricing versions not identified by Pricing Tracker xlsx_https://libertymutual sharepoint com/sites/AndesPricingCommittee/Shared Documents/Colombia/"),
+				    Sheet1_Sheet = #"Imported Excel Workbook"{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Index", Int64.Type}, {"Rule Id", Int64.Type}, {"product_name", type text}, {"encounter", type text}, {"released", type logical}, {"Fecha Implementacion", type date}, {"Fecha Termina", type text}, {"comment", type text}, {"Version Name", type text}, {"versionId", Int64.Type}, {"Rule-Version", type text}, {"Modelo", type text}, {"RuleID-VersionDesc", type text}}),
+				    #"Duplicados quitados" = Table.Distinct(#"Changed Type", {"Rule-Version"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

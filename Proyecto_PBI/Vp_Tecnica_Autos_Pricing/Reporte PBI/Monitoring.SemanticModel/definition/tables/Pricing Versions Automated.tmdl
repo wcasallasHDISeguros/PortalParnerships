@@ -1,0 +1,330 @@
+table 'Pricing Versions Automated'
+	lineageTag: 71b34e41-1ced-407b-b210-2a4e16500f98
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: f19c237e-8d2e-4a27-a525-02a4e4c93614
+		summarizeBy: none
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column product_name
+		dataType: string
+		lineageTag: ce0aeb08-7827-4362-86f3-6c5db9312448
+		summarizeBy: none
+		sourceColumn: product_name
+
+		annotation SummarizationSetBy = Automatic
+
+	column encounter
+		dataType: string
+		lineageTag: c1ba964f-e9f3-436d-a575-daf2206ff16b
+		summarizeBy: none
+		sourceColumn: encounter
+
+		annotation SummarizationSetBy = Automatic
+
+	column released
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 60e6bd8f-651e-4285-b2bf-b5115c9eb38d
+		summarizeBy: none
+		sourceColumn: released
+
+		annotation SummarizationSetBy = Automatic
+
+	column comment
+		dataType: string
+		lineageTag: 8a930f0f-d22e-47d6-98f8-99da01aab56f
+		summarizeBy: none
+		sourceColumn: comment
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Version Name'
+		dataType: string
+		lineageTag: ff5d0229-a36c-4a4f-9fdb-d95836830093
+		summarizeBy: none
+		sourceColumn: Version Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Rule-Version
+		dataType: string
+		lineageTag: 7aa1c9ca-d0be-467a-9cc3-3766b30be164
+		summarizeBy: none
+		sourceColumn: Rule-Version
+
+		annotation SummarizationSetBy = Automatic
+
+	column RuleID-VersionDesc
+		dataType: string
+		lineageTag: 54410c15-aca0-4a1d-85b5-860427fa9d75
+		summarizeBy: none
+		sourceColumn: RuleID-VersionDesc
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column14
+		dataType: string
+		lineageTag: 9589bd80-f927-47a8-bfb1-45f2c562f985
+		summarizeBy: none
+		sourceColumn: Column14
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Rule Id'
+		dataType: int64
+		formatString: 0
+		lineageTag: d0e4b3f9-18f6-4314-aa06-5ae79d9c265e
+		summarizeBy: none
+		sourceColumn: Rule Id
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha Implementacion'
+		dataType: dateTime
+		formatString: d/mm/yyyy
+		lineageTag: aa7a3da0-5203-4636-88c7-c5444a694ecd
+		summarizeBy: none
+		sourceColumn: Fecha Implementacion
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Fecha Termina'
+		dataType: string
+		lineageTag: c79a5d33-4c9a-4e3a-bf2f-22e1167e5fd2
+		summarizeBy: none
+		sourceColumn: Fecha Termina
+
+		annotation SummarizationSetBy = Automatic
+
+	column versionId
+		dataType: int64
+		formatString: 0
+		lineageTag: 9be8613f-6f8a-4ccb-b326-f1ca388f268e
+		summarizeBy: none
+		sourceColumn: versionId
+
+		annotation SummarizationSetBy = Automatic
+
+	column Modelo
+		dataType: string
+		lineageTag: 3eb3495d-8ce5-4b3f-bf50-395f3b5201ef
+		summarizeBy: none
+		sourceColumn: Modelo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Conversión esperada'
+		dataType: string
+		lineageTag: e6411b26-1b89-4b01-9ae0-12a7b6105da4
+		summarizeBy: none
+		sourceColumn: Conversión esperada
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MLR esperado'
+		dataType: string
+		lineageTag: 0f0e5b37-c94a-4d76-9f81-0455c1e6980e
+		summarizeBy: none
+		sourceColumn: MLR esperado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AWP esperado'
+		dataType: string
+		lineageTag: 70e3daa7-0f44-4273-b6d4-fe8ee2354672
+		summarizeBy: none
+		sourceColumn: AWP esperado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Conversión real'
+		dataType: string
+		lineageTag: e7493f45-efc5-4f95-b6d0-379e6d06a2a0
+		summarizeBy: none
+		sourceColumn: Conversión real
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MLR real'
+		dataType: string
+		lineageTag: 447b68b4-2979-426c-9b1c-1c55ca9e6b44
+		summarizeBy: none
+		sourceColumn: MLR real
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AWP real'
+		dataType: string
+		lineageTag: 2967ca9f-565a-48ce-bb20-5f6d3e00adf5
+		summarizeBy: none
+		sourceColumn: AWP real
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Diff Conversión (pp)'
+		dataType: string
+		lineageTag: 0f06f7d1-b78e-4328-8c16-39f91777653a
+		summarizeBy: none
+		sourceColumn: Diff Conversión (pp)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Diff Conversión (%)'
+		dataType: string
+		lineageTag: f2bff9fb-ba6b-43a2-92f6-a3fc5a294c7a
+		summarizeBy: none
+		sourceColumn: Diff Conversión (%)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Diff MLR (%)'
+		dataType: string
+		lineageTag: d5dc7750-92ea-4d2a-a029-502fd2a950ae
+		summarizeBy: none
+		sourceColumn: Diff MLR (%)
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Diff AWP (%)'
+		dataType: string
+		lineageTag: 7cbf1f81-ea4b-4fbe-aba9-c93db009252b
+		summarizeBy: none
+		sourceColumn: Diff AWP (%)
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column25
+		dataType: string
+		lineageTag: 120010ea-7e5a-489f-92b1-c6fc0095e473
+		summarizeBy: none
+		sourceColumn: Column25
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AQP esperado'
+		dataType: string
+		lineageTag: 9401dfda-272e-4022-b185-dd71bb37f5a9
+		summarizeBy: none
+		sourceColumn: AQP esperado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AQP real'
+		dataType: string
+		lineageTag: 3e9e5f28-cbb2-427f-87ae-0c2028dbbd4e
+		summarizeBy: none
+		sourceColumn: AQP real
+
+		annotation SummarizationSetBy = Automatic
+
+	column Peso
+		dataType: string
+		lineageTag: 935ec0ad-1dce-490e-a4ca-eeb43c6e792e
+		summarizeBy: none
+		sourceColumn: Peso
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MLR esperado ponderado'
+		dataType: string
+		lineageTag: 9301349a-52f2-45ae-a509-7d70342d4996
+		summarizeBy: none
+		sourceColumn: MLR esperado ponderado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'AQP esperado ponderado'
+		dataType: string
+		lineageTag: 39947fa2-3afc-4c60-a528-8656b492bcbb
+		summarizeBy: none
+		sourceColumn: AQP esperado ponderado
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'variación AQP'
+		dataType: string
+		lineageTag: 13935d88-02ba-483a-a933-d760511127cc
+		summarizeBy: none
+		sourceColumn: variación AQP
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MLR esperado ponderado sin asistencias ni salvamentos'
+		dataType: string
+		lineageTag: 5292c3d5-4ee0-41ca-8f61-2ed70244875a
+		summarizeBy: none
+		sourceColumn: MLR esperado ponderado sin asistencias ni salvamentos
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column33
+		dataType: double
+		lineageTag: f818ed1b-05e3-4ead-af43-74e280e6aa15
+		summarizeBy: none
+		sourceColumn: Column33
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'AWP esperado ponderado'
+		dataType: string
+		lineageTag: 46fa7bdb-969c-47a4-b4b9-89be07954b81
+		summarizeBy: none
+		sourceColumn: AWP esperado ponderado
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column35
+		dataType: string
+		lineageTag: 7d158715-ed36-41fa-91f6-219041d03594
+		summarizeBy: none
+		sourceColumn: Column35
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column36
+		dataType: string
+		lineageTag: fcf628e7-ec9f-45c7-b686-a10d74439dba
+		summarizeBy: none
+		sourceColumn: Column36
+
+		annotation SummarizationSetBy = Automatic
+
+	column Column37
+		dataType: double
+		lineageTag: e7538464-4546-4bb2-96c4-90d1b2793235
+		summarizeBy: none
+		sourceColumn: Column37
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Pricing Versions Automated-d02aa4d8-28ca-4754-a523-fa6b32500b32' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Pricing versions not identified by Pricing Tracker.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/" = Source{[Name="Pricing versions not identified by Pricing Tracker.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Pricing versions not identified by Pricing Tracker.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"),
+				    Sheet1_Sheet = #"Imported Excel Workbook"{[Item="Sheet1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Sheet1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Index", Int64.Type}, {"Rule Id", Int64.Type}, {"product_name", type text}, {"encounter", type text}, {"released", type logical}, {"Fecha Implementacion", type date}, {"Fecha Termina", type text}, {"comment", type text}, {"Version Name", type text}, {"versionId", Int64.Type}, {"Rule-Version", type text}, {"Modelo", type text}, {"RuleID-VersionDesc", type text}}),
+				    #"Duplicados quitados" = Table.Distinct(#"Changed Type", {"Rule-Version"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

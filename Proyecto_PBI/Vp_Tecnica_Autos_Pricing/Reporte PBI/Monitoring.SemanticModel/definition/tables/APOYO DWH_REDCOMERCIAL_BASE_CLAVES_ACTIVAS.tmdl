@@ -1,0 +1,536 @@
+table 'APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS'
+	lineageTag: 5772d95e-a66e-4a9e-994f-d1c0212bdac0
+
+	column CLAVE
+		dataType: double
+		lineageTag: f418777e-a56d-432b-8753-b7dcbdb2ef0c
+		summarizeBy: sum
+		sourceColumn: CLAVE
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LIDER_NAL
+		dataType: double
+		lineageTag: a6e0e111-3b12-4507-95d1-e4a2a002ccbf
+		summarizeBy: sum
+		sourceColumn: LIDER_NAL
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column LIDER_OK
+		dataType: boolean
+		formatString: """TRUE"";""TRUE"";""FALSE"""
+		lineageTag: 7da99238-b94d-483e-9257-3c8f313519ae
+		summarizeBy: none
+		sourceColumn: LIDER_OK
+
+		annotation SummarizationSetBy = Automatic
+
+	column OFICINA
+		dataType: double
+		lineageTag: 3224f0f2-bc23-436f-9ee3-042d4a80a6c6
+		summarizeBy: sum
+		sourceColumn: OFICINA
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column NOMBRE_OFICINA
+		dataType: string
+		lineageTag: 17f75018-fefd-4bae-a6dd-2e6c815a3e40
+		summarizeBy: none
+		sourceColumn: NOMBRE_OFICINA
+
+		annotation SummarizationSetBy = Automatic
+
+	column CANAL
+		dataType: string
+		lineageTag: 5f4acce8-8efd-45c5-9fee-69336c781a10
+		summarizeBy: none
+		sourceColumn: CANAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column TIPO_OFICINA
+		dataType: string
+		lineageTag: 18a385b0-fbb3-4e70-b9a5-ee9460425355
+		summarizeBy: none
+		sourceColumn: TIPO_OFICINA
+
+		annotation SummarizationSetBy = Automatic
+
+	column GERENTE
+		dataType: string
+		lineageTag: 6fe0aa5a-dc64-4031-97ad-79ec025e74bb
+		summarizeBy: none
+		sourceColumn: GERENTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_GERENTE
+		dataType: string
+		lineageTag: af48baeb-2910-44fc-bddf-393a05bedf53
+		summarizeBy: none
+		sourceColumn: MAIL_GERENTE
+
+		annotation SummarizationSetBy = Automatic
+
+	column RESPONSABLE_OFICINA
+		dataType: string
+		lineageTag: ee4a8cbf-01a8-480f-805b-323c8132d0f8
+		summarizeBy: none
+		sourceColumn: RESPONSABLE_OFICINA
+
+		annotation SummarizationSetBy = Automatic
+
+	column REGIONAL_RESPONSABLE
+		dataType: string
+		lineageTag: 41be182d-c150-4be3-8caa-2b05fbce9e65
+		summarizeBy: none
+		sourceColumn: REGIONAL_RESPONSABLE
+
+		annotation SummarizationSetBy = Automatic
+
+	column RAZON_SOCIAL
+		dataType: string
+		lineageTag: e4b04ae6-9cc9-4851-aed8-06a8d9998535
+		summarizeBy: none
+		sourceColumn: RAZON_SOCIAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column NIT
+		dataType: double
+		lineageTag: 5c7df101-804d-4121-a9bf-d3bb281a1439
+		summarizeBy: sum
+		sourceColumn: NIT
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DIRECCION
+		dataType: string
+		lineageTag: da114965-7f5c-4813-a3db-120fcc475c35
+		summarizeBy: none
+		sourceColumn: DIRECCION
+
+		annotation SummarizationSetBy = Automatic
+
+	column CIUDAD
+		dataType: string
+		lineageTag: 2ce4f17f-8c5d-4b19-95c6-4a0b7aa7a6eb
+		summarizeBy: none
+		sourceColumn: CIUDAD
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEPTO
+		dataType: string
+		lineageTag: 8fa34632-1e0b-4ffc-b3b2-95b921090594
+		summarizeBy: none
+		sourceColumn: DEPTO
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASE
+		dataType: string
+		lineageTag: cb939981-e0d4-4ff6-b971-ebe9177422f1
+		summarizeBy: none
+		sourceColumn: CLASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column REPRESENTANTE_LEGAL
+		dataType: string
+		lineageTag: b4c73020-1de2-4e53-8ab4-b89f0fbc9499
+		summarizeBy: none
+		sourceColumn: REPRESENTANTE_LEGAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column CC_REP_LEGAL
+		dataType: string
+		lineageTag: bde7f60e-71cd-4c28-aa77-ec91e146264f
+		summarizeBy: none
+		sourceColumn: CC_REP_LEGAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_VINCULACION
+		dataType: double
+		lineageTag: 00dfacb2-ce4c-41dc-950c-c171ba5d7186
+		summarizeBy: sum
+		sourceColumn: FECHA_VINCULACION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ANO_VINCULACION
+		dataType: double
+		lineageTag: 25c65fb7-9801-4b74-8d99-400c29391132
+		summarizeBy: sum
+		sourceColumn: ANO_VINCULACION
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UNIDAD
+		dataType: double
+		lineageTag: 37f808b3-2bc3-4eed-859e-b5403cbecf1c
+		summarizeBy: sum
+		sourceColumn: UNIDAD
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column UNIDAD_CONCATENADA
+		dataType: string
+		lineageTag: 134afc68-3c6c-43dd-8c79-871f35cbea5c
+		summarizeBy: none
+		sourceColumn: UNIDAD_CONCATENADA
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOMBRE_GESTOR
+		dataType: string
+		lineageTag: dcb36cf3-770b-4177-b173-0c316a84cc3a
+		summarizeBy: none
+		sourceColumn: NOMBRE_GESTOR
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_GESTOR
+		dataType: string
+		lineageTag: c0186296-b7e0-4c9e-9c1e-40b2ee03c8a0
+		summarizeBy: none
+		sourceColumn: MAIL_GESTOR
+
+		annotation SummarizationSetBy = Automatic
+
+	column NOMBRE_GESTOR_ARL
+		dataType: string
+		lineageTag: 278451e1-db52-4939-bb93-dd4b93f28ad2
+		summarizeBy: none
+		sourceColumn: NOMBRE_GESTOR_ARL
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_GESTOR_ARL
+		dataType: string
+		lineageTag: 79540907-02e9-4632-82be-fb32aaa1c70a
+		summarizeBy: none
+		sourceColumn: MAIL_GESTOR_ARL
+
+		annotation SummarizationSetBy = Automatic
+
+	column ASISTENTE_COMERCIAL
+		dataType: string
+		lineageTag: 4fce0ee7-e586-47ef-b515-39ecefdd2867
+		summarizeBy: none
+		sourceColumn: ASISTENTE_COMERCIAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_ASISTENTE_COMERCIAL
+		dataType: string
+		lineageTag: 56fadbdb-b5bb-4e54-b5a3-86370bcd0d07
+		summarizeBy: none
+		sourceColumn: MAIL_ASISTENTE_COMERCIAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column TELEFONO_1
+		dataType: double
+		lineageTag: cb3fd744-6996-4ffb-9968-b1f2e46b0d6c
+		summarizeBy: sum
+		sourceColumn: TELEFONO_1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column TELEFONO_2
+		dataType: double
+		lineageTag: 27021954-985e-4214-8887-b0e00d9160dd
+		summarizeBy: sum
+		sourceColumn: TELEFONO_2
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column FECHA_NACIMIENTO
+		dataType: double
+		lineageTag: f8558d86-2d0e-4ef7-aa64-398b8ce4648a
+		summarizeBy: sum
+		sourceColumn: FECHA_NACIMIENTO
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column MAIL_1
+		dataType: string
+		lineageTag: c42ab76c-3d7a-4d8f-ba8a-a3e0c38f322c
+		summarizeBy: none
+		sourceColumn: MAIL_1
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_2
+		dataType: string
+		lineageTag: 8d073283-636c-4aca-a42d-4b507633c373
+		summarizeBy: none
+		sourceColumn: MAIL_2
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_3
+		dataType: string
+		lineageTag: 55f44d57-b640-4519-8f91-e9c71341e47e
+		summarizeBy: none
+		sourceColumn: MAIL_3
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_4
+		dataType: string
+		lineageTag: 2ce04afa-6325-4f25-a1fd-d3285ccd2054
+		summarizeBy: none
+		sourceColumn: MAIL_4
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_PRERENOV_AUTOS
+		dataType: string
+		lineageTag: d41f7421-6fa8-4ebf-8090-9e975338e299
+		summarizeBy: none
+		sourceColumn: MAIL_PRERENOV_AUTOS
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_PRERENOV_GENERALES
+		dataType: string
+		lineageTag: 6ec4341f-008d-4f8c-a5f5-40a0274cbe8c
+		summarizeBy: none
+		sourceColumn: MAIL_PRERENOV_GENERALES
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_PRERENOV_VIDA
+		dataType: string
+		lineageTag: ebf4f0e8-0c32-4ece-863a-65361e2d38ee
+		summarizeBy: none
+		sourceColumn: MAIL_PRERENOV_VIDA
+
+		annotation SummarizationSetBy = Automatic
+
+	column MAIL_PRERENOV_SALUD
+		dataType: string
+		lineageTag: 244ef9d2-449e-4e60-a65f-1986ca21c165
+		summarizeBy: none
+		sourceColumn: MAIL_PRERENOV_SALUD
+
+		annotation SummarizationSetBy = Automatic
+
+	column CELULAR_1
+		dataType: double
+		lineageTag: 7f19eccc-3143-4fc0-9fc6-87a51d00b54d
+		summarizeBy: sum
+		sourceColumn: CELULAR_1
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CELULAR_2
+		dataType: double
+		lineageTag: d7093852-a1cd-4ed2-ab72-d6c9b29cc646
+		summarizeBy: sum
+		sourceColumn: CELULAR_2
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column CELULAR_3
+		dataType: double
+		lineageTag: 3f6a3794-a2a1-4fa2-a64e-eab36c2a5337
+		summarizeBy: sum
+		sourceColumn: CELULAR_3
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column SEGMENTACION_ACTUAL
+		dataType: string
+		lineageTag: 436003b0-cb31-49ed-ab8d-1c45f9163140
+		summarizeBy: none
+		sourceColumn: SEGMENTACION_ACTUAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column OLEODUCTO_AUTOS
+		dataType: string
+		lineageTag: 35b30aad-84bf-41a3-a898-bb70c78a3218
+		summarizeBy: none
+		sourceColumn: OLEODUCTO_AUTOS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_CORTE_OLEO_AUT
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 59668ed9-3fef-4b57-81de-2fdcaf460275
+		summarizeBy: none
+		sourceColumn: FECHA_CORTE_OLEO_AUT
+
+		annotation SummarizationSetBy = Automatic
+
+	column SOBRECOMISION_AUTOS
+		dataType: string
+		lineageTag: 7bb5819d-543a-4c1a-8890-20f2c319497d
+		summarizeBy: none
+		sourceColumn: SOBRECOMISION_AUTOS
+
+		annotation SummarizationSetBy = Automatic
+
+	column INGRESO_PORTAL
+		dataType: string
+		lineageTag: cc2fb6c4-e6ff-4a51-b24b-5c7026768e4d
+		summarizeBy: none
+		sourceColumn: INGRESO_PORTAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_INICIO_PORTAL
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 425e60f9-bd01-44b2-86ea-e6ac6237f638
+		summarizeBy: none
+		sourceColumn: FECHA_INICIO_PORTAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_FIN_PORTAL
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 65bc6a3d-229d-48ad-9b30-20db8bb3bf8b
+		summarizeBy: none
+		sourceColumn: FECHA_FIN_PORTAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column OLEODUCTO_SOAT_
+		dataType: string
+		lineageTag: a34044c2-3b11-4f44-8c42-601a99a08bf7
+		summarizeBy: none
+		sourceColumn: OLEODUCTO_SOAT_
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_CORTE_OLEO_SOAT
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3f2489ec-9321-4872-955d-b803ccb86227
+		summarizeBy: none
+		sourceColumn: FECHA_CORTE_OLEO_SOAT
+
+		annotation SummarizationSetBy = Automatic
+
+	column OLEODUCTO_FIANZAS
+		dataType: string
+		lineageTag: 639d0721-ef32-4dbe-bbea-49d3738a31b9
+		summarizeBy: none
+		sourceColumn: OLEODUCTO_FIANZAS
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_CORTE_OLEO_FIANZAS
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 3d167a51-95ed-4923-baf3-7aece9e070bf
+		summarizeBy: none
+		sourceColumn: FECHA_CORTE_OLEO_FIANZAS
+
+		annotation SummarizationSetBy = Automatic
+
+	column GESTIONABLE
+		dataType: string
+		lineageTag: 8278a61c-4854-4483-b88e-3e477cbba04d
+		summarizeBy: none
+		sourceColumn: GESTIONABLE
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_EJECUCION_DWH
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 98249c42-e6e0-4f1d-96c9-5132e6421cdb
+		summarizeBy: none
+		sourceColumn: FECHA_EJECUCION_DWH
+
+		annotation SummarizationSetBy = Automatic
+
+	column GRUPO
+		dataType: string
+		lineageTag: e7d3a72b-9d20-4bed-b643-f44d77eb2aeb
+		summarizeBy: none
+		sourceColumn: GRUPO
+
+		annotation SummarizationSetBy = Automatic
+
+	column PROGRAMA
+		dataType: string
+		lineageTag: c2884a8f-456a-4497-902f-e2df034f8412
+		summarizeBy: none
+		sourceColumn: PROGRAMA
+
+		annotation SummarizationSetBy = Automatic
+
+	column FECHA_CLAVE_ASOCIADA
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f62c26f9-4d30-4ee9-82a7-7876aca1b480
+		summarizeBy: none
+		sourceColumn: FECHA_CLAVE_ASOCIADA
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column clave-llave
+		dataType: double
+		lineageTag: 12103af3-2aa5-4d27-aea1-54c332336ae5
+		summarizeBy: sum
+		sourceColumn: clave-llave
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS' = m
+		mode: import
+		source =
+				let
+				    Origen = Sql.Databases("wdbanal-dwhp01.hdicolombia.com.co"),
+				    Liberty = Origen{[Name="Liberty"]}[Data],
+				    APOYO_DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS = Liberty{[Schema="APOYO",Item="DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS"]}[Data],
+				    #"Adición insertada" = Table.AddColumn(APOYO_DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS, "clave-llave", each [CLAVE] + 4000000, type number)
+				in
+				    #"Adición insertada"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

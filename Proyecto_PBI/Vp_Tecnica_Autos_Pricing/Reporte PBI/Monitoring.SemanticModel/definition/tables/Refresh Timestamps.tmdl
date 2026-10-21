@@ -1,0 +1,48 @@
+/// Contains data source refresh time stamps for each data source used in the report
+table 'Refresh Timestamps'
+	lineageTag: cf50f673-dd52-4f2c-984b-a83fb5da0f25
+
+	/// Display Measure used to show data source refresh time stamp in reports
+	measure 'Example 1 Time Stamp Display' = "DATA AS OF " & CALCULATE(MAX('Refresh Timestamps'[Time Stamp]),'Refresh Timestamps'[Data Source]="Example 1")
+		lineageTag: ff6897b5-45b4-4b3c-a373-d4f237404840
+
+	measure 'Example 2 Time Stamp Display' = "DATA AS OF " & CALCULATE(MAX('Refresh Timestamps'[Time Stamp]),'Refresh Timestamps'[Data Source]="Example 2")
+		lineageTag: 9dd6c2ff-9b13-4064-84b3-cc04b9b9a095
+
+	measure 'Example 3 Time Stamp Display' = "DATA AS OF " & CALCULATE(MAX('Refresh Timestamps'[Time Stamp]),'Refresh Timestamps'[Data Source]="Example 3")
+		lineageTag: 61685ccf-4d71-483c-b83a-8f9e5f5a7cd5
+
+	/// Data Source(s) used in this model
+	column 'Data Source'
+		lineageTag: a62d83f0-4938-423c-ac11-8f9ecb4b571f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Data Source]
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Shows the last time source data was loaded to this report
+	column 'Time Stamp'
+		formatString: General Date
+		lineageTag: d66aa5c6-5977-4124-9ac1-ee151e722db6
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Time Stamp]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Refresh Timestamps-4975bc57-a8cd-4c32-be79-e81d11fdc6fc' = calculated
+		mode: import
+		source = ```
+				
+				--Add/Remove variables from this calculated table formula as needed to represent time stamps on each data source in your report. 
+				VAR TimeStamp1 =
+				    CROSSJOIN (
+				        ROW ( "Data Source", "Example 1" ),
+				        ROW ( "Time Stamp", MAX ('Conversion Data'[Fecha_Cotizacion]))--Change MAX(Sales{Date]) to a DAX expression that returns your data source's "as of" date
+				    )
+				RETURN
+				    TimeStamp1
+				
+				```
+

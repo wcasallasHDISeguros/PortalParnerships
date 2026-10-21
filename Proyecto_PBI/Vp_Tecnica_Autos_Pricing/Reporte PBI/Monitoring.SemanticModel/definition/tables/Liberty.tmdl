@@ -1,0 +1,66 @@
+table Liberty
+	lineageTag: 47d5356d-c789-4584-b973-a5a6be8ed1d2
+
+	column 'Cod Intermediario Liberty'
+		dataType: int64
+		formatString: 0
+		lineageTag: 118796e1-a4aa-481e-87e6-207053dc89f6
+		summarizeBy: sum
+		sourceColumn: Cod Intermediario Liberty
+
+		annotation SummarizationSetBy = Automatic
+
+	column NIT
+		dataType: int64
+		formatString: 0
+		lineageTag: 3fc5b865-572c-48ac-a82c-65e3bf9074aa
+		summarizeBy: sum
+		sourceColumn: NIT
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Cod Intermediario HDI'
+		dataType: int64
+		formatString: 0
+		lineageTag: ec081464-2e5e-49da-824d-9d8d399f0777
+		summarizeBy: sum
+		sourceColumn: Cod Intermediario HDI
+
+		annotation SummarizationSetBy = Automatic
+
+	column Compañía
+		dataType: string
+		lineageTag: 839bf456-c2a3-44cd-8fd8-8a5699ad6b5b
+		summarizeBy: none
+		sourceColumn: Compañía
+
+		annotation SummarizationSetBy = Automatic
+
+	column Count
+		dataType: int64
+		formatString: 0
+		lineageTag: 5990a763-8972-4bcc-bcdd-b86bce4de912
+		summarizeBy: sum
+		sourceColumn: Count
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Liberty-3b4db18b-ee1e-423b-b076-0cf516d2391e = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "Cruce HDI-Liberty_v2.xlsx")),
+				    #"Cruce HDI-Liberty xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/" = #"Filtered Rows"{[Name="Cruce HDI-Liberty_v2.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Tablas Insumos Reportes/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Cruce HDI-Liberty xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/"),
+				    Liberty_Sheet = #"Imported Excel Workbook"{[Item="Liberty",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Liberty_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CLAVE", Int64.Type}, {"LIDER_NAL", Int64.Type}, {"Cod Intermediario Liberty", Int64.Type}, {"NIT", Int64.Type}, {"Nit sin digito", Int64.Type}, {"RAZON_SOCIAL", type text}, {"CANAL", type text}, {"Cod Intermediario HDI", Int64.Type}, {"Compañía", type text}}),
+				    #"Grouped Rows" = Table.Group(#"Changed Type", {"Cod Intermediario Liberty", "NIT", "Cod Intermediario HDI", "Compañía"}, {{"Count", each Table.RowCount(_), Int64.Type}})
+				in
+				    #"Grouped Rows"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

@@ -1,0 +1,123 @@
+table 'Historico Segmentación 2024'
+	lineageTag: 21a98a4c-eb79-446c-b13b-4cc18deb491a
+
+	column Segmentación[Regionales]
+		dataType: string
+		lineageTag: 261fc606-5e3d-4ea2-a1e4-35c2b3ba43ec
+		summarizeBy: none
+		sourceColumn: Segmentación[Regionales]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segmentación[Oficina]
+		dataType: string
+		lineageTag: 8532c4ae-2471-44e8-a1e2-75d74eb60b66
+		summarizeBy: none
+		sourceColumn: Segmentación[Oficina]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segmentación[Gestor]
+		dataType: string
+		lineageTag: f7a37227-73ca-48ff-89cc-85509e941790
+		summarizeBy: none
+		sourceColumn: Segmentación[Gestor]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segmentación[LLAVE_SUCURSAL_CLAVE]
+		dataType: string
+		lineageTag: 18abbaa0-7306-4fdb-958b-14e3a97490fa
+		summarizeBy: none
+		sourceColumn: Segmentación[LLAVE_SUCURSAL_CLAVE]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Calendario[Periodo]
+		dataType: int64
+		formatString: 0
+		lineageTag: b6e3c6cb-ab66-43dc-a6e5-f0e93b073a7d
+		summarizeBy: sum
+		sourceColumn: Calendario[Periodo]
+
+		annotation SummarizationSetBy = Automatic
+
+	column [MinLlave_Segmento_actual]
+		dataType: string
+		lineageTag: f1053178-0a23-4669-9a92-d8973d3e95f8
+		summarizeBy: none
+		sourceColumn: [MinLlave_Segmento_actual]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Suc
+		dataType: int64
+		formatString: 0
+		lineageTag: aac2f57c-faaa-41c0-8d77-7a22533cecfd
+		summarizeBy: sum
+		sourceColumn: Suc
+
+		annotation SummarizationSetBy = Automatic
+
+	column clave
+		dataType: int64
+		formatString: 0
+		lineageTag: 8fd775e1-e0bf-428b-b6db-390f78e66d7b
+		summarizeBy: sum
+		sourceColumn: clave
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna1
+		dataType: string
+		lineageTag: 12ccd1fa-e65a-49a8-a6c8-a0568e8763ab
+		summarizeBy: none
+		sourceColumn: Columna1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna2
+		dataType: string
+		lineageTag: e866870d-5fcc-4d90-9ebb-437914b0bfc2
+		summarizeBy: none
+		sourceColumn: Columna2
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna3
+		dataType: int64
+		formatString: 0
+		lineageTag: b58b11eb-a781-431f-ae55-f9801237889b
+		summarizeBy: sum
+		sourceColumn: Columna3
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigointermediario
+		dataType: int64
+		formatString: 0
+		lineageTag: 3e0c4d8f-40a7-4366-84e2-c2c72edbc491
+		summarizeBy: sum
+		sourceColumn: codigointermediario
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Historico Segmentación 2024' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Historico Segmentación 2024.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/" = Source{[Name="Historico Segmentación 2024.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"]}[Content],
+				    #"Libro de Excel importado" = Excel.Workbook(#"Historico Segmentación 2024.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"),
+				    BD_Sheet = #"Libro de Excel importado"{[Item="BD",Kind="Sheet"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(BD_Sheet, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Segmentación[Regionales]", type text}, {"Segmentación[Oficina]", type text}, {"Segmentación[Gestor]", type text}, {"Segmentación[LLAVE_SUCURSAL_CLAVE]", type text}, {"Calendario[Periodo]", Int64.Type}, {"[MinLlave_Segmento_actual]", type text}, {"Suc", Int64.Type}, {"clave", Int64.Type}, {"Columna1", type text}, {"Columna2", type text}, {"Columna3", Int64.Type}, {"codigointermediario", Int64.Type}}),
+				    #"Filas ordenadas" = Table.Buffer(Table.Sort(#"Tipo cambiado",{{"Calendario[Periodo]", Order.Descending}})),
+				    #"Duplicados quitados" = Table.Distinct(#"Filas ordenadas", {"codigointermediario"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Exception
+

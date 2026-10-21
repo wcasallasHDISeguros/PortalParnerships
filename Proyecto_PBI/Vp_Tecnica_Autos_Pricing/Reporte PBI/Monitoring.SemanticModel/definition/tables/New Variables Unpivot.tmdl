@@ -1,0 +1,44 @@
+table 'New Variables Unpivot'
+	lineageTag: 2ca3175d-8d9d-4701-ab2c-0bfe42ebd949
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: a8622854-3357-471a-a71e-dec21210f83b
+		summarizeBy: none
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column Attribute
+		dataType: string
+		lineageTag: e22e2312-1662-4373-8243-ebdc441324a0
+		summarizeBy: none
+		sourceColumn: Attribute
+
+		annotation SummarizationSetBy = Automatic
+
+	column Value
+		dataType: string
+		lineageTag: 5b0dfaea-23b8-424e-8670-b19303dc96b7
+		summarizeBy: none
+		sourceColumn: Value
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'New Variables Unpivot-9bd03599-bcb2-4b4d-84b2-f350898edc49' = m
+		mode: import
+		source =
+				let
+				    Source = #"Conversion Data",
+				    #"Otras columnas quitadas" = Table.SelectColumns(Source,{"anosaseguradoraanterior", "numeromultas", "anosentremultas", "numcompaniasdif", "tiempoasegurado", "Index", "Prior Ticket"}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Otras columnas quitadas",{{"Prior Ticket", "tuvoMulta"}}),
+				    #"Reordered Columns" = Table.ReorderColumns(#"Renamed Columns",{"Index", "anosaseguradoraanterior",  "anosentremultas", "numcompaniasdif", "numeromultas", "tiempoasegurado", "tuvoMulta"}),
+				    #"Unpivoted Columns" = Table.UnpivotOtherColumns(#"Reordered Columns", {"Index"}, "Attribute", "Value")
+				in
+				    #"Unpivoted Columns"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

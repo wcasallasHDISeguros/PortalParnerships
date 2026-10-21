@@ -1,0 +1,37 @@
+table ACP-recotizado
+	lineageTag: 97c8a3b1-f7fe-48b2-9b4c-dae8585ec1ee
+
+	column 'Costo Actuarial Neto'
+		dataType: double
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 677b5a8b-bc33-4387-838e-f566947850e6
+		summarizeBy: sum
+		sourceColumn: Costo Actuarial Neto
+
+		annotation SummarizationSetBy = Automatic
+
+	column LLAVE_PFDI
+		dataType: string
+		lineageTag: db56a413-fc2e-4a40-b894-bda25eb27119
+		summarizeBy: none
+		sourceColumn: LLAVE_PFDI
+
+		annotation SummarizationSetBy = Automatic
+
+	partition ACP-recotizado = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"ACP-recotizado.csv_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/" = Source{[Name="ACP-recotizado.csv",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"]}[Content],
+				    #"CSV importado" = Csv.Document(#"ACP-recotizado.csv_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/",[Delimiter=";", Columns=2, Encoding=1252, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"CSV importado", [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Promoted Headers",{{"Costo Actuarial Neto", type number}}),
+				    #"Duplicados quitados" = Table.Distinct(#"Tipo cambiado", {"LLAVE_PFDI"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

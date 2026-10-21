@@ -1,0 +1,17 @@
+table 'Credit Score Bridge'
+	lineageTag: 8bf76da8-e10c-402a-9bd5-fcf212fc7f7a
+
+	column 'Credit Score'
+		lineageTag: 5fb37866-11a4-421f-8083-5a19d93fbdda
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Conversion Data[Credit Score]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Credit Score Bridge-1680140f-9331-4100-9ae0-3e288c205afb' = calculated
+		mode: import
+		source = SUMMARIZE('Conversion Data', 'Conversion Data'[Credit Score])
+
+	annotation PBI_Id = 9123865ccf384ce9b8faee1ba60389e4
+

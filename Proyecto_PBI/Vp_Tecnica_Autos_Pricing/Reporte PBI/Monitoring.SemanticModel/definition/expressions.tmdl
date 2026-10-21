@@ -1,0 +1,64 @@
+expression 'Template Control SharePoint Root URL' = "https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=false]
+	lineageTag: 48304d04-062c-4587-9c9f-4b8f4478f0d9
+	queryGroup: 'DO NOT DELETE'
+
+	annotation PBI_ResultType = Text
+
+	annotation PBI_NavigationStepName = Navegación
+
+/// i.e "LM Power BI Template Control" - do not include file extension
+expression 'Template Control File Name' = "CO Post-Launch Monitoring Template Control" meta [IsParameterQuery=true, Type="Text", IsParameterQueryRequired=true]
+	lineageTag: 872ce38e-5a2a-4ff7-8bab-e72276fac5fe
+	queryGroup: 'DO NOT DELETE'
+
+	annotation PBI_ResultType = Text
+
+expression Parameter1 = #"Sample File" meta [IsParameterQuery=true, BinaryIdentifier=#"Sample File", Type="Binary", IsParameterQueryRequired=true]
+	lineageTag: 0e67ad12-64e5-43a7-bbc0-b7fb7fd249f5
+	queryGroup: 'Transform File from Query1\Helper Queries'
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navigation
+
+expression 'Transform Sample File' =
+		let
+		    Source = Excel.Workbook(Parameter1, null, true),
+		    Hoja1_Sheet = Source{[Item="Hoja1",Kind="Sheet"]}[Data],
+		    #"Promoted Headers" = Table.PromoteHeaders(Hoja1_Sheet, [PromoteAllScalars=true])
+		in
+		    #"Promoted Headers"
+	lineageTag: f065ab83-891a-454c-bf7d-9e882a02d824
+	queryGroup: 'Transform File from Query1'
+
+	annotation PBI_ResultType = Table
+
+expression 'Sample File' =
+		let
+		    Source = SharePoint.Files("https://libertymutual.sharepoint.com/sites/AndesPricingMotorTeam", [ApiVersion = 15]),
+		    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "Pricing versions.xlsx")),
+		    Navigation1 = #"Filtered Rows"{0}[Content]
+		in
+		    Navigation1
+	lineageTag: 6058fc3b-ecda-4538-8282-591918091a11
+	queryGroup: 'Transform File from Query1\Helper Queries'
+
+	annotation PBI_ResultType = Binary
+
+	annotation PBI_NavigationStepName = Navegación
+
+expression 'Transform File' =
+		let
+		    Origen = (Parameter1 as binary) => let
+		    Source = Excel.Workbook(Parameter1, null, true),
+		    Hoja1_Sheet = Source{[Item="Hoja1",Kind="Sheet"]}[Data],
+		    #"Promoted Headers" = Table.PromoteHeaders(Hoja1_Sheet, [PromoteAllScalars=true])
+		in
+		    #"Promoted Headers"
+		in
+		    Origen
+	lineageTag: d2d7f9d4-0423-43c2-b7a9-d6ee911da78d
+	queryGroup: 'Transform File from Query1\Helper Queries'
+
+	annotation PBI_ResultType = Function
+

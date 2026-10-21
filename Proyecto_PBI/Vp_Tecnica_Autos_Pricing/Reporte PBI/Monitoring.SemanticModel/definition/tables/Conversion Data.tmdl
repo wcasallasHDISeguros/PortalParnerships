@@ -1,0 +1,3593 @@
+table 'Conversion Data'
+	lineageTag: b921c3ee-02cf-43fb-b717-e224b391b870
+
+	measure Conversion = DIVIDE([Policy Sum],[Quote Sum])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e2cb0c04-8769-46ec-8df2-290d15f56701
+
+		changedProperty = IsHidden
+
+	measure AWP = DIVIDE([PrimaAnual Sum (Written)], [Policy Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: c207b1d9-7321-44a4-977c-c8bb99810c86
+
+		changedProperty = IsHidden
+
+	measure AQP = DIVIDE([PrimaAnual Sum],[Quote Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: ac053ec3-6115-4d5c-ae15-9f9360088b69
+
+		changedProperty = IsHidden
+
+	measure 'AQP % Diff' = DIVIDE(CALCULATE([AQP], 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model") - CALCULATE([AQP], 'Pricing Versions Automated'[Modelo] = "Unrestricted Model") ,[AQP])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 1b362640-4cce-49a6-85a9-f3e3ff0c5ab3
+
+		changedProperty = IsHidden
+
+	measure 'Poliza_Emitida MoM%' =
+			
+			VAR __PREV_MONTH =
+				CALCULATE(
+					SUM('Conversion Data'[emitidas]),
+					DATEADD('Calendar2'[Date], -1, MONTH)
+				)
+			RETURN
+				DIVIDE(
+					SUM('Conversion Data'[emitidas]) - __PREV_MONTH,
+					__PREV_MONTH
+				)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: d3444241-2330-497f-a67c-3824987d9bb6
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "MonthOverMonth"
+				}
+
+		changedProperty = IsHidden
+
+	measure 'Poliza_Emitida WoW%' =
+			
+			VAR __PREV_WEEK =
+				CALCULATE(
+					SUM('Conversion Data'[Poliza_Emitida]),
+					DATEADD('Calendar2'[Date], -7, DAY)
+				)
+			RETURN
+				DIVIDE(
+					SUM('Conversion Data'[Poliza_Emitida]) - __PREV_WEEK,
+					__PREV_WEEK
+				)
+		formatString: 0%;-0%;0%
+		lineageTag: 4930814e-73ca-4925-8c17-54fed6391d27
+
+		changedProperty = IsHidden
+
+	measure 'Model Implementation' = DATE(2020,4,26)
+		formatString: General Date
+		lineageTag: da205d0a-3a98-43ba-9f7f-fd611e4f6541
+
+		changedProperty = IsHidden
+
+	measure 'Conversion % difference from Conversion' =
+			
+			VAR __BASELINE_VALUE = CALCULATE([Conversion], 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model")
+			VAR __VALUE_TO_COMPARE = CALCULATE([Conversion], 'Pricing Versions Automated'[Modelo] = "Optimized")
+			RETURN
+				IF(
+					NOT ISBLANK(__VALUE_TO_COMPARE),
+					DIVIDE(__VALUE_TO_COMPARE - __BASELINE_VALUE, __BASELINE_VALUE)
+				)
+		formatString: 0%;-0%;0%
+		lineageTag: 240ec696-cf0c-4f40-b5ed-61f24d702f9e
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "MathematicalPercentageDifference"
+				}
+
+		changedProperty = IsHidden
+
+	measure 'MLR pre 3 mos' = CALCULATE([MLR (Bound) New], DATESBETWEEN('Conversion Data'[Fecha_Cotizacion],DATE(2020,1,26),DATE(2020,4,26)),ALL('Conversion Data'))
+		formatString: 0%;-0%;0%
+		lineageTag: 0f548dcc-c9b0-4d31-b243-0ff6bd1ca8e9
+
+		changedProperty = IsHidden
+
+	measure 'MLR post' = CALCULATE([MLR (Bound) New], 'Conversion Data'[Fecha_Cotizacion] > DATE(2020,4,25),ALL('Conversion Data'))
+		formatString: 0%;-0%;0%
+		lineageTag: e5e00b64-81d8-4e3f-a771-0147497eac1d
+
+		changedProperty = IsHidden
+
+	measure 'Quote Sum' = SUM('Conversion Data'[cotizacion])
+		formatString: #,0
+		lineageTag: e6dd1cdb-a15c-476d-8ad2-d7a6caa6c891
+
+		changedProperty = IsHidden
+
+	measure 'Policy Sum' = SUM('Conversion Data'[emitidas])
+		formatString: #,0
+		lineageTag: 028091bc-82b2-40c7-93ed-5e25e57bbf11
+
+		changedProperty = IsHidden
+
+	measure 'MLR % difference' =
+			
+			VAR __BASELINE_VALUE = [MLR (Bound) New Unrestricted]
+			VAR __VALUE_TO_COMPARE = [MLR (Bound) Optimized]
+			RETURN
+				IF(
+					NOT ISBLANK(__VALUE_TO_COMPARE),
+					DIVIDE(__VALUE_TO_COMPARE - __BASELINE_VALUE, __BASELINE_VALUE)
+				)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 25e2382d-c50c-4ea6-a356-c3e84bae4e25
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "MathematicalPercentageDifference"
+				}
+
+		changedProperty = IsHidden
+
+	measure 'Conteo_Cot WoW%' =
+			
+			VAR __PREV_WEEK =
+				CALCULATE(
+					SUM('Conversion Data'[Conteo_Cotizacion]),
+					DATEADD('Calendar2'[Date], -7, DAY)
+				)
+			RETURN
+				DIVIDE(
+					SUM('Conversion Data'[Conteo_Cotizacion]) - __PREV_WEEK,
+					__PREV_WEEK
+				)
+		formatString: 0%;-0%;0%
+		lineageTag: 3522db91-bb77-4d0d-bbc1-28e102ae7b62
+
+		changedProperty = IsHidden
+
+	measure 'Conversion pre 3 mos' = CALCULATE([Conversion], DATESBETWEEN('Conversion Data'[Fecha_Cotizacion],DATE(2020,10,12),DATE(2021,1,12)),ALLEXCEPT('Conversion Data', 'Conversion Data'[Agrupacion], 'Conversion Data'[ramo_Producto], 'Conversion Data'[NuevoRenovado]))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b3760e74-05e5-43f7-b3f6-366b89376b2b
+
+		changedProperty = IsHidden
+
+	measure 'Conversion post' = CALCULATE([Conversion], 'Conversion Data'[Fecha_Cotizacion] > DATE(2021,1,12), FILTER('Conversion Data', 'Conversion Data'[A/B Indicator] <> "Other"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: fde465bc-be53-4254-ae5f-adffdce8f5c9
+
+		changedProperty = IsHidden
+
+	measure 'Prima_Cot Sum' = SUM('Conversion Data'[Prima_Cot])
+		formatString: #,0
+		lineageTag: 3efde88d-a672-4218-b4a4-c568e48c2b89
+
+		changedProperty = IsHidden
+
+	measure 'Prima Sum' = SUM('Conversion Data'[primaanual])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: bd14ead5-cd76-462e-9332-ed992a9d513e
+
+		changedProperty = IsHidden
+
+		changedProperty = FormatString
+
+	measure 'Prima_Emi Sum' = SUM('Conversion Data'[Prima_Emi])
+		formatString: #,0
+		lineageTag: 717a21ca-24b8-438c-8d09-590803c5b276
+
+		changedProperty = IsHidden
+
+	measure 'Credibility Threshold (Unrestricted)' = CALCULATE(DIVIDE([Quote Sum], (1+([Quote Sum]*.05^2))), 'Conversion Data'[A/B Indicator] = "Unrestricted", ALL('Conversion Data'))
+		formatString: 0
+		lineageTag: 5ee0a71b-36bf-4626-b5ab-1c7351e9be89
+
+		changedProperty = IsHidden
+
+	measure 'Credibility Threshold (95%CI) Poliza_Emi' = CALCULATE(DIVIDE([Policy Sum], (1+([Policy Sum]*.05^2))), ALL('Conversion Data'))
+		lineageTag: db5fd07b-a843-4f0c-9054-1f69eb15f3c9
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Quote Count (Unrestricted)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Unrestricted Model"))
+		formatString: 0
+		lineageTag: a028fe6e-cbc6-4cae-bfde-747cdae80b7b
+
+		changedProperty = IsHidden
+
+	measure 'Quote Count (Restricted)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Restricted Model"))
+		formatString: 0
+		lineageTag: 2a64ae51-a015-41b9-ad02-0ab5c550fb1f
+
+		changedProperty = IsHidden
+
+	measure 'Conversion % Diff' = ```
+			
+			            DIVIDE(CALCULATE([Conversion], 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model") - CALCULATE([Conversion], 'Pricing Versions Automated'[Modelo] = "Unrestricted Model") ,[AQP])
+			
+			
+			            // DIVIDE(CALCULATE([Conversion], 'Conversion Data'[A/B Indicator] = "Unrestricted") - CALCULATE([Conversion], 'Conversion Data'[A/B Indicator] = "Unrestricted") ,
+			            // [Conversion])
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a8f7ba59-4284-46cd-a4f8-5c3c67aa45ca
+
+		changedProperty = IsHidden
+
+	measure 'Conversion Expected % Diff' = ((1+[AQP % Diff])^-2.4)-1
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: c99aa50f-624f-4c37-9c1f-e47aeefbb6b2
+
+		changedProperty = IsHidden
+
+	measure 'MLR (Bound) Unrestricted' = CALCULATE(DIVIDE(([MLC New Unrestricted Sum]*[MLR Rebase Adjustment]),[Prima Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Automated', [Modelo] = "Unrestricted Model"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 048c4acb-a7d9-4cb7-b021-8703c786baf7
+
+		changedProperty = IsHidden
+
+	measure 'MLR Rebase Adjustment' = 1
+		lineageTag: 44670548-c620-46a0-b0c7-fc731c44ac48
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MLR (Scored) Unrestricted' = CALCULATE(DIVIDE([MLC Unrestricted Sum],[Prima Unrestricted Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Static (DELETE EVENTUALLY)', [Modelo] = "Unrestricted Model"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: f2c50a51-9f91-4fe0-b176-056c51de43dc
+
+		changedProperty = IsHidden
+
+	measure 'MLR (Scored) Restricted' = CALCULATE(DIVIDE([MLC Restricted Sum],[Prima Restricted Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Static (DELETE EVENTUALLY)', [Modelo] = "Restricted Model"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 7a7979d4-df71-4c75-96af-c30bb773228e
+
+		changedProperty = IsHidden
+
+	measure 'Min Prem Trigger Count' = CALCULATE(COUNTA('Conversion Data'[Min Premium Increase]),FILTER('Conversion Data', 'Conversion Data'[Min Premium Increase] > 0),FILTER('Conversion Data','Conversion Data'[versionId] = 22115064))
+		formatString: 0
+		lineageTag: 2909687c-5be3-40f6-bcbe-36e7bb5d14c1
+
+		changedProperty = IsHidden
+
+	measure 'Min Prem Trigger Rate' = DIVIDE([Min Prem Trigger Count],[Quote Sum])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 239b871c-146c-480a-8057-2877adcc112f
+
+		changedProperty = IsHidden
+
+	measure 'Captured Premium (COP)v1' =
+			
+			VAR v84PremSub700k = CALCULATE([Prima_v84 Sum],'Conversion Data'[versionId] = 22114771, 'Conversion Data'[Prima_v84] < 700000)
+			VAR Prem_v84Conversion = v84PremSub700k * (CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[versionId] = 22114771, 'Conversion Data'[Prima_v84] < 700000))
+			VAR Prem_v85Conversion = v84PremSub700k * (CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[versionId] = 22115064, 'Conversion Data'[Prima_v85] < 700002))
+			RETURN Prem_v85Conversion - Prem_v84Conversion
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+		lineageTag: 24ef562b-5d9a-4f48-8c7a-44c02ab86f42
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	measure 'Captured Premium (COP)' = [Prem Generated per Quote v85] - [Prem Generated per Quote v84]
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+		lineageTag: 1c6ddc4d-bab3-4a6a-9c25-1f105f58320b
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	measure EstimatedBoundPremWithMin = ```
+			(CALCULATE([Prima_v84 Sum], 
+			                                FILTER('Conversion Data', 'Conversion Data'[Prima_v84] < 700000 && 'Conversion Data'[Prima_v84] >0),
+			                                FILTER('Conversion Data', 'Conversion Data'[versionId] = 22114771)) * 
+			                            (CALCULATE('Conversion Data'[Conversion], 
+			                                FILTER('Conversion Data', 'Conversion Data'[Prima_v85] <= 700002 && 'Conversion Data'[Prima_v85] >=699998),
+			                                FILTER('Conversion Data', 'Conversion Data'[versionId] = 22115064))))
+			```
+		formatString: #,0
+		lineageTag: a6c565b7-8f0b-4be3-b51a-a46f681caea3
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	measure 'v85 Conversion @ 700k' = ```
+			CALCULATE('Conversion Data'[Conversion], 
+			                                FILTER('Conversion Data', 'Conversion Data'[Prima_v85] < 700002),
+			                                FILTER('Conversion Data', 'Conversion Data'[versionId] = 22115064))
+			```
+		lineageTag: 4cd1d7d6-de5a-484e-aa9a-e03bef9bd253
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure EstimatedBoundPremWithMinv2 = ```
+			(CALCULATE(COUNT('Conversion Data'[Llave]), 
+			                                FILTER('Conversion Data', 'Conversion Data'[Prima_v84] < 700000 && 'Conversion Data'[Prima_v84] >0),
+			                                FILTER('Conversion Data', 'Conversion Data'[versionId] = 22114771)) * 
+			                            (CALCULATE('Conversion Data'[Conversion], 
+			                                FILTER('Conversion Data', 'Conversion Data'[Prima_v85] <= 700002 && 'Conversion Data'[Prima_v85] >=699998),
+			                                FILTER('Conversion Data', 'Conversion Data'[versionId] = 22115064))) *
+			                            700000
+			                                )
+			```
+		lineageTag: c54440d6-80a5-4ad9-8c54-5314fb59d18f
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Captured Premium (COP) PriceTestNeutralized' = [Prem Generated per Quote v85 PriceTestNeutralized] - [Prem Generated per Quote v84 PriceTestNeutralized]
+		lineageTag: 063bd51d-7fa5-42fd-b478-6a723ba6b856
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Captured Premium (COP) Dynamic' = [Prem Generated per Quote v85 DYNAMIC] - [Prem Generated per Quote v84 DYNAMIC]
+		lineageTag: aaafbf66-2b5a-447e-9871-9aeb10132d63
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion % Diff (Min Prem800-900)' = ```
+			DIVIDE(
+			        (CALCULATE('Conversion Data'[Conversion], FILTER('Conversion Data', 'Conversion Data'[Prima_v96] >=899997 && 'Conversion Data'[Prima_v96] <=900003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214928)) -           
+			        CALCULATE('Conversion Data'[Conversion], FILTER('Conversion Data', 'Conversion Data'[Prima_v95] >=799997 && 'Conversion Data'[Prima_v95] <=800003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214581))),
+			        CALCULATE('Conversion Data'[Conversion], FILTER('Conversion Data', 'Conversion Data'[Prima_v95] >=799997 && 'Conversion Data'[Prima_v95] <=800003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214581)))
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: a8132af8-6b27-40e2-9271-9323af1de599
+
+		changedProperty = IsHidden
+
+	measure 'AWP % Difference (Min Prem)' = ```
+			DIVIDE(
+			        (CALCULATE('Conversion Data'[AWP], FILTER('Conversion Data', 'Conversion Data'[Prima_v96] >=899997 && 'Conversion Data'[Prima_v96] <=900003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214928)) -           
+			        CALCULATE('Conversion Data'[AWP], FILTER('Conversion Data', 'Conversion Data'[Prima_v95] >=799997 && 'Conversion Data'[Prima_v95] <=800003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214581))),
+			        CALCULATE('Conversion Data'[AWP], FILTER('Conversion Data', 'Conversion Data'[Prima_v95] >=799997 && 'Conversion Data'[Prima_v95] <=800003), FILTER('Conversion Data','Conversion Data'[versionId] = 31214581)))
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: fb327ac4-634c-4b60-944f-b5cf876e3db6
+
+		changedProperty = IsHidden
+
+	measure 'Captured Premium (COP) 800-900k' = [Prem Generated per Quote v96 DYNAMIC] - [Prem Generated per Quote v95 DYNAMIC]
+		lineageTag: 8e8dcfac-85c0-4643-8216-82bee46add2e
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion 1 Week Development' = ```
+			DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1week+]="True"),[Quote Sum])    
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 37fe5d37-6601-4ce9-95da-120a617dce15
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 2 Week Development' = ```
+			DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_2week+]="True"),[Quote Sum]) 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: bdf50698-b78d-4841-995b-ea3db69683bc
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 1 Month Development' = ```
+			DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1month+]="True"),[Quote Sum]) 
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 9e51c9f3-0cda-4b6b-b88c-90818ce1f026
+
+		changedProperty = IsHidden
+
+	measure 'Bind Count Same Week' = CALCULATE(COUNT('Conversion Data'[Bind_1week+]), 'Conversion Data'[Bind_1week+]="False")
+		formatString: 0
+		lineageTag: 828dca0e-6b64-4937-9ee5-c75a140ce8ee
+
+		changedProperty = IsHidden
+
+	measure 'Bind Count Following Week' = CALCULATE(COUNT('Conversion Data'[Bind_1week+]), 'Conversion Data'[Bind_1week+]= "True")
+		formatString: 0
+		lineageTag: 942719b9-d5de-41b5-aa8b-2cfa470226ed
+
+		changedProperty = IsHidden
+
+	measure 'Bind Count Within 2 Weeks' = CALCULATE(COUNT('Conversion Data'[Bind_2week+]), 'Conversion Data'[Bind_2week+]="False")
+		formatString: 0
+		lineageTag: cf176734-5efa-49e1-8f47-4b20e93a6714
+
+		changedProperty = IsHidden
+
+	measure 'Bind Count Same Month' = CALCULATE(COUNT('Conversion Data'[Bind_1month+]), 'Conversion Data'[Bind_1month+]="False")
+		formatString: 0
+		lineageTag: 7a743294-ee7b-489c-abaf-ca36b22eee9d
+
+		changedProperty = IsHidden
+
+	measure 'Bind Count in FOllowing Month' = CALCULATE(COUNT('Conversion Data'[Bind_1month+]), 'Conversion Data'[Bind_1month+]="True")
+		formatString: 0
+		lineageTag: a34f0cf6-f7bc-4a6e-b7bc-66a1d5f0c93a
+
+		changedProperty = IsHidden
+
+	measure '1wk Conversion Development Max' = MAX('Conversion Data'[Conversion 1 Week Development])
+		lineageTag: ef785c1d-b8dc-406b-8b3e-14af44613f7e
+
+		changedProperty = IsHidden
+
+	measure 'Measure Selection' =
+			SWITCH( TRUE(),
+			    VALUES('Measure Dimensions'[Measure]) = "Quote Count", [Quote Sum],
+			    VALUES('Measure Dimensions'[Measure]) = "Policy Count", [Policy Sum],
+			    BLANK())
+		formatString: 0
+		lineageTag: 768a1997-24a7-4c50-9f21-de2f2921eb8f
+
+		changedProperty = IsHidden
+
+	measure 'QuotePolicy Count Chart Title' = SELECTEDVALUE('Measure Dimensions'[Measure])
+		lineageTag: 86078c30-ab98-43a2-95c9-07b3508937ed
+
+		changedProperty = IsHidden
+
+	measure 'Prima Avg' = AVERAGE('Conversion Data'[primaanual])
+		lineageTag: cfdee21d-10c9-411b-b10c-04c0503b9e04
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AVE - Conversion Pre' = ```
+			
+			    VAR 
+			        date_window = -7
+			    VAR
+			        start_date = "1/29/2021"
+			    Return
+			
+			
+			        CALCULATE(
+			            AVERAGEX('Conversion Data',
+			            DIVIDE(SUM('Conversion Data'[EMITIDA]),SUM('Conversion Data'[Conteo_Cotizacion]))),
+			            DATESINPERIOD('Conversion Data'[Fecha_Cotizacion], start_date, date_window, DAY),
+			            ModelVersionSort[A/B Indicator]="Unrestricted"
+			            
+			    )
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 3891bfbb-1604-42c8-97ee-f443e6bcefa3
+
+		changedProperty = IsHidden
+
+	measure 'AVE - Conversion Expected' = 'Conversion Data'[AVE - Conversion Pre]*((1+.03)^(-2.3))
+		lineageTag: fdd8e115-a183-4900-9452-a7c4005f0a7e
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion Rolling Average 7 Days' =
+			
+			
+			AVERAGEX(DATESINPERIOD(Calendar2[Date],LASTDATE(Calendar2[Date]),-7,DAY),'Conversion Data'[Conversion])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: ca5b1b06-8af1-4262-8e7b-fef3a7e191fd
+
+		changedProperty = IsHidden
+
+	measure 'Conversion Rolling Average 14 Days' =
+			
+			
+			AVERAGEX(DATESINPERIOD(Calendar2[Date],LASTDATE(Calendar2[Date]),-14,DAY),'Conversion Data'[Conversion])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: ef22f25d-35cd-4a96-bbc2-df0ada6dea2f
+
+		changedProperty = IsHidden
+
+	measure Elasticity = ```
+			
+			    var pricetest_neg = 0.95
+			    var pricetest_pos = 1.05
+			    var conversion_neg = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 0.95)
+			    var conversion_pos = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1.05)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_pos, conversion_neg)),
+			            LN(DIVIDE(pricetest_pos, pricetest_neg))) * -1
+			```
+		formatString: 0.00
+		lineageTag: 7bfa7d21-781f-4a1e-a1de-745823dbb17a
+
+		changedProperty = IsHidden
+
+	measure 'Simple linear regression' =
+			
+			VAR Known =
+			    FILTER (
+			        SELECTCOLUMNS (
+			            ALLSELECTED ('Conversion Data'[PriceTest]),
+			            "Known[X]", 'Conversion Data'[PriceTest],
+			            "Known[Y]", [Conversion]
+			        ),
+			        AND (
+			            NOT ( ISBLANK ( Known[X] ) ),
+			            NOT ( ISBLANK ( Known[Y] ) )
+			        )
+			    )
+			VAR Count_Items =
+			    COUNTROWS ( Known )
+			VAR Sum_X =
+			    SUMX ( Known, Known[X] )
+			VAR Sum_X2 =
+			    SUMX ( Known, Known[X] ^ 2 )
+			VAR Sum_Y =
+			    SUMX ( Known, Known[Y] )
+			VAR Sum_XY =
+			    SUMX ( Known, Known[X] * Known[Y] )
+			VAR Average_X =
+			    AVERAGEX ( Known, Known[X] )
+			VAR Average_Y =
+			    AVERAGEX ( Known, Known[Y] )
+			VAR Slope =
+			    DIVIDE (
+			        Count_Items * Sum_XY - Sum_X * Sum_Y,
+			        Count_Items * Sum_X2 - Sum_X ^ 2
+			    )
+			VAR Intercept =
+			    Average_Y - Slope * Average_X
+			RETURN
+			    AVERAGEX(DISTINCT('Conversion Data'[PriceTest]), Intercept + Slope * 'Conversion Data'[PriceTest])
+		lineageTag: ac99ca3c-cbc1-4993-8082-94857adb6173
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MLC Restricted Sum' = SUM('Scored Data_2'[Costo Actuarial Restringido])
+		lineageTag: b854340a-6056-4dc2-8ac4-181d075a3f82
+
+		changedProperty = IsHidden
+
+	measure 'MLC New Unrestricted Sum' = SUM('Conversion Data'[ACP])
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 5d3f0470-babb-4a41-acb6-0ed1e6fac24c
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Prima Restricted Sum' = SUM('Conversion Data'[PrimaAnual Restringido])
+		lineageTag: 63178590-2d28-457a-b498-21579960c5ad
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Prima Unrestricted Sum' = SUM('Conversion Data'[PrimaAnual No Restringido])
+		lineageTag: b77a5bbf-24a3-4dc4-a974-6eecb8969971
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MLR (Bound) Unrestricted v2' = CALCULATE(DIVIDE(([MLC Restricted Sum]*[MLR Rebase Adjustment]),[Prima Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Automated', [Modelo] = "Unrestricted Model"))
+		lineageTag: 0641e6e2-3e86-49b4-9cb2-31dcb1c7e8aa
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MLR (NB Opt)' =
+			CALCULATE(DIVIDE([ActuarialCostParameter Sum],[PrimaAnual Sum]), 'Conversion Data'[emitidas]=1)
+			
+			
+			// DIVIDE([ActuarialCostParameter Sum],[PrimaAnual Sum])
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: d6dd7145-7dc8-40db-a241-171c30ae5ffd
+
+		changedProperty = IsHidden
+
+	measure 'AWP % Diff (NB Opt)' =
+			DIVIDE(CALCULATE([AWP (NB Opt)], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Optimized Group") - CALCULATE([AWP (NB Opt)], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Control Group") ,
+			            CALCULATE([AWP (NB Opt)], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Control Group"))
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 363ab009-3220-4e99-873e-8a01ebb99fe0
+
+		changedProperty = IsHidden
+
+	measure 'Conversion % Diff (NB Opt)' =
+			
+			VAR __BASELINE_VALUE = CALCULATE([Conversion], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Control Group")
+			VAR __VALUE_TO_COMPARE = CALCULATE([Conversion], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Optimized Group")
+			RETURN
+				IF(
+					NOT ISBLANK(__VALUE_TO_COMPARE),
+					DIVIDE(__VALUE_TO_COMPARE - __BASELINE_VALUE, __BASELINE_VALUE)
+				)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: b428fe26-4d5c-4ca1-b9b5-61959d02ba06
+
+		changedProperty = IsHidden
+
+	measure 'MLR % Diff (NB Opt)' =
+			
+			VAR __BASELINE_VALUE = CALCULATE([MLR (NB Opt)], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Control Group")
+			VAR __VALUE_TO_COMPARE = CALCULATE([MLR (NB Opt)], 'NB Opt Groups'[NB_Opt_Category_New_2022] = "Optimized Group")
+			RETURN
+				IF(
+					NOT ISBLANK(__VALUE_TO_COMPARE),
+					DIVIDE(__VALUE_TO_COMPARE - __BASELINE_VALUE, __BASELINE_VALUE)
+				)
+		formatString: 0.0%;-0.0%;0.0%
+		lineageTag: 3db81f46-a557-4853-98c3-968a2f438671
+
+		changedProperty = IsHidden
+
+	measure 'PriceTest (Sum)' = SUM('Conversion Data'[PriceTest])
+		lineageTag: 7235a7d4-4ae4-456f-94a7-40a4f63a9f0c
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Written Premium per Quote' = DIVIDE(CALCULATE(SUM('Conversion Data'[PrimaTotal]), 'Conversion Data'[emitidas] = 1),[Quote Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: e559ca6c-f9eb-4bd2-b204-cbd882abf793
+
+		changedProperty = IsHidden
+
+	measure 'Elasticity (Price Increase)' = ```
+			
+			    var pricetest_pos = 1.05
+			    var conversion_neutral = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1)
+			    var conversion_pos = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1.05)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_pos, conversion_neutral)),
+			            LN(pricetest_pos)) * -1
+			```
+		formatString: 0.00
+		lineageTag: c9923e46-0bc0-43d6-aea1-a3f7e1bff3cc
+
+		changedProperty = IsHidden
+
+	measure 'Elasticity (Price Decrease)' = ```
+			
+			    var pricetest_neg = 0.95
+			    var conversion_neutral = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1)
+			    var conversion_neg = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 0.95)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_neg, conversion_neutral)),
+			            LN(pricetest_neg)) * -1
+			```
+		formatString: 0.00
+		lineageTag: cac1f455-ad04-45da-8ecb-bd0e3427cca5
+
+		changedProperty = IsHidden
+
+	measure 'Conversion Expected (Test)' = DIVIDE( CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[NB_Opt_Category] = "Control") * [Conversion (Expected Predicted)], [Conversion (Expected Observed)])
+		lineageTag: b28e6281-179d-4c2f-8045-b9eb82b0543b
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'PrimaAnual Sum (Written)' = CALCULATE(SUMX(DISTINCT('Conversion Data'[llave_pfdi]),CALCULATE(AVERAGE('Conversion Data'[primaanual]))), 'Conversion Data'[emitidas] = 1)
+		lineageTag: 5154e913-9ac2-4149-bfba-54ecfdc271c2
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'PrimaAnual Sum' = SUMX(DISTINCT('Conversion Data'[llave_pfdi]),CALCULATE(AVERAGE('Conversion Data'[primaanual])))
+		lineageTag: 73c3764a-07a2-4a69-94f6-cac8b6fea1f8
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'ActuarialCostParameter Sum' = SUMX(DISTINCT('Conversion Data'[LLAVE_PFDI]),CALCULATE(AVERAGE('Conversion Data'[ACP])))
+		formatString: \$#,0.###############;(\$#,0.###############);\$#,0.###############
+		lineageTag: 62e6a3e0-8c4d-47db-bf23-b7682de925d7
+
+		changedProperty = IsHidden
+
+		changedProperty = FormatString
+
+	measure 'MLR (Bound) New Unrestricted' = CALCULATE(DIVIDE(([MLC New Unrestricted Sum]*[MLR Rebase Adjustment]),[Prima Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Automated', [Modelo] = "New Unrestricted Model"))
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 45bbf5dd-dc66-442c-945b-a48b09c9c0c7
+
+		changedProperty = IsHidden
+
+	measure 'Prima Sum (Written) for NB Opt' = CALCULATE(SUMX(DISTINCT('Conversion Data'[llave_pfdi]),CALCULATE(AVERAGE('Conversion Data'[Prima_UseForNBOpt]))), 'Conversion Data'[emitidas] = 1)
+		lineageTag: 0deb767d-24ff-48cb-abae-688926e324fd
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Prima Sum for NB Opt' = SUMX(DISTINCT('Conversion Data'[LLAVE_PFDI]),CALCULATE(AVERAGE('Conversion Data'[Prima_UseForNBOpt])))
+		lineageTag: e4f0b5a1-fe37-4cef-8a96-c96f3427df3c
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AWP (NB Opt)' = DIVIDE([Prima Sum (Written) for NB Opt], [Policy Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 5ec9ae18-4a73-44b8-a202-065963e84131
+
+		changedProperty = IsHidden
+
+	measure 'AQP (NB Opt)' = DIVIDE([Prima Sum for NB Opt],[Quote Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: a3efcebe-3404-4221-a1c6-1519eee3c11a
+
+		changedProperty = IsHidden
+
+	measure '% of Non-Roboquotes' = 1-[% of Roboquotes]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a6fd2eb2-f820-4a8a-ae2b-e70a143cdbcc
+
+		changedProperty = IsHidden
+
+	measure '% of Roboquotes' = DIVIDE(SUM('Conversion Data'[COMPARADOR]),[Quote Sum])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 42919c48-ea1b-436d-a067-28791812a1e7
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 1 Month Development Restricted' =
+			CALCULATE(
+			    DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1month+]="True"),[Quote Sum]),     'Pricing Versions Automated'[Modelo]="Restricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 64842db3-aeb4-4e54-b9d2-2d1a39f2a1b2
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 1 Week Development Unrestricted' = CALCULATE(DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1week+]="True"),[Quote Sum]), 'Pricing Versions Automated'[Modelo]="Unrestricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: a705d19e-1e17-4261-ac3f-ed5b9651a9f6
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 1 Month Development Unrestricted' = CALCULATE(DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1month+]="True"),[Quote Sum]), 'Pricing Versions Automated'[Modelo]="Unrestricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 0e1abe76-15e8-481a-a3de-6c982057d8bc
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 1 Week Development Restricted' = CALCULATE(DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1week+]="True"),[Quote Sum]), 'Pricing Versions Automated'[Modelo]="Restricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 90a2e955-cc9b-444c-a7e3-d3b8e374132f
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 2 Week Development Restricted' = CALCULATE(DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_2week+]="True"),[Quote Sum]), 'Pricing Versions Automated'[Modelo]="Restricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: ace7d79c-a252-4f98-9248-3e24782686fb
+
+		changedProperty = IsHidden
+
+	measure 'Conversion 2 Week Development Unrestricted' = CALCULATE(DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_2week+]="True"),[Quote Sum]), 'Pricing Versions Automated'[Modelo]="Unrestricted Model")
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: cb85310d-43e0-4245-9e73-05d068262b9e
+
+		changedProperty = IsHidden
+
+	measure 'Last Quoted Date' = MAX ('Conversion Data'[Fecha_Cotizacion])
+		formatString: m/d/yyyy
+		lineageTag: b33fd747-6b7c-4440-84f9-b2f861516a97
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	measure 'Last Bind Date' = MAX ('Conversion Data'[Fecha_Emision])
+		formatString: m/d/yyyy
+		lineageTag: 6bad6dc7-489d-4a0b-a416-e9df7986a106
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	measure 'QuotePolicy Min Premium Chart Title' = CONCATENATE(SELECTEDVALUE('Measure Dimensions'[Measure]), " by Premium band")
+		lineageTag: bede52d8-6565-48bb-a5a9-0a46a0a6cfac
+
+		changedProperty = IsHidden
+
+	measure 'Policy Count TEST' = CALCULATE(SUM('Conversion Data'[emitidas]))
+		formatString: 0
+		lineageTag: 8e0fec55-8549-45e0-bce9-032ec013fc3d
+
+		changedProperty = IsHidden
+
+	measure 'Conversion TEST' = SUM('Conversion Data'[EMITIDA])/DISTINCTCOUNT('Conversion Data'[LLAVE_PFDI])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 268f7974-c134-4c2f-b03e-d10bb5517b93
+
+		changedProperty = IsHidden
+
+	measure 'AQP Restricted' = CALCULATE(DIVIDE([PrimaAnual Sum],[Quote Sum]),'Pricing Versions Automated'[Modelo]="Restricted Model")
+		lineageTag: fd741d6b-1f07-4efe-a0b8-1ce15a1c5894
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP Unrestricted' = CALCULATE(DIVIDE([PrimaAnual Sum],[Quote Sum]),'Pricing Versions Automated'[Modelo]="Unrestricted Model")
+		lineageTag: 55ddb1b3-b6be-4712-9fda-3f086e276695
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP New Unrestricted' = CALCULATE(DIVIDE([PrimaAnual Sum],[Quote Sum]),'Pricing Versions Automated'[Modelo]="New Unrestricted Model")
+		lineageTag: 0b82fabc-2a2c-40ed-aacb-686374fbd5ec
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Quote Count (New Unrestricted)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model"))
+		formatString: 0
+		lineageTag: 9f59cab2-2b58-4a83-9323-88bf7543a48b
+
+		changedProperty = IsHidden
+
+	measure 'AQP Unrest/Rest' = ```
+			
+			
+			VAR AQP_Model1 = 'Conversion Data'[AQP Unrestricted]
+			VAR AQP_Model2 = [AQP Restricted]
+			VAR Quote_Model1 = [Quote Count (Unrestricted)]
+			VAR Quote_Model2 = [Quote Count (Optimized)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 9fbf12df-0f21-4620-bcfc-10aab1717aca
+
+		changedProperty = IsHidden
+
+	measure 'AQP Opt/Rest' = ```
+			
+			
+			VAR AQP_Model1 = [AQP Optimized]
+			VAR AQP_Model2 = 'Conversion Data'[AQP Restricted]
+			VAR Quote_Model1 = [Quote Count (Optimized)]
+			VAR Quote_Model2 = [Quote Count (Restricted)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 7dde9d33-c92e-4235-922c-a3168b5f8ce2
+
+		changedProperty = IsHidden
+
+	measure 'AQP Optimized' = CALCULATE(DIVIDE([PrimaAnual Sum],[Quote Sum]),'Pricing Versions Automated'[Modelo]="Optimized")
+		lineageTag: 967806a9-dc72-4945-a7bc-5b4c174e6343
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP Unrest/Opt' = ```
+			
+			
+			VAR AQP_Model1 = 'Conversion Data'[AQP Unrestricted]
+			VAR AQP_Model2 = [AQP Optimized]
+			VAR Quote_Model1 = [Quote Count (Unrestricted)]
+			VAR Quote_Model2 = [Quote Count (Optimized)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 4fce464e-f365-4997-9a3f-b43b1f5413cc
+
+		changedProperty = IsHidden
+
+	measure 'AQP Level' = 0.04
+		lineageTag: 25eaf199-b77a-4e5b-8cad-1000fee0f81a
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP Unrest New/Rest' = ```
+			
+			
+			VAR AQP_Model1 = 'Conversion Data'[AQP New Unrestricted]
+			VAR AQP_Model2 = [AQP Restricted]
+			VAR Quote_Model1 = [Quote Count (New Unrestricted)]
+			VAR Quote_Model2 = [Quote Count (Restricted)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 9f08ca33-cfa5-4447-9ea9-2c17c15fc019
+
+		changedProperty = IsHidden
+
+	measure 'AQP Unrest New/Unrest' = ```
+			
+			
+			VAR AQP_Model1 = 'Conversion Data'[AQP New Unrestricted]
+			VAR AQP_Model2 = [AQP Unrestricted]
+			VAR Quote_Model1 = [Quote Count (New Unrestricted)]
+			VAR Quote_Model2 = [Quote Count (Unrestricted)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: bcc951f8-c15d-42b2-a24b-a1f0ef478273
+
+		changedProperty = IsHidden
+
+	measure 'AQP Unrest New/Opt' = ```
+			
+			
+			VAR AQP_Model1 = 'Conversion Data'[AQP New Unrestricted]
+			VAR AQP_Model2 = [AQP Optimized]
+			VAR Quote_Model1 = [Quote Count (New Unrestricted)]
+			VAR Quote_Model2 = [Quote Count (Optimized)]
+			VAR DIFF = ABS(DIVIDE(AQP_Model1, AQP_Model2, 1) - 1)
+			
+			RETURN 
+			
+			    IF(
+			    OR(
+			        Quote_Model1 < [Quote Threshold], Quote_Model2 < [Quote Threshold]), 
+			        "Low Quote", 
+			        IF(OR(DIFF = 0, DIFF = 1), "Low Quote", DIFF)
+			    )
+			```
+		formatString: 0%;-0%;0%
+		lineageTag: 37f2858e-0b6d-420d-9803-181cba7566d3
+
+		changedProperty = IsHidden
+
+	measure 'Quote Count (Optimized)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Optimized"))
+		formatString: 0
+		lineageTag: 4bbbb247-eec2-4996-be9b-ed428634995c
+
+		changedProperty = IsHidden
+
+	measure 'Quote Threshold' = 100
+		formatString: 0
+		lineageTag: 61d34fba-560e-4685-9415-6ba83d14f607
+
+		changedProperty = IsHidden
+
+	measure 'Policy Count (New Unrestricted)' = CALCULATE([Policy Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model"))
+		formatString: 0
+		lineageTag: e2654c55-b0f3-45ca-81b9-2bad2ee8ed58
+
+		changedProperty = IsHidden
+
+	measure 'Policy Count (Unrestricted)' = CALCULATE([Policy Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Unrestricted Model"))
+		formatString: 0
+		lineageTag: 7584ece6-aef7-4fee-9c0e-f1b7a5807af9
+
+		changedProperty = IsHidden
+
+	measure 'Policy Count (Restricted)' = CALCULATE([Policy Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Restricted Model"))
+		formatString: 0
+		lineageTag: d5bf5630-1cf5-464d-b0b5-c35ee4b6ba6b
+
+		changedProperty = IsHidden
+
+	measure 'Policy Count (Optimized)' = CALCULATE([Policy Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "Optimized Model"))
+		formatString: 0
+		lineageTag: 6e8fe05e-73ac-4181-b091-696f22d9eb43
+
+		changedProperty = IsHidden
+
+	measure 'AWP New Unrestricted' = CALCULATE(DIVIDE([PrimaAnual Sum (Written)], [Policy Sum]),'Pricing Versions Automated'[Modelo]="New Unrestricted Model")
+		lineageTag: 1373766c-fdbe-4b32-a2de-4b567ea1e734
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AWP Unrestricted' = CALCULATE(DIVIDE([PrimaAnual Sum (Written)], [Policy Sum]),'Pricing Versions Automated'[Modelo]="Unrestricted Model")
+		lineageTag: 2e591287-0efd-4ab1-8db9-c2727f8e9b21
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AWP Restricted' = CALCULATE(DIVIDE([PrimaAnual Sum (Written)], [Policy Sum]),'Pricing Versions Automated'[Modelo]="Restricted Model")
+		lineageTag: 13250c67-ae82-4ced-9459-59afc19d2ce1
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP - AWP' = ABS([AQP]-[AWP])
+		lineageTag: 68a411d5-273b-4064-ae19-0198d9c01963
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion Less 1 Week Development' = ```
+			DIVIDE(CALCULATE([Policy Sum],'Conversion Data'[Bind_1week-]="True"),[Quote Sum]) 
+			```
+		lineageTag: fb8c5c9e-e914-4818-beaa-8c584c328fad
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Quote Count (Motorcycles GLM)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "GLM Model"))
+		formatString: 0
+		lineageTag: 8d838010-ab2a-49a6-9a3d-b6d1af1b4cf9
+
+		changedProperty = IsHidden
+
+	measure 'Quote Count (Motorcycles Non GLM)' = CALCULATE([Quote Sum], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo]=BLANK()))
+		formatString: 0
+		lineageTag: b759474d-0b25-4c69-8927-895e3c62c80d
+
+		changedProperty = IsHidden
+
+	measure 'AQP (Motorcycles GLM)' = CALCULATE([AQP], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = "GLM Model"))
+		lineageTag: 1a6b99d4-2063-4b4b-b483-a5d0d8891778
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'AQP (Motorcycles Non - GLM)' = CALCULATE([AQP], FILTER('Pricing Versions Automated', 'Pricing Versions Automated'[Modelo] = BLANK()))
+		lineageTag: 6634a57f-2766-4ecd-9b14-58a69356cc39
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion Dev. (1 Month Basis)' = 'Conversion Data'[Conversion 1 Week Development] + 'Conversion Data'[Conversion 2 Week Development] + 'Conversion Data'[Conversion 1 Month Development]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 16eb0e3d-6181-4f8b-8f65-6c2618dc6dac
+
+		changedProperty = IsHidden
+
+	measure AQP/AWP = DIVIDE([AQP], [AWP]) - 1
+		formatString: 0.00
+		lineageTag: 76db0f05-7448-4288-b78a-cb8e4e53eaa0
+
+		changedProperty = IsHidden
+
+	measure 'Conversion Dev. (2 Week Basis)' = 'Conversion Data'[Conversion 1 Week Development] + 'Conversion Data'[Conversion 2 Week Development]
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 7f2521c7-ad92-4307-9ff5-ea51a8e336f1
+
+		changedProperty = IsHidden
+
+	measure 'Promedio de Quote Count por PERIODO_CONTABLE' =
+			
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Conversion Data'[PERIODO_CONTABLE])),
+				CALCULATE([Quote Sum])
+			)
+		formatString: #,0
+		lineageTag: ae1b0327-8d3b-41e4-9a66-dfd89d2ee822
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "AveragePerCategory"
+				}
+
+		changedProperty = IsHidden
+
+	measure 'Promedio de Policy Count por PERIODO_CONTABLE' =
+			
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Conversion Data'[PERIODO_CONTABLE])),
+				CALCULATE([Policy Sum])
+			)
+		formatString: #,0
+		lineageTag: 3fc91b2f-c741-40c3-9b8e-4408d2d08cd5
+
+		extendedProperty MeasureTemplate =
+				{
+				  "version": 0,
+				  "daxTemplateName": "AveragePerCategory"
+				}
+
+		changedProperty = IsHidden
+
+	measure 'Latest versionId opt' = calculate(MAX('Conversion Data'[versionId]),'Pricing Versions Automated'[Modelo]="Optimized")
+		formatString: 0
+		lineageTag: 55e5bea8-7bd5-44dc-a0f4-e92cc23d4d2a
+
+		changedProperty = IsHidden
+
+	measure 'Latest versionId opt last date' = calculate(LASTDATE('Conversion Data'[Fecha_Cotizac,'Pricing Versions Automated'[Modelo]="Optimized"))
+		lineageTag: 0e2472f8-20b3-4e9b-a4e0-d846b22e71ac
+
+		changedProperty = IsHidden
+
+	measure 'Average Total Sum Insured' = DIVIDE(SUM('Conversion Data'[valorAseguradoVehi]),[Quote Sum])
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 11fa4970-be1d-4faa-bb08-dfdc7e6dbd28
+
+		changedProperty = IsHidden
+
+		annotation PBI_FormatHint = {"currencyCulture":"en-US"}
+
+	measure 'Premium/Total Sum Insured (Tasa NB)' = DIVIDE('Conversion Data'[AWP],'Conversion Data'[Average Total Sum Insured])
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: 8b2c9a8b-492d-4de9-bce9-490d3904983c
+
+		changedProperty = IsHidden
+
+	measure 'MLR (Bound) All' = CALCULATE(DIVIDE(([MLC New Unrestricted Sum]*[MLR Rebase Adjustment]),[Prima Sum]), FILTER('Conversion Data', [emitidas] = 1),FILTER('Conversion Data','Conversion Data'[actuarialcostparameter]>0))
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		lineageTag: fcf2b655-699b-4ffc-9e20-084e19076d00
+
+		changedProperty = IsHidden
+
+		changedProperty = FormatString
+
+	measure 'MLR (Bound) Optimized' = CALCULATE(DIVIDE(([MLC New Unrestricted Sum]*[MLR Rebase Adjustment]),[Prima Sum]), FILTER('Conversion Data', [emitidas] = 1), FILTER('Pricing Versions Automated', [Modelo] = "Optimized"))
+		formatString: 0\ %;-0\ %;0\ %
+		lineageTag: ca797a08-1c0e-4b50-8a41-9f1f6c2601fd
+
+		changedProperty = IsHidden
+
+	measure 'AWP % difference' =
+			
+			VAR __BASELINE_VALUE = CALCULATE([AWP], 'Pricing Versions Automated'[Modelo] = "New Unrestricted Model")
+			VAR __VALUE_TO_COMPARE = CALCULATE([AWP], 'Pricing Versions Automated'[Modelo] = "Optimized")
+			RETURN
+				IF(
+					NOT ISBLANK(__VALUE_TO_COMPARE),
+					DIVIDE(__VALUE_TO_COMPARE - __BASELINE_VALUE, __BASELINE_VALUE)
+				)
+		formatString: 0.00%;-0.00%;0.00%
+		lineageTag: e6ff274a-b820-4f42-8986-b21864a55af3
+
+		changedProperty = IsHidden
+
+	measure 'CompetitorCap Count' = CALCULATE(COUNT('Conversion Data'[CompetitorCapFlag]), 'Conversion Data'[CompetitorCapFlag] = 1)
+		formatString: 0
+		lineageTag: 7c018158-0e7f-4feb-8896-272f3e7e5dac
+
+	measure 'CompetitorCap Ratio' = [CompetitorCap Count]/[Quote Sum]
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 46b08979-e56a-4c49-b38f-3b0161c2408b
+
+	measure 'CompetitorCap Count 2' = CALCULATE(COUNT('Conversion Data'[CompetitorMax]), 'Conversion Data'[CompetitorMax] = 1)
+		formatString: 0
+		lineageTag: e44653d9-fea5-4fe0-87a8-9ae93876505c
+
+	measure 'CompetitorCap Ratio 2' = [CompetitorCap Count 2]/[Quote Sum]
+		formatString: 0.0\ %;-0.0\ %;0.0\ %
+		lineageTag: 2a643c8e-0cd5-4892-9a87-e7b509dd93f5
+
+	measure 'Indicator date' = date(2024,6,30)
+		formatString: General Date
+		lineageTag: fb0835a6-450d-40ea-ba69-d3af1faab318
+
+	measure 'Accumulated conversion probability cotizaciones' = CALCULATE(SUM('Conversion Data'[originationdemand]))
+		lineageTag: 4cd7cebf-dc0f-49e1-acb5-e2687ad2bdfc
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Conversion esperada' = [Accumulated conversion probability cotizaciones]/[Quote Sum]
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: ed46ecb8-1b5d-44d9-a5a9-91a3db1380b4
+
+	measure 'Prima esperada' = sum('Conversion Data'[Prima demanda cotizaciones])/[Accumulated conversion probability cotizaciones]
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+		lineageTag: c3472e4c-8ecc-46f5-a2d8-4b287b219056
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	measure 'NB Opt Measure Selection' =
+			SWITCH( TRUE(),
+			    VALUES('Measure Dimensions'[NB Measure]) = "NB Opt", [Quote Count],
+			    VALUES('Measure Dimensions'[NB Measure]) = "Modelo", calcula,
+			    BLANK())
+		lineageTag: 6c97fc91-39fd-491c-a517-14dfa4d1aed7
+
+	measure 'Tasa VA Cotizada' = AVERAGE('Conversion Data'[primaanual])/AVERAGE('Conversion Data'[valoraseguradovehi])
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 3e0f5c02-3843-4a72-a4e6-0b0abccf4c76
+
+	measure 'Tasa VA Emitida' = CALCULATE(AVERAGE('Conversion Data'[primaanual])/AVERAGE('Conversion Data'[valoraseguradovehi]),'Conversion Data'[emitidas]=1)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 23121e49-0809-477c-91b3-9aaae74ca8aa
+
+	measure 'MLR Emitido' = CALCULATE(([ActuarialCostParameter Sum]/[Prima Sum] ),'Conversion Data'[emitidas]=1)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 99f33e39-8ef4-4065-95da-c41a4c96daca
+
+	measure 'MLR Cotizado' = ```
+			[ActuarialCostParameter Sum]/[Prima Sum] 
+			```
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 789b7d27-bf23-4945-b374-2ca9e99f5356
+
+	measure 'Costo Emitido' = CALCULATE(AVERAGE('Conversion Data'[ACP]),'Conversion Data'[emitidas]=1)
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: 809198dc-a470-417d-9899-334467eaaecd
+
+	measure 'Elasticity +-10%' = ```
+			
+			    var pricetest_neg = 0.9
+			    var pricetest_pos = 1.1
+			    var conversion_neg = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 0.9)
+			    var conversion_pos = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1.1)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_pos, conversion_neg)),
+			            LN(DIVIDE(pricetest_pos, pricetest_neg))) * -1
+			```
+		formatString: 0.00
+		lineageTag: 84deb93b-d468-4954-98a7-33845da12967
+
+	measure 'Elasticity (Price Decrease 0.90)' = ```
+			
+			    var pricetest_neg = 0.9
+			    var conversion_neutral = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1)
+			    var conversion_neg = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 0.9)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_neg, conversion_neutral)),
+			            LN(pricetest_neg)) * -1
+			```
+		formatString: 0.00
+		lineageTag: d4f2d7db-6db9-4440-a5f2-aecb746426b4
+
+	measure 'Elasticity (Price Increase 1.10)' = ```
+			
+			    var pricetest_pos = 1.1
+			    var conversion_neutral = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1)
+			    var conversion_pos = CALCULATE('Conversion Data'[Conversion], 'Conversion Data'[PriceTest] = 1.1)
+			    RETURN 
+			        DIVIDE(
+			            LN(DIVIDE(conversion_pos, conversion_neutral)),
+			            LN(pricetest_pos)) * -1
+			```
+		formatString: 0.00
+		lineageTag: a8448721-0b27-421b-97a5-e72e8b33a381
+
+	measure 'VA Cotizado' = AVERAGE('Conversion Data'[valoraseguradovehi])
+		formatString: #,0
+		lineageTag: 921da022-bc67-430e-b817-a2945a14f79b
+
+	measure 'VA Emitido' = CALCULATE(AVERAGE('Conversion Data'[valoraseguradovehi]),'Conversion Data'[emitidas]=1)
+		formatString: #,0
+		lineageTag: 69556d67-72fd-4388-a9b9-8ce76609f989
+
+	measure 'originationdemand Sum' = SUM('Conversion Data'[originationdemand])
+		lineageTag: d3154dca-870f-477a-98e2-6007fc45a0d1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Costo esperado' = sum('Conversion Data'[actuarialcostparameter])/[Accumulated conversion probability cotizaciones]
+		lineageTag: e12a65c6-4137-4513-aeaf-2004cf92c7a9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure Medida
+		lineageTag: d2d270ce-be82-4918-9abf-b5c2b6d4108a
+
+		annotation 436ba87b-9c83-4389-a31b-ebd06a36be98 = {"Expression":null}
+
+		annotation 277cc1b9-af89-4597-8e15-cacc25c0886b = Para usar caracteres especiales en un nombre de medida, incluya el nombre completo entre corchetes ([]) y agregue un ] a cualquier corchete de cierre en el nombre.
+
+	measure 'MLR Emitido sin asistencias ni salvamentos' =
+			
+			VAR AnioModelo = SELECTEDVALUE('Conversion Data'[AñoModelo])
+			RETURN
+			IF(
+			    AnioModelo >= 2026,
+			    [MLR Emitido] * 0.9,
+			    [MLR Emitido] * 0.95
+			)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 8961e577-af46-4510-8959-b0357167927e
+
+	measure 'MLR Emitido2' = CALCULATE(([NetActuarialCostParameter Sum]/[Prima Sum] ),'Conversion Data'[emitidas]=1)
+		lineageTag: 5da1e89f-f4a2-462f-89cd-fe2a14e113ad
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'NetActuarialCostParameter Sum' = SUMX(DISTINCT('Conversion Data'[LLAVE_PFDI]),CALCULATE(AVERAGE('Conversion Data'[netactuarialcostparameter])))
+		lineageTag: be79cd35-6c3d-46d9-91ec-45b453844d42
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Net MLR Emitido' = CALCULATE(([NetActuarialCostParameter Sum]/[Prima Sum] ),'Conversion Data'[emitidas]=1)
+		lineageTag: 58f325ef-9b2f-4ba5-b452-c1cb2a9ddd97
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'MLR Emitido sin asistencias ni salvamentos2' =
+			
+			VAR AnioModelo = SELECTEDVALUE('Conversion Data'[AñoModelo])
+			RETURN
+			IF(
+			    AnioModelo >= 2026,
+			    [MLR Emitido2] * 1,
+			    [MLR Emitido] * 1
+			)
+		lineageTag: 008278de-3105-459d-8e86-55ef5f9ff2ee
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Client Age'
+		dataType: string
+		lineageTag: 743c1c12-e782-47ae-a896-eee00cb528fc
+		summarizeBy: none
+		sourceColumn: Client Age
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Vehicle Age'
+		dataType: string
+		lineageTag: 6c5419be-f72e-4830-9ab0-5f1fcc3f287b
+		summarizeBy: none
+		sourceColumn: Vehicle Age
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Credit Score'
+		dataType: string
+		lineageTag: 70556aad-d027-4c47-9013-dfb564ad9040
+		summarizeBy: none
+		sourceColumn: Credit Score
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Pre-Post Indicator'
+		dataType: string
+		lineageTag: b70808f4-2a4f-4b5e-b5a0-bebc6bb7154b
+		summarizeBy: none
+		sourceColumn: Pre-Post Indicator
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'A/B Indicator'
+		dataType: string
+		lineageTag: e1968968-56a8-479b-be06-a6025f254e94
+		summarizeBy: none
+		sourceColumn: A/B Indicator
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Premium (Band)'
+		dataType: string
+		lineageTag: 21cba6f8-e4b3-45b6-ad8d-4da5245d7397
+		summarizeBy: none
+		sourceColumn: Premium (Band)
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Estrato
+		dataType: int64
+		formatString: 0
+		lineageTag: eb05b442-5b14-4862-aec4-b104cc8b8ee6
+		summarizeBy: sum
+		sourceColumn: Estrato
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column localidad
+		dataType: string
+		lineageTag: 517eba4a-8ae1-4e20-9cb5-94b7aeabbcc2
+		summarizeBy: none
+		sourceColumn: localidad
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column suavizacion
+		dataType: double
+		lineageTag: e4416c67-14d5-4bbf-b7f7-ccb682bfdd8e
+		summarizeBy: sum
+		sourceColumn: suavizacion
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column acierta
+		dataType: double
+		lineageTag: 83cb7c7d-12fa-4486-8d3b-bd5101e97a84
+		summarizeBy: sum
+		sourceColumn: acierta
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column barrio
+		dataType: int64
+		formatString: 0
+		lineageTag: 0c2c0348-58f7-48b4-ad7b-13e4a4eac81f
+		summarizeBy: sum
+		sourceColumn: barrio
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column blindaje
+		dataType: int64
+		formatString: 0
+		lineageTag: 47c81f22-55c8-45c4-b8dc-bd25455ee22a
+		summarizeBy: sum
+		sourceColumn: blindaje
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column canal
+		dataType: int64
+		formatString: 0
+		lineageTag: f4bc08ca-3f36-4577-951d-1013bbdce8c4
+		summarizeBy: sum
+		sourceColumn: canal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column ciudad
+		dataType: int64
+		formatString: 0
+		lineageTag: 244547af-2d27-4866-80cc-314678228b54
+		summarizeBy: sum
+		sourceColumn: ciudad
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column clase
+		dataType: int64
+		formatString: 0
+		lineageTag: 731c27cf-2b21-493e-9077-7a878f127def
+		summarizeBy: sum
+		sourceColumn: clase
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column departamento
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b3722c0-d2c8-4876-a886-32fb45834635
+		summarizeBy: sum
+		sourceColumn: departamento
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Technical Discount'
+		dataType: int64
+		formatString: 0
+		lineageTag: e776ba62-da0e-4648-837f-befd87782e44
+		summarizeBy: none
+		sourceColumn: Technical Discount
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column genero
+		dataType: string
+		lineageTag: 0143265c-4475-44f4-baa9-2e3f2b16830d
+		summarizeBy: none
+		sourceColumn: genero
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column marca
+		dataType: int64
+		formatString: 0
+		lineageTag: e654f863-207d-4e52-82a3-594874d41702
+		summarizeBy: sum
+		sourceColumn: marca
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column producto
+		dataType: string
+		lineageTag: d797f71f-f82e-40b8-a83b-7a5f784ac336
+		summarizeBy: none
+		sourceColumn: producto
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Prior Claim'
+		dataType: int64
+		formatString: 0
+		lineageTag: 45f9e5d6-a95f-4c86-b7cc-012caed23b4c
+		summarizeBy: sum
+		sourceColumn: Prior Claim
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column sucursal
+		dataType: int64
+		formatString: 0
+		lineageTag: 57bfd7d5-572f-4166-a351-14161043849b
+		summarizeBy: sum
+		sourceColumn: sucursal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column uso
+		dataType: int64
+		formatString: 0
+		lineageTag: ad1a4230-f2cd-4055-b484-6ef250076bf7
+		summarizeBy: sum
+		sourceColumn: uso
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column NB_Opt_Category
+		dataType: string
+		lineageTag: cea752e5-201e-4652-b4ce-59988e04cb4e
+		summarizeBy: none
+		sourceColumn: NB_Opt_Category
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Fecha_Cotizacion
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: a9e9c7e5-4555-4b8d-96cb-67c0a5ce617b
+		summarizeBy: none
+		sourceColumn: Fecha_Cotizacion
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Rule-Version
+		dataType: string
+		lineageTag: b1cee315-131b-4197-9beb-8463d15415ae
+		summarizeBy: none
+		sourceColumn: Rule-Version
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column PrimaAnual<100k
+		dataType: string
+		lineageTag: af28d317-96e4-4524-9529-b0916f83b62c
+		summarizeBy: none
+		sourceColumn: PrimaAnual<100k
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column RanuniInd
+		dataType: string
+		lineageTag: cb03c4aa-de68-4cc9-bf59-35a94436405d
+		summarizeBy: none
+		sourceColumn: RanuniInd
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Join_Key
+		dataType: string
+		lineageTag: 4b55db9f-2972-4e3e-9ba8-6d47ddc01342
+		summarizeBy: none
+		sourceColumn: Join_Key
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Prima_UseForNBOpt
+		dataType: int64
+		formatString: 0
+		lineageTag: f6cb8cd1-e24f-4a92-b4a2-066a9e24c2ef
+		summarizeBy: sum
+		sourceColumn: Prima_UseForNBOpt
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB Opt Rest' = IF(AND('Conversion Data'[NB_Opt_Category] = "Not Optimized", RELATED('Pricing Versions Automated'[Modelo]) = "Restricted Model"),1,0)
+		formatString: 0
+		lineageTag: 52b7116c-76f3-45d1-b4ff-4c069c9ce84c
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB_Opt_Category NEW' =
+			SWITCH(
+			    TRUE(),
+			    'Conversion Data'[NB_Opt_Category]="Control","Control",
+			    'Conversion Data'[NB_Opt_Category]="Optimized", "Optimized",
+			    AND('Conversion Data'[NB_Opt_Category]="Not Optimized", 'Conversion Data'[NB Opt Rest]=1), "Not Optimized (Restricted Model)",
+			    AND('Conversion Data'[NB_Opt_Category]="Not Optimized", 'Conversion Data'[NB Opt Rest]=0), "Not Optimized (Unrestricted Model)"
+			)
+		lineageTag: 462cb93a-3eb1-46c5-8fdb-0d7a7f8e781e
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DEPT_CIUDAD = CONCATENATE('Conversion Data'[departamento],'Conversion Data'[ciudad])
+		lineageTag: 618c2f8d-2898-4861-b7e5-562bb0119a64
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: 7e7f4fbd-4325-43b9-a5e3-4319c12d8345
+		summarizeBy: none
+		sourceColumn: Index
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Roboquotes
+		dataType: string
+		lineageTag: fe35cfe5-82a9-431c-8ce6-ea34bf4842a5
+		summarizeBy: none
+		sourceColumn: Roboquotes
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Bind_1week+ = IF(ISBLANK('Conversion Data'[Fecha_Emision]), BLANK(),if(DATEDIFF('Conversion Data'[Fecha_Cotizacion], 'Conversion Data'[Fecha_Emision], DAY)>7, "True", "False"))
+		lineageTag: 61d3e7ba-8f1a-49c9-b05c-873d4911ed0b
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Bind_2week+ = IF(ISBLANK('Conversion Data'[Fecha_Emision]), BLANK(),if(DATEDIFF('Conversion Data'[Fecha_Cotizacion], 'Conversion Data'[Fecha_Emision], DAY)>14, "True", "False"))
+		lineageTag: 9dbc5cde-6d60-4ea8-b24e-7ab29af7783b
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Bind_1month+ = IF(ISBLANK('Conversion Data'[Fecha_Emision]), BLANK(),if(DATEDIFF('Conversion Data'[Fecha_Cotizacion], 'Conversion Data'[Fecha_Emision], DAY)>30, "True", "False"))
+		lineageTag: 92008402-1c7c-485e-adc9-88eea5cf7976
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Days to Bind' = IF(NOT(ISBLANK('Conversion Data'[Fecha_Emision])), DATEDIFF('Conversion Data'[Fecha_Cotizacion],'Conversion Data'[Fecha_Emision],DAY),BLANK())
+		formatString: 0
+		lineageTag: c1bd9608-4a28-4609-8eb5-9d0496c52914
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Bind_1week- = IF(ISBLANK('Conversion Data'[Fecha_Emision]), BLANK(),if(DATEDIFF('Conversion Data'[Fecha_Cotizacion], 'Conversion Data'[Fecha_Emision], DAY)<=7, "True", "False"))
+		lineageTag: bd1c2e77-7166-4ef3-b128-f0e477a98b57
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB Opt Unrestricted' = IF(AND('Conversion Data'[NB_Opt_Category] = "Not Optimized", RELATED('Pricing Versions Automated'[Modelo]) = "Unrestricted Model"),1,0)
+		formatString: 0
+		lineageTag: 2d5355b1-9630-4670-944e-5596b00ae16f
+		summarizeBy: sum
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column combustible
+		dataType: int64
+		formatString: 0
+		lineageTag: e30dadce-6730-43d5-ace8-654c76142cf3
+		summarizeBy: sum
+		sourceColumn: combustible
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Total Sum Insured'
+		dataType: string
+		lineageTag: 9a1cf6f9-0ff4-4780-a567-224f0f191c67
+		summarizeBy: none
+		sourceColumn: Total Sum Insured
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Prior Ticket'
+		dataType: string
+		lineageTag: 8de89b7e-6d69-409d-a6f3-cbf12b756431
+		summarizeBy: none
+		sourceColumn: Prior Ticket
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fuel type'
+		dataType: string
+		lineageTag: b477f307-8ea1-477b-b8cc-9cce61faf07d
+		summarizeBy: none
+		sourceColumn: Fuel type
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Modelo = LOOKUPVALUE('Pricing Versions Automated'[Modelo],'Pricing Versions Automated'[Rule-Version],'Conversion Data'[Rule-Version])
+		lineageTag: 6597fc1e-3e1e-4f6b-9900-4dc9d29b1061
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"NB Opt Category","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column 'Quote after 4/18/22' = IF(DATE(2022,4,18)<'Conversion Data'[Fecha_Cotizacion], "Yes", "No")
+		lineageTag: f0c046c7-bfb9-4e7d-9ea2-964b5d325c36
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column NB_Opt_Category_New_2022 =
+			
+			IF('Conversion Data'[NB Opt VersionID?] = "Yes" && 'Conversion Data'[PrimaAnual<100k] = "No" && 'Conversion Data'[RanuniInd] = ">0.5" && 'Conversion Data'[Quote after 4/18/22] = "No", "Optimized Group", (
+			IF('Conversion Data'[NB Opt VersionID?] = "Yes" && 'Conversion Data'[PrimaAnual<100k] = "No" && 'Conversion Data'[Quote after 4/18/22] = "Yes", "Optimized Group", (
+			IF('Conversion Data'[Price Opt RuleID?] = "Yes" && 'Conversion Data'[Modelo] = "Unrestricted Model" && 'Conversion Data'[Quote after 4/18/22] = "No", "Control Group", (
+			IF('Conversion Data'[Price Opt RuleID?] = "Yes" && 'Conversion Data'[Modelo] = "New Unrestricted Model" && 'Conversion Data'[Quote after 4/18/22] = "Yes", "Control Group","N/A" )
+			))))))
+		lineageTag: 3e8418de-0440-47d6-90d2-e705fe18d61e
+		summarizeBy: none
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sum Insured Value Range' =
+			
+			VAR va = 'Conversion Data'[valorAseguradoVehi]
+			RETURN
+			SWITCH(TRUE(),
+			        va <= 30000000,"<30000000",
+			        va <= 50000000,"30000000 - 50000000",
+			        va <= 80000000,"50000000 - 80000000",
+			        va <= 100000000,"80000000 - 100000000",
+			        va <= 200000000,"100000000 - 200000000",
+			        va > 200000000,">200000000",
+			        BLANK ()
+			)
+		lineageTag: 826c0b44-a634-4636-bd87-c1cae46636f8
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last 12 Months' = IF(and('Conversion Data'[Fecha_Cotizacion] > EDATE([Indicator date], -12),'Conversion Data'[Fecha_Cotizacion] <= EDATE([Indicator date],0)),1, 0)
+		formatString: 0
+		lineageTag: 10d9380f-862e-4a2b-99dc-8fad8a4a53f7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last 6 Months' = IF(and('Conversion Data'[Fecha_Cotizacion] > EDATE([Indicator date], -6),'Conversion Data'[Fecha_Cotizacion] <= EDATE([Indicator date],0)),1, 0)
+		formatString: 0
+		lineageTag: 33a20518-aaa0-4c4d-a612-ff23a95bb52e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last 3 Months' = IF(and('Conversion Data'[Fecha_Cotizacion] > EDATE([Indicator date], -3),'Conversion Data'[Fecha_Cotizacion] <= EDATE([Indicator date],0)),1, 0)
+		formatString: 0
+		lineageTag: bb984710-73ff-4071-9c27-84dd5032ef48
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Last Month' = IF(and('Conversion Data'[Fecha_Cotizacion] > EDATE([Indicator date], -1),'Conversion Data'[Fecha_Cotizacion] <= EDATE([Indicator date],0)),1, 0)
+		formatString: 0
+		lineageTag: 4c8a8bfb-7a6d-4a77-b9d2-a335e60fae3e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Channel
+		dataType: string
+		lineageTag: 4d3d2abd-7591-4867-854e-be1baea55270
+		summarizeBy: none
+		sourceColumn: Channel
+
+		annotation SummarizationSetBy = Automatic
+
+	column fuente
+		dataType: string
+		lineageTag: a61f3ae4-3d7f-4201-8bd6-a3712f23393c
+		summarizeBy: none
+		sourceColumn: fuente
+
+		annotation SummarizationSetBy = Automatic
+
+	column periodo_contable
+		dataType: string
+		lineageTag: 0759533c-8aa1-4acd-9572-fe7cbb1b9843
+		summarizeBy: none
+		sourceColumn: periodo_contable
+
+		annotation SummarizationSetBy = Automatic
+
+	column llave_pfdi
+		dataType: string
+		lineageTag: 199fda51-27d6-44ce-a2db-ee3be4af3624
+		summarizeBy: none
+		sourceColumn: llave_pfdi
+
+		annotation SummarizationSetBy = Automatic
+
+	column poliza
+		dataType: int64
+		formatString: 0
+		lineageTag: e0553e91-cc82-4fc0-8018-2f7032f58d98
+		summarizeBy: sum
+		sourceColumn: poliza
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ramo
+		dataType: string
+		lineageTag: 2675ed52-ca66-4597-ac97-6d0f0be6d43e
+		summarizeBy: none
+		sourceColumn: Ramo
+
+		annotation SummarizationSetBy = Automatic
+
+	column comparador
+		dataType: int64
+		formatString: 0
+		lineageTag: 92755017-2379-4281-9051-baccf13b8304
+		summarizeBy: sum
+		sourceColumn: comparador
+
+		annotation SummarizationSetBy = Automatic
+
+	column emitidas
+		dataType: int64
+		formatString: 0
+		lineageTag: 4cc60989-4fab-4b7d-8ad1-9cc5077d63df
+		summarizeBy: sum
+		sourceColumn: emitidas
+
+		annotation SummarizationSetBy = Automatic
+
+	column idquotation
+		dataType: string
+		lineageTag: 4522a628-d1b7-4205-97e3-97bc22ebe244
+		summarizeBy: none
+		sourceColumn: idquotation
+
+		annotation SummarizationSetBy = Automatic
+
+	column idtransaccion
+		dataType: int64
+		formatString: 0
+		lineageTag: bede3085-c23e-4aa7-baec-afa705091e1c
+		summarizeBy: sum
+		sourceColumn: idtransaccion
+
+		annotation SummarizationSetBy = Automatic
+
+	column ruleid
+		dataType: string
+		lineageTag: 495e35c0-0dc7-47d5-af73-7b9c64f5cdd5
+		summarizeBy: none
+		sourceColumn: ruleid
+
+		annotation SummarizationSetBy = Automatic
+
+	column cotizacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 453de9c1-4261-4dd6-8c36-0c2c431f85cf
+		summarizeBy: sum
+		sourceColumn: cotizacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column tiponegocio
+		dataType: int64
+		formatString: 0
+		lineageTag: 4e6ef749-2f1d-43a0-9475-146b7a160b3a
+		summarizeBy: sum
+		sourceColumn: tiponegocio
+
+		annotation SummarizationSetBy = Automatic
+
+	column antiguedadvehiculo
+		dataType: int64
+		formatString: 0
+		lineageTag: 28b1cda4-cfce-4869-9d5c-eb03385a7dfd
+		summarizeBy: sum
+		sourceColumn: antiguedadvehiculo
+
+		annotation SummarizationSetBy = Automatic
+
+	column aseguradoraanterior
+		dataType: int64
+		formatString: 0
+		lineageTag: db759b99-84e6-4571-99b4-6dcce690b464
+		summarizeBy: sum
+		sourceColumn: aseguradoraanterior
+
+		annotation SummarizationSetBy = Automatic
+
+	column anosaseguradoraanterior
+		dataType: int64
+		formatString: 0
+		lineageTag: 48937fa4-0b58-4190-addf-bd1271d085df
+		summarizeBy: sum
+		sourceColumn: anosaseguradoraanterior
+
+		annotation SummarizationSetBy = Automatic
+
+	column gravedadmultas
+		dataType: int64
+		formatString: 0
+		lineageTag: ef09d59b-a180-4afa-a988-e4e98fd61f09
+		summarizeBy: sum
+		sourceColumn: gravedadmultas
+
+		annotation SummarizationSetBy = Automatic
+
+	column cancelacionlicencia
+		dataType: int64
+		formatString: 0
+		lineageTag: 9ecb15de-9894-467d-80ad-ff24f05cdb97
+		summarizeBy: sum
+		sourceColumn: cancelacionlicencia
+
+		annotation SummarizationSetBy = Automatic
+
+	column antiguedadconductor
+		dataType: int64
+		formatString: 0
+		lineageTag: 631daf0e-c309-490b-a288-ef47ec3e050f
+		summarizeBy: sum
+		sourceColumn: antiguedadconductor
+
+		annotation SummarizationSetBy = Automatic
+
+	column anossinsiniestro
+		dataType: int64
+		formatString: 0
+		lineageTag: d0e0deb2-ed3e-42cc-b75a-12e0711d9114
+		summarizeBy: sum
+		sourceColumn: anossinsiniestro
+
+		annotation SummarizationSetBy = Automatic
+
+	column valoraseguradovehi
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c650600-8868-4aad-9d29-3565de7631de
+		summarizeBy: sum
+		sourceColumn: valoraseguradovehi
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigofasecolda
+		dataType: int64
+		formatString: 0
+		lineageTag: 45b3a34f-a3d8-4da7-b734-ddbe77826cef
+		summarizeBy: sum
+		sourceColumn: codigofasecolda
+
+		annotation SummarizationSetBy = Automatic
+
+	column numeromultas
+		dataType: int64
+		formatString: 0
+		lineageTag: 8b6aa5bb-88e1-47f7-88e6-277d97a59df9
+		summarizeBy: sum
+		sourceColumn: numeromultas
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"numeromultas (groups)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column pesocategoria
+		dataType: int64
+		formatString: 0
+		lineageTag: ede3cdce-b94c-4909-b57c-273dbcc1a343
+		summarizeBy: sum
+		sourceColumn: pesocategoria
+
+		annotation SummarizationSetBy = Automatic
+
+	column descuentocomercial
+		dataType: int64
+		formatString: 0
+		lineageTag: d6949142-46f5-4df9-8dcc-71e2db0379d9
+		summarizeBy: sum
+		sourceColumn: descuentocomercial
+
+		annotation SummarizationSetBy = Automatic
+
+	column antiguedadlicencia
+		dataType: int64
+		formatString: 0
+		lineageTag: 8e3c094a-5382-4058-a1e3-4e4d8ab0ab6a
+		summarizeBy: sum
+		sourceColumn: antiguedadlicencia
+
+		annotation SummarizationSetBy = Automatic
+
+	column numeromultasviganterior
+		dataType: int64
+		formatString: 0
+		lineageTag: 7eff6b22-1ad2-4b60-a38a-e322a2a4fed6
+		summarizeBy: sum
+		sourceColumn: numeromultasviganterior
+
+		annotation SummarizationSetBy = Automatic
+
+	column antiguedadliberty
+		dataType: int64
+		formatString: 0
+		lineageTag: 2fd7b520-3ba7-41e3-884a-b3545accd8cb
+		summarizeBy: sum
+		sourceColumn: antiguedadliberty
+
+		annotation SummarizationSetBy = Automatic
+
+	column siniestroshistoricos
+		dataType: int64
+		formatString: 0
+		lineageTag: 98f6f484-d114-413b-b448-727009e84f44
+		summarizeBy: sum
+		sourceColumn: siniestroshistoricos
+
+		annotation SummarizationSetBy = Automatic
+
+	column anossinmulta
+		dataType: int64
+		formatString: 0
+		lineageTag: ecd2e088-1426-4d16-8a8d-8fa3727c172c
+		summarizeBy: sum
+		sourceColumn: anossinmulta
+
+		annotation SummarizationSetBy = Automatic
+
+	column ultimotipomulta
+		dataType: string
+		lineageTag: a11cabc3-c378-4676-9e1f-7c728f641c14
+		summarizeBy: none
+		sourceColumn: ultimotipomulta
+
+		annotation SummarizationSetBy = Automatic
+
+	column tuvomulta
+		dataType: int64
+		formatString: 0
+		lineageTag: 10dcd47a-0ba9-4b0a-aa10-3ee41c20776a
+		summarizeBy: sum
+		sourceColumn: tuvomulta
+
+		annotation SummarizationSetBy = Automatic
+
+	column anosentremultas
+		dataType: int64
+		formatString: 0
+		lineageTag: 0a090465-8d27-4e49-a210-023d7387ac94
+		summarizeBy: sum
+		sourceColumn: anosentremultas
+
+		annotation SummarizationSetBy = Automatic
+
+	column numcompaniasdif
+		dataType: int64
+		formatString: 0
+		lineageTag: a0b3c008-2712-4a66-ae3a-c99fd4fac72d
+		summarizeBy: sum
+		sourceColumn: numcompaniasdif
+
+		annotation SummarizationSetBy = Automatic
+
+	column tiempoasegurado
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b692239-a10b-4aa2-a13d-861530fcfa9f
+		summarizeBy: sum
+		sourceColumn: tiempoasegurado
+
+		annotation SummarizationSetBy = Automatic
+
+	column tiempopromedioaseg
+		dataType: int64
+		formatString: 0
+		lineageTag: 2f69d52f-257b-484c-b653-59c20ce28c33
+		summarizeBy: sum
+		sourceColumn: tiempopromedioaseg
+
+		annotation SummarizationSetBy = Automatic
+
+	column versionid
+		dataType: string
+		lineageTag: b8e459a8-0ad1-4170-842a-563ec4db3158
+		summarizeBy: none
+		sourceColumn: versionid
+
+		annotation SummarizationSetBy = Automatic
+
+	column primatotal
+		dataType: int64
+		formatString: 0
+		lineageTag: 2c05d4de-4ede-4791-9fac-84f1a6222fe9
+		summarizeBy: sum
+		sourceColumn: primatotal
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalimpuesto
+		dataType: int64
+		formatString: 0
+		lineageTag: a5e1ca24-0ec5-48b2-9dd2-2ccb621154e5
+		summarizeBy: sum
+		sourceColumn: totalimpuesto
+
+		annotation SummarizationSetBy = Automatic
+
+	column priceoptfactor
+		dataType: double
+		lineageTag: 016132de-bab9-4a4a-9889-4e3200a42864
+		summarizeBy: sum
+		sourceColumn: priceoptfactor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"PriceOptFactor (bins)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column primaanual
+		dataType: int64
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+		lineageTag: 6ba93544-4b3a-47e1-812e-db4c67928acc
+		summarizeBy: sum
+		sourceColumn: primaanual
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"PrimaAnual (100kbins)","ObjectType":4},"LinkType":"UsedInGroup"},{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"PrimaAnual (50kbins)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	column impuestoprima
+		dataType: int64
+		formatString: 0
+		lineageTag: 2a774c91-91cd-4724-a067-f4991d654f03
+		summarizeBy: sum
+		sourceColumn: impuestoprima
+
+		annotation SummarizationSetBy = Automatic
+
+	column pricetest
+		dataType: double
+		lineageTag: ae2431cb-95e3-4565-b648-35caefdf6fd9
+		summarizeBy: sum
+		sourceColumn: pricetest
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column valorcuotafinanciacion
+		dataType: int64
+		formatString: 0
+		lineageTag: 276d9df6-3636-4866-b68b-d1435a1df89a
+		summarizeBy: sum
+		sourceColumn: valorcuotafinanciacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column totalpago
+		dataType: int64
+		formatString: 0
+		lineageTag: 69e11056-db4c-4dd7-a7a3-6a1c46a87f8d
+		summarizeBy: sum
+		sourceColumn: totalpago
+
+		annotation SummarizationSetBy = Automatic
+
+	column originationdemand
+		dataType: double
+		formatString: 0.00
+		lineageTag: 2269cacb-f5a8-4525-b279-e9f8ca3cb5a8
+		summarizeBy: sum
+		sourceColumn: originationdemand
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"OriginationDemand (bins)","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column actuarialcostparameter
+		dataType: double
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: f5131fc5-d479-428a-82fc-34687d3fa9cf
+		summarizeBy: sum
+		sourceColumn: actuarialcostparameter
+
+		annotation SummarizationSetBy = Automatic
+
+	column ranuniparameter
+		dataType: double
+		lineageTag: 3283934f-c821-4d73-984c-269619f6d862
+		summarizeBy: sum
+		sourceColumn: ranuniparameter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column primapurachangev67
+		dataType: double
+		lineageTag: 10dc3a52-157e-44bc-8cf7-5a2d01e44f3a
+		summarizeBy: sum
+		sourceColumn: primapurachangev67
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Vehicle Make'
+		dataType: string
+		lineageTag: fa5683d3-297b-47c8-a795-93eee3bd3747
+		summarizeBy: none
+		sourceColumn: Vehicle Make
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation __PBI_SemanticLinks = [{"LinkTarget":{"TableName":"Conversion Data","TableItemName":"Top 15 Marca","ObjectType":4},"LinkType":"UsedInGroup"}]
+
+	column City
+		dataType: string
+		lineageTag: 10149b42-b39f-4f38-81a4-d5b37af6596d
+		summarizeBy: none
+		sourceColumn: City
+
+		annotation SummarizationSetBy = Automatic
+
+	column nombredepartamento
+		dataType: string
+		lineageTag: fca74c53-ceb4-43a1-abd2-768b66dd0546
+		summarizeBy: none
+		sourceColumn: nombredepartamento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Region
+		dataType: string
+		lineageTag: 13d35873-5e88-466b-936c-aa4f9cb7b216
+		summarizeBy: none
+		sourceColumn: Region
+
+		annotation SummarizationSetBy = Automatic
+
+	column canaldesc
+		dataType: string
+		lineageTag: 8d591f45-059d-4528-a63c-97a950024088
+		summarizeBy: none
+		sourceColumn: canaldesc
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB Opt Versionid?'
+		dataType: string
+		lineageTag: b19e1603-3cc4-4736-817e-b02990c158ef
+		summarizeBy: none
+		sourceColumn: NB Opt Versionid?
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Price Opt Ruleid?'
+		dataType: string
+		lineageTag: 0074a950-bc53-48a9-b925-a17bb5afdbee
+		summarizeBy: none
+		sourceColumn: Price Opt Ruleid?
+
+		annotation SummarizationSetBy = Automatic
+
+	column fecha_emision
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 391f6bb8-f275-4bc6-bcb8-7367d51bb22c
+		summarizeBy: none
+		sourceColumn: fecha_emision
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'numeromultas (groups)' =
+			SWITCH(
+				TRUE,
+				ISBLANK('Conversion Data'[numeromultas]),
+				"(Blank)",
+				'Conversion Data'[numeromultas] IN {-3},
+				"Liberty's service failure",
+				'Conversion Data'[numeromultas] IN {0,
+					1,
+					2,
+					3,
+					4,
+					5,
+					6,
+					7,
+					8,
+					9,
+					10,
+					11,
+					12,
+					13,
+					14,
+					15,
+					16,
+					17,
+					18,
+					19,
+					20,
+					21,
+					22,
+					23,
+					24,
+					25,
+					26,
+					27,
+					28,
+					29,
+					30,
+					31,
+					32,
+					33,
+					34,
+					35,
+					36,
+					37,
+					38,
+					39,
+					40,
+					41,
+					42,
+					43,
+					44,
+					45,
+					46,
+					47,
+					48,
+					49,
+					50,
+					51,
+					52,
+					53,
+					54,
+					55,
+					56,
+					57,
+					58,
+					59,
+					60,
+					61,
+					62,
+					63,
+					64,
+					65,
+					66,
+					67,
+					68,
+					69,
+					70,
+					71,
+					72,
+					73,
+					74,
+					75,
+					76,
+					77,
+					78,
+					79,
+					80,
+					81,
+					82,
+					83,
+					84,
+					85,
+					86,
+					87,
+					88,
+					89,
+					90,
+					91,
+					93,
+					94,
+					96,
+					97,
+					98,
+					99,
+					101,
+					102,
+					103,
+					107,
+					111,
+					131},
+				"No Issue",
+				'Conversion Data'[numeromultas] IN {-2},
+				"Provider's service failure",
+				'Conversion Data'[numeromultas] IN {-1},
+				"Variable's calculation doesn't apply",
+				"Other"
+			)
+		lineageTag: e165a8b6-e3ca-4a70-9dff-7e3a92a51489
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "numeromultas"
+				      }
+				    }
+				  ]
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"numeromultas"}}],"GroupItems":[{"DisplayName":"(Blank)","BlankDefaultPlaceholder":true},{"DisplayName":"Liberty's service failure","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"numeromultas"}}],"Values":[[{"Literal":{"Value":"-3L"}}]]}}},{"DisplayName":"No Issue","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"numeromultas"}}],"Values":[[{"Literal":{"Value":"0L"}}],[{"Literal":{"Value":"1L"}}],[{"Literal":{"Value":"2L"}}],[{"Literal":{"Value":"3L"}}],[{"Literal":{"Value":"4L"}}],[{"Literal":{"Value":"5L"}}],[{"Literal":{"Value":"6L"}}],[{"Literal":{"Value":"7L"}}],[{"Literal":{"Value":"8L"}}],[{"Literal":{"Value":"9L"}}],[{"Literal":{"Value":"10L"}}],[{"Literal":{"Value":"11L"}}],[{"Literal":{"Value":"12L"}}],[{"Literal":{"Value":"13L"}}],[{"Literal":{"Value":"14L"}}],[{"Literal":{"Value":"15L"}}],[{"Literal":{"Value":"16L"}}],[{"Literal":{"Value":"17L"}}],[{"Literal":{"Value":"18L"}}],[{"Literal":{"Value":"19L"}}],[{"Literal":{"Value":"20L"}}],[{"Literal":{"Value":"21L"}}],[{"Literal":{"Value":"22L"}}],[{"Literal":{"Value":"23L"}}],[{"Literal":{"Value":"24L"}}],[{"Literal":{"Value":"25L"}}],[{"Literal":{"Value":"26L"}}],[{"Literal":{"Value":"27L"}}],[{"Literal":{"Value":"28L"}}],[{"Literal":{"Value":"29L"}}],[{"Literal":{"Value":"30L"}}],[{"Literal":{"Value":"31L"}}],[{"Literal":{"Value":"32L"}}],[{"Literal":{"Value":"33L"}}],[{"Literal":{"Value":"34L"}}],[{"Literal":{"Value":"35L"}}],[{"Literal":{"Value":"36L"}}],[{"Literal":{"Value":"37L"}}],[{"Literal":{"Value":"38L"}}],[{"Literal":{"Value":"39L"}}],[{"Literal":{"Value":"40L"}}],[{"Literal":{"Value":"41L"}}],[{"Literal":{"Value":"42L"}}],[{"Literal":{"Value":"43L"}}],[{"Literal":{"Value":"44L"}}],[{"Literal":{"Value":"45L"}}],[{"Literal":{"Value":"46L"}}],[{"Literal":{"Value":"47L"}}],[{"Literal":{"Value":"48L"}}],[{"Literal":{"Value":"49L"}}],[{"Literal":{"Value":"50L"}}],[{"Literal":{"Value":"51L"}}],[{"Literal":{"Value":"52L"}}],[{"Literal":{"Value":"53L"}}],[{"Literal":{"Value":"54L"}}],[{"Literal":{"Value":"55L"}}],[{"Literal":{"Value":"56L"}}],[{"Literal":{"Value":"57L"}}],[{"Literal":{"Value":"58L"}}],[{"Literal":{"Value":"59L"}}],[{"Literal":{"Value":"60L"}}],[{"Literal":{"Value":"61L"}}],[{"Literal":{"Value":"62L"}}],[{"Literal":{"Value":"63L"}}],[{"Literal":{"Value":"64L"}}],[{"Literal":{"Value":"65L"}}],[{"Literal":{"Value":"66L"}}],[{"Literal":{"Value":"67L"}}],[{"Literal":{"Value":"68L"}}],[{"Literal":{"Value":"69L"}}],[{"Literal":{"Value":"70L"}}],[{"Literal":{"Value":"71L"}}],[{"Literal":{"Value":"72L"}}],[{"Literal":{"Value":"73L"}}],[{"Literal":{"Value":"74L"}}],[{"Literal":{"Value":"75L"}}],[{"Literal":{"Value":"76L"}}],[{"Literal":{"Value":"77L"}}],[{"Literal":{"Value":"78L"}}],[{"Literal":{"Value":"79L"}}],[{"Literal":{"Value":"80L"}}],[{"Literal":{"Value":"81L"}}],[{"Literal":{"Value":"82L"}}],[{"Literal":{"Value":"83L"}}],[{"Literal":{"Value":"84L"}}],[{"Literal":{"Value":"85L"}}],[{"Literal":{"Value":"86L"}}],[{"Literal":{"Value":"87L"}}],[{"Literal":{"Value":"88L"}}],[{"Literal":{"Value":"89L"}}],[{"Literal":{"Value":"90L"}}],[{"Literal":{"Value":"91L"}}],[{"Literal":{"Value":"93L"}}],[{"Literal":{"Value":"94L"}}],[{"Literal":{"Value":"96L"}}],[{"Literal":{"Value":"97L"}}],[{"Literal":{"Value":"98L"}}],[{"Literal":{"Value":"99L"}}],[{"Literal":{"Value":"101L"}}],[{"Literal":{"Value":"102L"}}],[{"Literal":{"Value":"103L"}}],[{"Literal":{"Value":"107L"}}],[{"Literal":{"Value":"111L"}}],[{"Literal":{"Value":"131L"}}]]}}},{"DisplayName":"Provider's service failure","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"numeromultas"}}],"Values":[[{"Literal":{"Value":"-2L"}}]]}}},{"DisplayName":"Variable's calculation doesn't apply","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"numeromultas"}}],"Values":[[{"Literal":{"Value":"-1L"}}]]}}},{"DisplayName":"Other"}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'OriginationDemand (bins)' =
+			IF(
+				ISBLANK('Conversion Data'[originationdemand]),
+				BLANK(),
+				IF(
+					'Conversion Data'[originationdemand] >= 0,
+					ROUNDDOWN('Conversion Data'[originationdemand] / 0.02, 0) * 0.02,
+					ROUNDUP('Conversion Data'[originationdemand] / 0.02, 0) * 0.02
+				)
+			)
+		lineageTag: c3a85a52-2709-4b5f-8978-59f19878bf7b
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "originationdemand"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 0.02,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"originationdemand"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"originationdemand"}},"Size":0.02}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'PrimaAnual (100kbins)' =
+			IF(
+				ISBLANK('Conversion Data'[primaanual]),
+				BLANK(),
+				INT('Conversion Data'[primaanual] / 37497297) * 37497297
+			)
+		formatString: 0
+		lineageTag: c077e9a5-91fa-4322-8fc7-63a75188a23d
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "primaanual"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 37497297.0,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"primaanual"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"primaanual"}},"Size":37497297.0}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+	column competitormodel
+		dataType: double
+		lineageTag: 6dcc0922-763a-49b2-a9f1-c03350b374d8
+		summarizeBy: sum
+		sourceColumn: competitormodel
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column dislocationmodel
+		dataType: string
+		lineageTag: 6edbc96b-8def-4621-bfb5-335363aca3e0
+		summarizeBy: none
+		sourceColumn: dislocationmodel
+
+		annotation SummarizationSetBy = Automatic
+
+	column optimizationpricechange
+		dataType: double
+		lineageTag: 6a92c727-8fd0-4a80-8afc-c767206fd83d
+		summarizeBy: sum
+		sourceColumn: optimizationpricechange
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column competitorcapflag
+		dataType: double
+		lineageTag: 826e3d21-fbe6-4299-9ef6-a18f24ed482a
+		summarizeBy: sum
+		sourceColumn: competitorcapflag
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column competitormax
+		dataType: double
+		formatString: \$\ #,0;-\$\ #,0;\$\ #,0
+		lineageTag: c313f2f5-7e1e-499f-93e7-cb4d469acde8
+		summarizeBy: sum
+		sourceColumn: competitormax
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"currencyCulture":"es-CO"}
+
+	column 'PrimaAnual (50kbins)' =
+			IF(
+				ISBLANK('Conversion Data'[primaanual]),
+				BLANK(),
+				INT('Conversion Data'[primaanual] / 36510526) * 36510526
+			)
+		formatString: 0
+		lineageTag: 9fd13ed2-37be-473e-80d4-7e5cda680da9
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "primaanual"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 36510526.0,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"primaanual"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"primaanual"}},"Size":36510526.0}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDecimal":true}
+
+	column 'PriceOptFactor (bins)' =
+			IF(
+				ISBLANK('Conversion Data'[priceoptfactor]),
+				BLANK(),
+				IF(
+					'Conversion Data'[priceoptfactor] >= 0,
+					ROUNDDOWN('Conversion Data'[priceoptfactor] / 0.01, 0) * 0.01,
+					ROUNDUP('Conversion Data'[priceoptfactor] / 0.01, 0) * 0.01
+				)
+			)
+		lineageTag: b8e5183d-adea-4430-8342-47907e732ea5
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "priceoptfactor"
+				      }
+				    }
+				  ],
+				  "binningMetadata": {
+				    "binSize": {
+				      "value": 0.01,
+				      "unit": 0
+				    }
+				  }
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"priceoptfactor"}}],"BinItem":{"Expression":{"Floor":{"Expression":{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"priceoptfactor"}},"Size":0.01}}}}
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Top 15 Marca' =
+			SWITCH(
+				TRUE,
+				ISBLANK('Conversion Data'[Vehicle Make]),
+				"(Blank)",
+				'Conversion Data'[Vehicle Make] IN {"BMW"},
+				"BMW",
+				'Conversion Data'[Vehicle Make] IN {"CHEVROLET"},
+				"CHEVROLET",
+				'Conversion Data'[Vehicle Make] IN {"DODGE"},
+				"DODGE",
+				'Conversion Data'[Vehicle Make] IN {"FORD"},
+				"FORD",
+				'Conversion Data'[Vehicle Make] IN {"HONDA"},
+				"HONDA",
+				'Conversion Data'[Vehicle Make] IN {"HYUNDAI"},
+				"HYUNDAI",
+				'Conversion Data'[Vehicle Make] IN {"JEEP"},
+				"JEEP",
+				'Conversion Data'[Vehicle Make] IN {"KIA"},
+				"KIA",
+				'Conversion Data'[Vehicle Make] IN {"MAZDA"},
+				"MAZDA",
+				'Conversion Data'[Vehicle Make] IN {"MERCEDES BENZ"},
+				"MERCEDES BENZ",
+				'Conversion Data'[Vehicle Make] IN {"MITSUBISHI"},
+				"MITSUBISHI",
+				'Conversion Data'[Vehicle Make] IN {"NISSAN"},
+				"NISSAN",
+				'Conversion Data'[Vehicle Make] IN {"RENAULT"},
+				"RENAULT",
+				'Conversion Data'[Vehicle Make] IN {"TOYOTA"},
+				"TOYOTA",
+				'Conversion Data'[Vehicle Make] IN {"VOLKSWAGEN"},
+				"VOLKSWAGEN",
+				"Other"
+			)
+		lineageTag: e941aa2b-cfd6-4e2b-bb4d-6a87443ab419
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "Vehicle Make"
+				      }
+				    }
+				  ]
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"GroupItems":[{"DisplayName":"(Blank)","BlankDefaultPlaceholder":true},{"DisplayName":"BMW","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'BMW'"}}]]}}},{"DisplayName":"CHEVROLET","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'CHEVROLET'"}}]]}}},{"DisplayName":"DODGE","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'DODGE'"}}]]}}},{"DisplayName":"FORD","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'FORD'"}}]]}}},{"DisplayName":"HONDA","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'HONDA'"}}]]}}},{"DisplayName":"HYUNDAI","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'HYUNDAI'"}}]]}}},{"DisplayName":"JEEP","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'JEEP'"}}]]}}},{"DisplayName":"KIA","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'KIA'"}}]]}}},{"DisplayName":"MAZDA","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'MAZDA'"}}]]}}},{"DisplayName":"MERCEDES BENZ","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'MERCEDES BENZ'"}}]]}}},{"DisplayName":"MITSUBISHI","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'MITSUBISHI'"}}]]}}},{"DisplayName":"NISSAN","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'NISSAN'"}}]]}}},{"DisplayName":"RENAULT","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'RENAULT'"}}]]}}},{"DisplayName":"TOYOTA","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'TOYOTA'"}}]]}}},{"DisplayName":"VOLKSWAGEN","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Vehicle Make"}}],"Values":[[{"Literal":{"Value":"'VOLKSWAGEN'"}}]]}}},{"DisplayName":"Other"}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Prima demanda cotizaciones' = ('Conversion Data'[originationdemand]* 'Conversion Data'[primaanual])
+		lineageTag: 7ffa9693-a11e-45d0-bda4-68de9dda0047
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'MLR Esperado' = ('Conversion Data'[actuarialcostparameter]*'Conversion Data'[originationdemand])/'Conversion Data'[Prima demanda cotizaciones]
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 57dbf20e-357d-4d56-a55b-4f8c76de300e
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB Opt Category' =
+			SWITCH(
+				TRUE,
+				ISBLANK('Conversion Data'[Modelo]),
+				"(Blank)",
+				'Conversion Data'[Modelo] IN {"",
+					"GLM Model",
+					"New Unrestricted Model",
+					"Restricted Model",
+					"Unrestricted Model"},
+				"Control Group",
+				'Conversion Data'[Modelo] IN {"Optimized",
+					"Optimized-High Conversion",
+					"Optimized-Low MLR"},
+				"Optimized Group",
+				'Conversion Data'[Modelo]
+			)
+		lineageTag: dc0e3c9d-cc72-44ae-957e-8ed53f452f5c
+		summarizeBy: none
+
+		extendedProperty GroupingMetadata =
+				{
+				  "version": 0,
+				  "groupedColumns": [
+				    {
+				      "Column": {
+				        "Expression": {
+				          "SourceRef": {
+				            "Entity": "Conversion Data"
+				          }
+				        },
+				        "Property": "Modelo"
+				      }
+				    }
+				  ]
+				}
+
+		annotation GroupingDesignState = {"Version":0,"Sources":[{"Name":"c","Entity":"Conversion Data"}],"GroupedColumns":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Modelo"}}],"GroupItems":[{"DisplayName":"(Blank)","BlankDefaultPlaceholder":true},{"DisplayName":"Control Group","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Modelo"}}],"Values":[[{"Literal":{"Value":"''"}}],[{"Literal":{"Value":"'GLM Model'"}}],[{"Literal":{"Value":"'New Unrestricted Model'"}}],[{"Literal":{"Value":"'Restricted Model'"}}],[{"Literal":{"Value":"'Unrestricted Model'"}}]]}}},{"DisplayName":"Optimized Group","Expression":{"In":{"Expressions":[{"Column":{"Expression":{"SourceRef":{"Source":"c"}},"Property":"Modelo"}}],"Values":[[{"Literal":{"Value":"'Optimized'"}}],[{"Literal":{"Value":"'Optimized-High Conversion'"}}],[{"Literal":{"Value":"'Optimized-Low MLR'"}}]]}}}]}
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigointermediario
+		dataType: int64
+		formatString: 0
+		lineageTag: 861c432a-76dc-4353-8153-82c083c6aa6d
+		summarizeBy: sum
+		sourceColumn: codigointermediario
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sum Insured Value Range 3' =
+			
+			VAR va = 'Conversion Data'[valorAseguradoVehi]
+			RETURN
+			SWITCH(TRUE(),
+			        va <= 30000000,"<30000000",
+			        va <= 40000000,"30000000 - 40000000",
+			        va <= 50000000,"40000000 - 50000000",
+			        va <= 60000000,"50000000 - 60000000",
+			        va <= 70000000,"60000000 - 70000000",
+			        va <= 80000000,"70000000 - 80000000",
+			        va <= 90000000,"80000000 - 90000000",
+			        va <= 100000000,"90000000 - 100000000",
+			        va <= 115000000,"100000000 - 115000000",
+			        va <= 135000000,"115000000 - 135000000",
+			        va <= 175000000,"135000000 - 175000000",
+			        va <= 300000000,"175000000 - 300000000",
+			        va > 300000000,">300000000",
+			        BLANK ()
+			)
+		lineageTag: c47a9e89-c961-4995-8aa7-f8218945ff56
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Referencia = LOOKUPVALUE('Guia Fasecolda'[TIPO 1], 'Guia Fasecolda'[CODIGO], 'Conversion Data'[codigofasecolda])
+		lineageTag: 51717352-0d6b-4d69-ac78-c637866e8be8
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Aseguradora Anterior' = LOOKUPVALUE('Lista Codigo Aseguradora'[AseguradoraAnterior],'Lista Codigo Aseguradora'[CodigoAseguradoraAnterior],'Conversion Data'[aseguradoraanterior])
+		lineageTag: a1521a04-8383-449b-9af3-68c680cdcc58
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column coordenadax
+		dataType: double
+		lineageTag: 35f6c643-e96b-4445-8c4b-b0edb0bdd52a
+		summarizeBy: sum
+		sourceColumn: coordenadax
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column coordenaday
+		dataType: double
+		lineageTag: 18bf7a72-b2a0-4339-9dbe-c1e5a33655f3
+		summarizeBy: sum
+		sourceColumn: coordenaday
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column direccion
+		dataType: string
+		lineageTag: 9d74dbe2-be43-4ee3-a2d3-6bea48605fad
+		summarizeBy: none
+		sourceColumn: direccion
+
+		annotation SummarizationSetBy = Automatic
+
+	column APTP = 'Conversion Data'[primaanual]/DIVIDE('Conversion Data'[actuarialcostparameter],(1-0.436))
+		lineageTag: eb3ab61d-dbc3-4ec9-bbe7-140a70d27546
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Aseguradora_anterior = IF(AND('Conversion Data'[tiempoasegurado]>0,'Conversion Data'[aseguradoraanterior]=-1),"LIBERTY",'Conversion Data'[Aseguradora Anterior])
+		lineageTag: f81aa645-c4b7-4a71-837f-3cef2532d9a5
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'ValorAsegu Monitoreo' =
+			
+			VAR va = 'Conversion Data'[valorAseguradoVehi]
+			RETURN
+			SWITCH(TRUE(),
+			        va <= 30000000,30000000,
+			        va <= 60000000,60000000,
+			        va <= 90000000,90000000,
+			        va <= 120000000,120000000,
+			        va <= 150000000,150000000,
+			        va <= 180000000,180000000,
+			        va <= 210000000,210000000,
+			        va <= 240000000,240000000,
+			        va > 240000000,250000000,
+			        BLANK ()
+			)
+		formatString: 0
+		lineageTag: cdc507f8-7946-414c-91bb-bb07ac26fea7
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column IndiceComp =
+			
+			VAR va = 'Conversion Data'[competitormodel]
+			RETURN
+			SWITCH(TRUE(),
+			        va <= 0.4,0.4,
+			        va <= 0.6,0.6,
+			        va <= 0.7,0.7,
+			        va <= 0.75,0.75,
+			        va <= 0.8,0.8,
+			        va <= 0.85,0.85,
+			        va <= 0.9,0.9,
+			        va <= 0.95,0.95,
+			        va <= 1,1,
+			        va <= 1.1,1.1,
+			        va <= 1.2,1.2,
+			        va <= 1.3,1.3,
+			        va <= 1.4,1.4,
+			        va <= 1.5,1.5,
+			        va > 1.5,1.6,
+			        BLANK ()
+			)
+		lineageTag: 842ca00e-98e2-4d21-baa9-473826beba9a
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Intermediario origen' = LOOKUPVALUE('APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS'[PROGRAMA], 'APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS'[clave-llave],'Conversion Data'[codigointermediario])
+		lineageTag: 4c869488-633f-4d45-84b6-d380fd1a5334
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Modelo Agrupado' = IF(LOOKUPVALUE('Pricing Versions Automated'[Modelo],'Pricing Versions Automated'[Rule-Version],'Conversion Data'[Rule-Version]) in {"Street Territorio IC 0.6","Street Territorio IC 0.8"},"Street Territorio",(LOOKUPVALUE('Pricing Versions Automated'[Modelo],'Pricing Versions Automated'[Rule-Version],'Conversion Data'[Rule-Version])))
+		lineageTag: 1660adda-ea11-4de6-8078-6ff1349a15ad
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column indicadorModeloOptimizado = ```
+			
+			IF(
+			    CONTAINSSTRING('Conversion Data'[Modelo], "No Optimized"),
+			    "No Optimized",
+			    "Optimized"
+			)
+			
+			```
+		lineageTag: 4c331212-5715-4c90-97f4-3c61c32fd04b
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column IntermediarioOrigen = IF(ISBLANK('Conversion Data'[Intermediario origen]),"HDI",'Conversion Data'[Intermediario origen])
+		lineageTag: 60c79082-c20b-4eae-a09b-f12f1f806e55
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column coordenadaValida = ```
+			SWITCH(
+			    True(),
+			    'Conversion Data'[coordenada_x]=0, "NO",
+			    'Conversion Data'[coordenada_x]=-3, "NO",
+			    'Conversion Data'[coordenada_x]=-2, "NO",
+			    'Conversion Data'[coordenada_x]=-999, "NO",
+			    'Conversion Data'[coordenada_y]=0, "NO",
+			    'Conversion Data'[coordenada_y]=-3, "NO",
+			    'Conversion Data'[coordenada_y]=-2, "NO",
+			    'Conversion Data'[coordenada_y]=-999, "NO",
+			    AND('Conversion Data'[coordenada_x]>-82,'Conversion Data'[coordenada_x]<-66), "SI",
+			    AND('Conversion Data'[coordenada_y]>-4.45,'Conversion Data'[coordenada_y]<13.5), "SI",
+			    "NO"
+			    ) 
+			```
+		lineageTag: c97165f9-9ee4-4a60-982c-680279ab1ce1
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column marca-modelo = CONCATENATE('Conversion Data'[Vehicle Make],CONCATENATE("-",LOOKUPVALUE('Guia Fasecolda'[TIPO 1], 'Guia Fasecolda'[CODIGO], 'Conversion Data'[codigofasecolda])))
+		lineageTag: 4eccc801-7455-43a0-8b25-84e3e4b601f2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column coordenada_x = IF(ISERROR(VALUE('Conversion Data'[coordenadax])),0,VALUE('Conversion Data'[coordenadax]))
+		lineageTag: e27d21b7-9ac9-4304-bdce-f809996fe757
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column coordenada_y = IF(ISERROR(VALUE('Conversion Data'[coordenaday])),0,VALUE('Conversion Data'[coordenaday]))
+		lineageTag: 4475f4c3-eaf1-48ca-9db6-bbece1f60de6
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column departamentoCoord =
+			SWITCH(
+			    True(),
+			    AND('Conversion Data'[coordenada_x]>=-75.993782,'Conversion Data'[coordenada_x]<=-74.631947) && AND('Conversion Data'[coordenada_y]<=7.341924,'Conversion Data'[coordenada_y]>=5.884342), "ANTIOQUIA",
+			    AND('Conversion Data'[coordenada_x]>=-74.390874,'Conversion Data'[coordenada_x]<=-73.881065) && AND('Conversion Data'[coordenada_y]>=4.45398,'Conversion Data'[coordenada_y]<=5.010449), "BOGOTA DISTRITO CA",
+			    AND('Conversion Data'[coordenada_x]>=-77.263034,'Conversion Data'[coordenada_x]<=-76.068743) && AND('Conversion Data'[coordenada_y]>=3.211766,'Conversion Data'[coordenada_y]<=4.244578), "VALLE",
+			    AND('Conversion Data'[coordenada_x]>=-75.236444,'Conversion Data'[coordenada_x]<=-74.719838) && AND('Conversion Data'[coordenada_y]>=10.563933,'Conversion Data'[coordenada_y]<=11.11737), "ATLANTICO",
+			    AND('Conversion Data'[coordenada_x]>=-73.921128,'Conversion Data'[coordenada_x]<=-72.887917) && AND('Conversion Data'[coordenada_y]>=6.129758,'Conversion Data'[coordenada_y]<=7.27933), "SANTANDER",
+			    AND('Conversion Data'[coordenada_x]>=-75.891307,'Conversion Data'[coordenada_x]<=-75.648921) && AND('Conversion Data'[coordenada_y]>=4.769438,'Conversion Data'[coordenada_y]<=4.914653), "RISARALDA",
+			    AND('Conversion Data'[coordenada_x]>=-75.632658,'Conversion Data'[coordenada_x]<=-75.407292) && AND('Conversion Data'[coordenada_y]>=4.968276,'Conversion Data'[coordenada_y]<=5.183269), "CALDAS",
+			    AND('Conversion Data'[coordenada_x]>=-75.723059,'Conversion Data'[coordenada_x]<=-75.62981) && AND('Conversion Data'[coordenada_y]>=4.496117,'Conversion Data'[coordenada_y]<=4.593678), "QUINDIO",
+			    AND('Conversion Data'[coordenada_x]>=-75.577543,'Conversion Data'[coordenada_x]<=-75.328899) && AND('Conversion Data'[coordenada_y]>=10.239633,'Conversion Data'[coordenada_y]<=10.5), "BOLIVAR",
+			    "OTRO"
+			    )
+		lineageTag: 6922952c-4bfc-462d-864f-db2925e1fa20
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Departamento_coordenada
+		dataType: string
+		lineageTag: 8c89c1b3-8058-4a4b-907d-171e4c1945f8
+		summarizeBy: none
+		sourceColumn: Departamento_coordenada
+
+		annotation SummarizationSetBy = Automatic
+
+	column plan
+		dataType: string
+		lineageTag: d5b178f4-c042-41e1-a680-e944804828a1
+		summarizeBy: none
+		sourceColumn: plan
+
+		annotation SummarizationSetBy = Automatic
+
+	column ACP_recotizado = LOOKUPVALUE('ACP-recotizado'[Costo Actuarial Neto], 'ACP-recotizado'[LLAVE_PFDI],'Conversion Data'[llave_pfdi])
+		lineageTag: 60dcfbc3-a653-44e1-8732-9ea862a32325
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column ACP = ```
+			IF(ISBLANK('Conversion Data'[ACP_recotizado]),'Conversion Data'[actuarialcostparameter],'Conversion Data'[ACP_recotizado]) 
+			```
+		formatString: \$#,0;(\$#,0);\$#,0
+		lineageTag: be251cbf-cc8c-47b5-971b-0bf0af9649cc
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column Segmento = IF(ISBLANK(LOOKUPVALUE('Historico Segmentación 2024'[[MinLlave_Segmento_actual]]],'Historico Segmentación 2024'[codigointermediario],'Conversion Data'[codigointermediario])),"0-Sin segmento",(LOOKUPVALUE('Historico Segmentación 2024'[[MinLlave_Segmento_actual]]],'Historico Segmentación 2024'[codigointermediario],'Conversion Data'[codigointermediario])))
+		lineageTag: b7fb9ad4-203f-43bd-a7b2-5611e9f9fb9c
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tipo de registro de Tarea/Evento' = LOOKUPVALUE('Acciones Comerciales Marzo a Septiembre 2024'[Tipo de registro de Tarea/Evento],'Acciones Comerciales Marzo a Septiembre 2024'[codigointermediario],'Conversion Data'[codigointermediario])
+		lineageTag: 69b3f4d9-9cd2-4f56-9ba9-c21a0f07e8b5
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Estado = LOOKUPVALUE('Acciones Comerciales Marzo a Septiembre 2024'[Estado],'Acciones Comerciales Marzo a Septiembre 2024'[codigointermediario],'Conversion Data'[codigointermediario])
+		lineageTag: 78cadc1e-4068-495e-a599-fe6dc168916e
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Migracion = IF(RELATED(Migradas_HDI[placa])<>"","SI","NO")
+		lineageTag: eb344817-8f5a-48b6-b293-c212d138eb89
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column llave_migracion = 'Conversion Data'[llave_pfdi]&'Conversion Data'[periodo_contable]
+		lineageTag: 9615fc72-8117-4bed-9a52-99f69c314793
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column Roboquotes-Comp = ```
+			SWITCH(
+			    True(),
+			    'Conversion Data'[codigointermediario]=4032756, "Yes",
+			    'Conversion Data'[codigointermediario]=4091809, "Yes",
+			    'Conversion Data'[codigointermediario]=4092327, "Yes",
+			    'Conversion Data'[codigointermediario]=4092940, "Yes",
+			    'Conversion Data'[codigointermediario]=4093714, "Yes",
+			    'Conversion Data'[codigointermediario]=4093868, "Yes",
+			    'Conversion Data'[codigointermediario]=4094294, "Yes",
+			    'Conversion Data'[codigointermediario]=4095583, "Yes",
+			    "No"
+			    ) 
+			```
+		lineageTag: 8985c2a8-15f5-4fd1-b07e-cda575ede1d2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'MLR Esperado sin asistencias ni salvamentos' = if('Conversion Data'[AñoModelo]=2026,(('Conversion Data'[actuarialcostparameter]*'Conversion Data'[originationdemand])/'Conversion Data'[Prima demanda cotizaciones])*0.9,(('Conversion Data'[actuarialcostparameter]*'Conversion Data'[originationdemand])/'Conversion Data'[Prima demanda cotizaciones])*0.95)
+		formatString: 0.00\ %;-0.00\ %;0.00\ %
+		lineageTag: 9b4de267-e939-4cda-8177-686458aef263
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	column company
+		dataType: string
+		lineageTag: d067a367-88d2-41f7-9bf5-6ccb64efecfd
+		summarizeBy: none
+		sourceColumn: company
+
+		annotation SummarizationSetBy = Automatic
+
+	column execution_date_ini
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 4f6f010f-a644-4c57-9985-146b354f4b89
+		summarizeBy: none
+		sourceColumn: execution_date_ini
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column period_cal_ini
+		dataType: int64
+		formatString: 0
+		lineageTag: 49911063-e93c-49e5-8218-368ce387c32a
+		summarizeBy: sum
+		sourceColumn: period_cal_ini
+
+		annotation SummarizationSetBy = Automatic
+
+	column canalComercial = (IF('Conversion Data'[Roboquotes-Comp]="Yes","Comparador",IF(OR('Conversion Data'[Channel]="DIRECT",'Conversion Data'[Channel]="D&D"),"Directo","Tradicional")))
+		lineageTag: c87a2dda-182f-4fec-b351-1b9029befb76
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Acierta Range' = ```
+			
+			VAR acierta = 'Conversion Data'[acierta]
+			RETURN
+			SWITCH(TRUE(),
+			        acierta <= 0,"0",
+			        acierta <= 150,"0-150", 
+			        acierta <= 500,"150-500", 
+			        acierta <= 500,"500-750", 
+			        acierta <= 750,"750-800", 
+			        acierta <= 850,"800-850",
+			        acierta > 850,">850",
+			        BLANK ()
+			)
+			```
+		lineageTag: 1dc4936f-8aa4-48b6-bbf1-386064c954a5
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column AñoModelo =
+			
+			VAR Modelo =
+			    LOOKUPVALUE(
+			        'Pricing Versions Automated'[Modelo],
+			        'Pricing Versions Automated'[Rule-Version],
+			        'Conversion Data'[Rule-Version]
+			    )
+			VAR YearFound =
+			    MAXX(
+			        {
+			            FIND("20", Modelo, 1, BLANK())
+			        },
+			        VAR pos = [Value]
+			        RETURN
+			            IF(
+			                NOT ISBLANK(pos),
+			                INT(VALUE(MID(Modelo, pos, 4)))
+			            )
+			    )
+			RETURN
+			IF(
+			    YearFound >= 2000 && YearFound <= 2100,
+			    YearFound,
+			    BLANK()
+			)
+		lineageTag: 58de8316-2dd2-4566-ba15-ce644a8098bb
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'MLR Emitido-sin asistencias ni salvamentos' = IF('Conversion Data'[AñoModelo]=2026,[MLR Emitido]*0.9,[MLR Emitido]*0.95)
+		lineageTag: c6ede8ec-2bc3-4acf-bc94-63bca2a4ab92
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column combustibleDescrip = (IF('Conversion Data'[combustible]=4,"Gasolina",IF(OR('Conversion Data'[combustible]=2,'Conversion Data'[combustible]=11),"Eléctrico",IF(OR('Conversion Data'[combustible]=5,'Conversion Data'[combustible]=8),"Híbrido",IF(OR('Conversion Data'[combustible]=9,'Conversion Data'[combustible]=10),"Híbrido","Otro")))))
+		lineageTag: e0dfc5a3-1d35-4332-b5ac-50babcb9256f
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column ciudadubicacion
+		dataType: string
+		lineageTag: 06a3566c-aab9-4174-81b7-086e843c4e88
+		summarizeBy: none
+		sourceColumn: ciudadubicacion
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_id_conductor
+		dataType: string
+		lineageTag: a2344211-6240-4de5-83de-662c76fc9475
+		summarizeBy: none
+		sourceColumn: tipo_id_conductor
+
+		annotation SummarizationSetBy = Automatic
+
+	column numero_id_conductor
+		dataType: string
+		lineageTag: cfb90ac8-beb5-4880-8d02-dd321369a63b
+		summarizeBy: none
+		sourceColumn: numero_id_conductor
+
+		annotation SummarizationSetBy = Automatic
+
+	column primer_nombre
+		dataType: string
+		lineageTag: b2a19413-af53-4683-945c-e1faee191b0c
+		summarizeBy: none
+		sourceColumn: primer_nombre
+
+		annotation SummarizationSetBy = Automatic
+
+	column segundo_nombre
+		dataType: string
+		lineageTag: 37e5c8f4-989f-44c5-b4ba-985a3b94515e
+		summarizeBy: none
+		sourceColumn: segundo_nombre
+
+		annotation SummarizationSetBy = Automatic
+
+	column primer_apellido
+		dataType: string
+		lineageTag: 411a274e-fae0-4956-af43-a96aa55c8e32
+		summarizeBy: none
+		sourceColumn: primer_apellido
+
+		annotation SummarizationSetBy = Automatic
+
+	column segundo_apellido
+		dataType: string
+		lineageTag: 99d5b4c7-fc04-4e42-837d-47f1ecc11f23
+		summarizeBy: none
+		sourceColumn: segundo_apellido
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_id_conyuge
+		dataType: string
+		lineageTag: 0ae54e16-9fe2-4451-ad21-ccbaf5865e4d
+		summarizeBy: none
+		sourceColumn: tipo_id_conyuge
+
+		annotation SummarizationSetBy = Automatic
+
+	column numero_id_conyugeo
+		dataType: string
+		lineageTag: 04b4d4ce-bf61-4db0-8c2d-2e6a08435ce5
+		summarizeBy: none
+		sourceColumn: numero_id_conyugeo
+
+		annotation SummarizationSetBy = Automatic
+
+	column años_de_experiencia_conyuge
+		dataType: string
+		lineageTag: 1bc3b2c6-5513-4621-8836-be7f63c21a41
+		summarizeBy: none
+		sourceColumn: años_de_experiencia_conyuge
+
+		annotation SummarizationSetBy = Automatic
+
+	column porcentaje_descuento_tecnico_conyuge
+		dataType: string
+		lineageTag: df0bb2a8-f410-449b-bf63-6dd93cc38a29
+		summarizeBy: none
+		sourceColumn: porcentaje_descuento_tecnico_conyuge
+
+		annotation SummarizationSetBy = Automatic
+
+	column tipo_negocio
+		dataType: string
+		lineageTag: 2aa606c6-b234-4ace-9d66-67242c96fbf4
+		summarizeBy: none
+		sourceColumn: tipo_negocio
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigointermediarioinicial
+		dataType: string
+		lineageTag: 35a6a797-4def-4c66-b242-eef1838ae51b
+		summarizeBy: none
+		sourceColumn: codigointermediarioinicial
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_4
+		dataType: string
+		lineageTag: f5bc017d-1be0-4dd2-bce3-d363f2e955f9
+		summarizeBy: none
+		sourceColumn: r9_h3_4
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_5
+		dataType: string
+		lineageTag: 01dbfefc-0771-4c21-b634-441bed13166c
+		summarizeBy: none
+		sourceColumn: r9_h3_5
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_6
+		dataType: string
+		lineageTag: 73697487-6132-45e7-9c2e-a096018cc3fb
+		summarizeBy: none
+		sourceColumn: r9_h3_6
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_7
+		dataType: string
+		lineageTag: 9cdfed79-a08d-4124-b0c4-9a1db40ce51a
+		summarizeBy: none
+		sourceColumn: r9_h3_7
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_8
+		dataType: string
+		lineageTag: 44b44b78-6292-49f4-9a1b-e11cd7f8ae72
+		summarizeBy: none
+		sourceColumn: r9_h3_8
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_9
+		dataType: string
+		lineageTag: 88338179-b6b5-4986-b47b-04455e3edc53
+		summarizeBy: none
+		sourceColumn: r9_h3_9
+
+		annotation SummarizationSetBy = Automatic
+
+	column r9_h3_10
+		dataType: string
+		lineageTag: 41cc388d-f25f-48bd-b3dd-aa1b26179c36
+		summarizeBy: none
+		sourceColumn: r9_h3_10
+
+		annotation SummarizationSetBy = Automatic
+
+	column totaltrendscore
+		dataType: string
+		lineageTag: e7900dbc-eb3a-4fba-91b0-a21b2cfbeafd
+		summarizeBy: none
+		sourceColumn: totaltrendscore
+
+		annotation SummarizationSetBy = Automatic
+
+	column netactuarialcostparameter
+		dataType: double
+		lineageTag: 93390e63-a390-40d2-9cb3-917a2724c2bd
+		summarizeBy: sum
+		sourceColumn: netactuarialcostparameter
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column indicadorModeloStreet =
+			
+			IF(
+			    CONTAINSSTRING('Conversion Data'[Modelo], "Street"),
+			    "Street",
+			    "Sin Street"
+			)
+		lineageTag: 113be4e2-158f-4cbe-9e2d-88f5964eb293
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Conversion Data-09e80fc0-a555-430d-9dc0-685b36d76d8f' = m
+		mode: import
+		source =
+				let
+				    Source = PowerPlatform.Dataflows(null),
+				    Workspaces = Source{[Id="Workspaces"]}[Data],
+				    #"9894abb4-490b-4772-bd3b-3f729d315111" = Workspaces{[workspaceId="9894abb4-490b-4772-bd3b-3f729d315111"]}[Data],
+				    #"bc4159fe-9062-4e25-8cfd-e3599c0ca9d9" = #"9894abb4-490b-4772-bd3b-3f729d315111"{[dataflowId="bc4159fe-9062-4e25-8cfd-e3599c0ca9d9"]}[Data],
+				    post_launch_monitoring_ = #"bc4159fe-9062-4e25-8cfd-e3599c0ca9d9"{[entity="post_launch_monitoring",version=""]}[Data],
+				    #"Changed Type" = Table.TransformColumnTypes(post_launch_monitoring_,{{"clasificacion_mor", type text}, {"fuente", type text}, {"periodo_contable", Int64.Type}, {"llave_pfdi", type text}, {"poliza", Int64.Type}, {"ramo", type text}, {"comparador", Int64.Type}, {"emitidas", Int64.Type}, {"idtransaccion", Int64.Type}, {"producto", type text}, {"idquotation", type text}, {"ruleid", type text}, {"serverip", type text}, {"fecha_ejecucion", type datetime}, {"tiponegocio", Int64.Type}, {"cerokmsino", Int64.Type}, {"diascotizacionvigente", Int64.Type}, {"ocupacion", Int64.Type}, {"antiguedadvehiculo", Int64.Type}, {"comisionintermediario", Int64.Type}, {"equipoespecial", Int64.Type}, {"uso", Int64.Type}, {"marca", Int64.Type}, {"pesovehiculo", Int64.Type}, {"tipolicencia", type any}, {"numerohijos", Int64.Type}, {"transmision", Int64.Type}, {"genero", type text}, {"aseguradoraanterior", Int64.Type}, {"dispositivoseguridad", Int64.Type}, {"agrupadorvehiculo", type text}, {"procedencia", Int64.Type}, {"tipocampero", Int64.Type}, {"valoraseguradoacceanterior", Int64.Type}, {"anosaseguradoraanterior", Int64.Type}, {"gravedadmultas", Int64.Type}, {"siniestro", Int64.Type}, {"cancelacionlicencia", Int64.Type}, {"codigointermediario", Int64.Type}, {"antiguedadconductor", Int64.Type}, {"potencia", Int64.Type}, {"suavizacion", type number}, {"ciudad", Int64.Type}, {"tipocaja", Int64.Type}, {"anossinsiniestro", Int64.Type}, {"acierta", Int64.Type}, {"factorprorrata", Int64.Type}, {"semilla", Int64.Type}, {"vinculacion", Int64.Type}, {"clase", Int64.Type}, {"valoraseguradovehi", Int64.Type}, {"puertas", Int64.Type}, {"cilindraje", Int64.Type}, {"valoraseguradoacce", Int64.Type}, {"codigofasecolda", Int64.Type}, {"blindaje", Int64.Type}, {"localidad", type text}, {"estrato", Int64.Type}, {"canal", Int64.Type}, {"numeromultas", Int64.Type}, {"barrio", Int64.Type}, {"servicio", Int64.Type}, {"capacidadocupantes", type any}, {"formapagopol", Int64.Type}, {"transportecombustible", Int64.Type}, {"pesocategoria", Int64.Type}, {"descuentocomercial", Int64.Type}, {"estadocivil", Int64.Type}, {"actividadeconomica", Int64.Type}, {"edadconductor", Int64.Type}, {"combustible", Int64.Type}, {"valoraseguradovehianterior", Int64.Type}, {"antiguedadlicencia", Int64.Type}, {"factorbancario", Int64.Type}, {"numeromultasviganterior", Int64.Type}, {"sucursal", Int64.Type}, {"departamento", Int64.Type}, {"antiguedadliberty", Int64.Type}, {"siniestroshistoricos", Int64.Type}, {"paisorigen", Int64.Type}, {"dpnr", Int64.Type}, {"anossinmulta", Int64.Type}, {"ultimotipomulta", type text}, {"tuvomulta", Int64.Type}, {"anosentremultas", Int64.Type}, {"numcompaniasdif", Int64.Type}, {"tiempoasegurado", Int64.Type}, {"tiempopromedioaseg", Int64.Type}, {"versionid", type text}, {"primatotal", Int64.Type}, {"totalimpuesto", Int64.Type}, {"priceoptfactor", type number}, {"primaanual", Int64.Type}, {"impuestoprima", Int64.Type}, {"pricetest", type number}, {"valorcuotafinanciacion", Int64.Type}, {"totalpago", Int64.Type}, {"priorprimatotal", type any}, {"impuestogastosexpedicion", Int64.Type}, {"originationdemand", type number}, {"actuarialcostparameter", type number}, {"renewaldemand", type any}, {"ranuniparameter", type number}, {"renewalcancel", type any}, {"primapurachangev67", type number}, {"gastosexpedicion", Int64.Type},{"competitormodel", type number},{"competitormax", type number}, {"competitorcapflag", type number}}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Changed Type",{{"fecha_ejecucion", type date}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type3",{{"fecha_ejecucion", "Fecha_Cotizacion"}}),
+				    #"Removed Columns5" = Table.RemoveColumns(#"Renamed Columns",{"actividadeconomica", "cilindraje", "comisionintermediario", "equipoespecial", "factorbancario", "factorprorrata", "gastosexpedicion", "impuestogastosexpedicion", "numerohijos", "ocupacion", "serverip", "servicio"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns5",{{"Fecha_Cotizacion", type date}, {"emitidas", Int64.Type}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type2",null,#date(2018, 1, 1),Replacer.ReplaceValue,{"Fecha_Cotizacion"}),
+				    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value",null,-1,Replacer.ReplaceValue,{"edadconductor"}),
+				    #"Added Conditional Column" = Table.AddColumn(#"Replaced Value2", "Pre-Post Indicator", each if [Fecha_Cotizacion] < #date(2018, 1, 2) then "Null Quote Date" else if [Fecha_Cotizacion] < #date(2021, 1, 13) then "Pre-Implementation" else if [Fecha_Cotizacion] >= #date(2021, 1, 13) then "Post-Implementation" else "Null Quote Date", type text),
+				    #"Customer Age Bandings" = Table.AddColumn(#"Added Conditional Column", "Edad Cliente", each if [edadconductor] < 0 then "NA" else if [edadconductor] < 25 then "<25" else if [edadconductor] < 40 then "25-40" else if [edadconductor] < 50 then "40-50" else if [edadconductor] < 60 then "50-60" else if [edadconductor] < 110 then ">60" else "NA", type text),
+				    #"Removed Columns" = Table.RemoveColumns(#"Customer Age Bandings",{"edadconductor", "semilla", "priorprimatotal", "renewaldemand", "renewalcancel"}),
+				    #"Vehicle Age Bandings" = Table.AddColumn(#"Removed Columns", "Edad Vehiculo", each if [antiguedadvehiculo] < -1 then "N/A" else if [antiguedadvehiculo] <= 0 then "0" else if [antiguedadvehiculo] < 3 then "1-2" else if [antiguedadvehiculo] < 6 then "3-5" else if [antiguedadvehiculo] < 10 then "6-9" else "10+", type text),
+				    #"Replaced Value1" = Table.ReplaceValue(#"Vehicle Age Bandings",null,-1,Replacer.ReplaceValue,{"acierta"}),
+				    #"Credit Score Bandings" = Table.AddColumn(#"Replaced Value1", "Credit Score", each if [acierta] < 0 then "NA" else if [acierta] = 0 then "0" else if [acierta] < 150 then "0-150" else if [acierta] < 500 then "150-500" else if [acierta] < 750 then "500-750" else if [acierta] < 800 then "750-800" else if [acierta] < 850 then "800-850" else if [acierta] >= 850 then "850+" else "NA", type text),
+				    #"Version Mapping" = Table.AddColumn(#"Credit Score Bandings", "A/B Indicator", each if [versionid] = 7282256 then "Old" else if [versionid] = 8841213 then "Old" else if [versionid] = 7940531 then "Old" else if [versionid] = 13828982 then "Old" else if [versionid] = 15499903 then "Old" else if [versionid] = 17893916 then "Old" else if [versionid] = 19224233 then "Old" else if [versionid] = 21365057 then "Old" else if [versionid] = 22115064 then "Old" else if [versionid] = 22114771 then "Old" else if [versionid] = 32382873 then "Old" else if [versionid] = 32413440 then "Old" else if [versionid] = 31214581 then "Old" else if [versionid] = 31214928 then "Old" else if [versionid] = 33805240 then "Old" else if [versionid] = 33805639 then "Old" else if [versionid] = 33816451 then "Old" else if [versionid] = 36713755 then "Old" else if [versionid] = 38816451 then "Restricted" else if [versionid] = 39731176 then "Optimized" else if [versionid] = 44057625 then "Unrestricted" else if [versionid] = 44108161 then "Unrestricted" else if [versionid] = 44551899 then "Restricted" else if [versionid] = 44552345 then "Unrestricted" else if [versionid] = 47077619 then "Restricted" else if [versionid] = 47078676 then "Unrestricted" else if [versionid] = 52658767 then "Restricted" else if [versionid] = 52659177 then "Unrestricted" else "Other", type text),
+				    #"Prima Groupings" = Table.AddColumn(#"Version Mapping", "Prima_Band", each if [primaanual] < 300000 then "<300k" else if [primaanual] < 400000 then "300k-400k" else if [primaanual] < 500000 then "400k-500k" else if [primaanual] < 600000 then "500k-600k" else if [primaanual] < 700000 then "600k-700k" else if [primaanual] < 800000 then "700k-800k" else ">800k"),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Prima Groupings",{{"Prima_Band", type text}}),
+				    #"Added Conditional Column1" = Table.AddColumn(#"Changed Type1", "NB Opt Versionid?", each if [versionid] = "39731176" then "Yes" else if [versionid] = "57760902" then "Yes" else if [versionid] = "61076481" then "Yes" else if [versionid] = "63416793" then "Yes" else if [versionid] = "71938288" then "Yes" else if [versionid] = "72732844" then "Yes" else if [versionid] = "75999820" then "Yes" else if [versionid] = "80535582" then "Yes" else if [versionid] = "91983830" then "Yes" else if [versionid] = "104785297" then "Yes" else if [versionid] = "106928622" then "Yes" else if [versionid] = "117953978" then "Yes" else if [versionid] = "122467070" then "Yes" else if [versionid] = "137443753" then "Yes" else if [versionid] = "140176874" then "Yes" else "No", type text),
+				    #"Added Conditional Column2" = Table.AddColumn(#"Added Conditional Column1", "Price Opt Ruleid?", each if [ruleid] = "30466" then "Yes" else if [ruleid] = "30595" then "Yes" else if [ruleid] = "30455" then "Yes" else if [ruleid] = "30500" then "Yes" else if [ruleid] = "30532" then "Yes" else if [ruleid] = "30582" then "Yes" else if [ruleid] = "30584" then "Yes" else if [ruleid] = "30596" then "Yes" else if [ruleid] = "30642" then "Yes" else if [ruleid] = "30734" then "Yes" else if [ruleid] = "30722" then "Yes" else if [ruleid] = "30724" then "Yes" else if [ruleid] = "30720" then "Yes" else if [ruleid] = "30491" then "Yes" else if [ruleid] = "30665" then "Yes" else if [ruleid] = "30742" then "Yes" else if [ruleid] = "30785" then "Yes" else if [ruleid] = "30786" then "Yes" else if [ruleid] = "30794" then "Yes" else if [ruleid] = "30800" then "Yes" else if [ruleid] = "30820" then "Yes" else if [ruleid] = "30824" then "Yes" else if [ruleid] = "30835" then "Yes" else if [ruleid] = "30881" then "Yes" else if [ruleid] = "30461" then "Yes" else if [ruleid] = "30464" then "Yes" else if [ruleid] = "30897" then "Yes" else "No", type text),
+				    #"Added Custom1" = Table.AddColumn(#"Added Conditional Column2", "NB_Opt_Category", each if [#"NB Opt Versionid?"] = "No" and [#"Price Opt Ruleid?"] = "Yes" then "Not Optimized"
+				else if [#"NB Opt Versionid?"] = "Yes" and [primaanual] < 100000 then "Control"
+				else if [#"NB Opt Versionid?"] = "Yes" and [ranuniparameter] <= 0.5 then "Control"
+				else if [#"NB Opt Versionid?"] = "Yes" and [primaanual] >= 100000 and [ranuniparameter] > 0.5 then "Optimized"
+				else "N/A"),
+				    #"Removed Columns1" = Table.RemoveColumns(#"Added Custom1",{"cerokmsino", "diascotizacionvigente", "pesovehiculo", "tipolicencia", "transmision", "dispositivoseguridad", "agrupadorvehiculo", "procedencia", "tipocampero", "valoraseguradoacceanterior", "potencia", "tipocaja", "vinculacion", "puertas", "valoraseguradoacce", "capacidadocupantes", "formapagopol", "transportecombustible", "estadocivil", "valoraseguradovehianterior", "paisorigen"}),
+				    #"Changed Type4" = Table.TransformColumnTypes(#"Removed Columns1",{{"NB_Opt_Category", type text}}),
+				    #"Added Custom" = Table.AddColumn(#"Changed Type4", "Rule-Version", each [ruleid] & "-" & [versionid]),
+				    #"Changed Type5" = Table.TransformColumnTypes(#"Added Custom",{{"Rule-Version", type text}}),
+				    #"Added Conditional Column3" = Table.AddColumn(#"Changed Type5", "PrimaAnual<100k", each if [primaanual] < 100000 then "Yes" else "No"),
+				    #"Changed Type6" = Table.TransformColumnTypes(#"Added Conditional Column3",{{"PrimaAnual<100k", type text}}),
+				    #"Added Conditional Column4" = Table.AddColumn(#"Changed Type6", "RanuniInd", each if [ranuniparameter] <= 0.5 then "<=0.5" else ">0.5"),
+				    #"Changed Type7" = Table.TransformColumnTypes(#"Added Conditional Column4",{{"RanuniInd", type text}, {"periodo_contable", type text}}),
+				    #"Added Custom2" = Table.AddColumn(#"Changed Type7", "Join_Key", each [llave_pfdi] & "-" & [idquotation] & "-" & [periodo_contable]),
+				    #"Removed Duplicates" = Table.Distinct(#"Added Custom2", {"Join_Key"}),
+				    #"Added Conditional Column5" = Table.AddColumn(#"Removed Duplicates", "Prima_UseForNBOpt", each if [versionid] = "63416793" then [primatotal] else [primaanual]),
+				    #"Changed Type8" = Table.TransformColumnTypes(#"Added Conditional Column5",{{"Prima_UseForNBOpt", Int64.Type}}),
+				    #"Added Conditional Column6" = Table.AddColumn(#"Changed Type8", "Roboquotes", each if [comparador] = 0 then "No" else if [comparador] = 1 then "Yes" else "NA"),
+				    #"Added Index" = Table.AddIndexColumn(#"Added Conditional Column6", "Index", 0, 1, Int64.Type),
+				    #"Changed Type9" = Table.TransformColumnTypes(#"Added Index",{{"fecha_emision", type date}}),
+				    #"Columna condicional agregada" = Table.AddColumn(#"Changed Type9", "Personalizado", each if [valoraseguradovehi] <= 30000000 then "A. 0-30M" else if [valoraseguradovehi] <= 50000000 then "B. 30M-50M" else if [valoraseguradovehi] <= 80000000 then "C. 50M-80M" else if [valoraseguradovehi] <= 100000000 then "D. 80M-100M" else if [valoraseguradovehi] <= 200000000 then "E. 100M-200M" else if [valoraseguradovehi] > 200000000 then "F. 200M+" else "NA"),
+				    #"Renamed Columns1" = Table.RenameColumns(#"Columna condicional agregada",{{"clasificacion_mor", "Channel"}, {"ramo", "Ramo"}, {"siniestro", "Prior Claim"}, {"dpnr", "Technical Discount"}, {"nombremarca", "Vehicle Make"}, {"nombreciudad", "City"}, {"zona", "Region"}, {"Edad Cliente", "Client Age"}, {"Edad Vehiculo", "Vehicle Age"}, {"Prima_Band", "Premium (Band)"}, {"estrato", "Estrato"}, {"Personalizado", "Total Sum Insured"}}),
+				    #"Added Conditional Column7" = Table.AddColumn(#"Renamed Columns1", "Prior Ticket", each if [tuvomulta] = 0 then "No" else if [tuvomulta] = 1 then "Yes" else null),
+				    #"Added Conditional Column8" = Table.AddColumn(#"Added Conditional Column7", "Fuel type", each if [combustible] = 1 then "DSL" else if [combustible] = 2 then "ELT" else if [combustible] = 3 then "GAS" else if [combustible] = 4 then "GSL" else if [combustible] = 5 then "HBD" else if [combustible] = 8 then "HEV" else if [combustible] = 9 then "MHEV" else if [combustible] = 10 then "PHEV" else if [combustible] = 11 then "EREV" else "Desconocido"),
+				    #"Filtered Rows1" = Table.SelectRows(#"Added Conditional Column8", each [Fecha_Cotizacion] >= #date(2024, 1, 1)),
+				    #"Filtered Rows" = Table.SelectRows(#"Filtered Rows1", each ([periodo_contable] > "202401")),
+				    #"Tipo cambiado con configuración regional" = Table.TransformColumnTypes(#"Filtered Rows", {{"coordenadax", type number}}, "en-CH"),
+				    #"Tipo cambiado con configuración regional1" = Table.TransformColumnTypes(#"Tipo cambiado con configuración regional", {{"coordenaday", type number}}, "en-CH"),
+				    #"Valor reemplazado" = Table.ReplaceValue(#"Tipo cambiado con configuración regional1",null,-999,Replacer.ReplaceValue,{"coordenadax","coordenaday"}),
+				    #"Personalizada agregada" = Table.AddColumn(#"Valor reemplazado", "Departamento_coordenada", each if [coordenadax] >= -75.993782 and [coordenadax] <= -74.631947 and [coordenaday] <= 7.341924 and [coordenaday] >= 5.884342 then "ANTIOQUIA"
+				   else if [coordenadax] >= -74.390874 and [coordenadax] <= -73.881065 and [coordenaday] >= 4.45398 and [coordenaday] <= 5.010449 then "BOGOTA DISTRITO CA"
+				   else if [coordenadax] >= -77.263034 and [coordenadax] <= -76.068743 and [coordenaday] >= 3.211766 and [coordenaday] <= 4.244578 then "VALLE"
+				   else if [coordenadax] >= -75.236444 and [coordenadax] <= -74.719838 and [coordenaday] >= 10.563933 and [coordenaday] <= 11.11737 then "ATLANTICO"
+				   else if [coordenadax] >= -73.921128 and [coordenadax] <= -72.887917 and [coordenaday] >= 6.129758 and [coordenaday] <= 7.27933 then "SANTANDER"
+				   else if [coordenadax] >= -75.891307 and [coordenadax] <= -75.648921 and [coordenaday] >= 4.769438 and [coordenaday] <= 4.914653 then "RISARALDA"
+				   else if [coordenadax] >= -75.632658 and [coordenadax] <= -75.407292 and [coordenaday] >= 4.968276 and [coordenaday] <= 5.183269 then "CALDAS"
+				   else if [coordenadax] >= -75.723059 and [coordenadax] <= -75.62981 and [coordenaday] >= 4.496117 and [coordenaday] <= 4.593678 then "QUINDIO"
+				   else if [coordenadax] >= -75.577543 and [coordenadax] <= -75.328899 and [coordenaday] >= 10.239633 and [coordenaday] <= 10.5 then "BOLIVAR"
+				   else if [coordenadax] = -999 or [coordenadax] = -3 or [coordenadax] = -2 or [coordenadax] = 0 or List.IsEmpty([coordenadax]) then "Otherwise"
+				   else "OTRO")
+				in
+				    #"Personalizada agregada"
+
+	changedProperty = IsHidden
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navigation
+

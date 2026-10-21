@@ -1,0 +1,112 @@
+table 'Notification Message'
+	lineageTag: 5f1c9128-fc11-4415-b508-5a47e63bfc2e
+
+	/// Display Measure to show the notification header
+	measure 'Notification Display' =
+			
+			UPPER (
+			    IF (
+			        SUM ( 'Notification Message'[Visibility] ) = 0,
+			        "",
+			        CALCULATE (
+			            VALUES ( 'Notification Message'[Time Stamp] ),
+			            'Notification Message'[Notification Order] = 1
+			        ) & " | "
+			            & CALCULATE (
+			                VALUES ( 'Notification Message'[Notification Header] ),
+			                'Notification Message'[Notification Order] = 1
+			            )
+			    )
+			)
+		lineageTag: 322ae95e-13d8-4a7b-8894-93f3ac91b335
+
+	/// Display Measure to show full notification messages
+	measure 'Full Details Display' =
+			
+			IF (
+			    SUM ( 'Notification Message'[Visibility] ) = 0,
+			    "All Systems Normal",
+			    CALCULATE (
+			        VALUES ( 'Notification Message'[Notification Full Description] ),
+			        'Notification Message'[Notification Order] = 1
+			    )
+			)
+		lineageTag: 98c07660-a766-42e8-a226-9080457b79f1
+
+	column Visibility
+		dataType: double
+		isHidden
+		formatString: 0
+		lineageTag: 3448162f-82ef-4a4e-b6ef-1887965180a8
+		summarizeBy: none
+		sourceColumn: Visibility
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = User
+
+	column 'Time Stamp'
+		dataType: dateTime
+		isHidden
+		formatString: Short Date
+		lineageTag: 88329d19-99cf-4750-b8c8-7a4eac251a37
+		summarizeBy: none
+		sourceColumn: Time Stamp
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Notification Header'
+		dataType: string
+		isHidden
+		lineageTag: 882666ea-3db5-4ef2-a475-e97846edc78e
+		summarizeBy: none
+		sourceColumn: Notification Header
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Notification Full Description'
+		dataType: string
+		isHidden
+		lineageTag: c93f484c-8020-46dd-bec5-dab440b035be
+		summarizeBy: none
+		sourceColumn: Notification Full Description
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Notification Order'
+		dataType: double
+		formatString: 0
+		lineageTag: e3e2b6b0-8a19-4b97-998b-6be90c1a03eb
+		summarizeBy: sum
+		sourceColumn: Notification Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Notification Message-c4e9b63a-95ee-4da5-8846-ef9d7e5ef73b' = m
+		mode: import
+		queryGroup: 'DO NOT DELETE'
+		source =
+				let
+				    Source = SharePoint.Files(#"Template Control SharePoint Root URL", [ApiVersion = 15]),
+				    FileID = Source{[Name=#"Template Control File Name"&".xlsx"]}[Content],
+				    #"Import Excel to display table and sheets" = Excel.Workbook(FileID),
+				    #"Point to Notification Header table" = #"Import Excel to display table and sheets"{[Item="NotificationHeader",Kind="Table"]}[Data],
+				    #"Sort result set by Time Stamp" = Table.Sort(#"Point to Notification Header table",{{"Time Stamp", Order.Descending}}),
+				    #"Add Index as Notification order to break potential ties" = Table.AddIndexColumn(#"Sort result set by Time Stamp", "Notification Order", 1, 1)
+				in
+				    #"Add Index as Notification order to break potential ties"
+
+	annotation PBI_QueryRelationships = {"columnCount":5,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Header,0}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Full Description,1}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Visibility,2}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Time Stamp,3}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Order,4}"],"ColumnCount":5,"KeyColumnNames":[],"ColumnIdentities":["Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Header,0}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Full Description,1}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Visibility,2}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Time Stamp,3}","Section1/Notification Message/Add Index as Notification order to break potential ties.{Notification Order,4}"],"RelationshipInfo":[]}
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navegación
+

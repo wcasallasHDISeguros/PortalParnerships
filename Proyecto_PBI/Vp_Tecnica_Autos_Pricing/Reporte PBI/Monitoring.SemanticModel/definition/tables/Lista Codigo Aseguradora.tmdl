@@ -1,0 +1,38 @@
+table 'Lista Codigo Aseguradora'
+	lineageTag: e3e1a889-b447-42f9-9399-b542bf9cbd19
+
+	column CodigoAseguradoraAnterior
+		dataType: int64
+		formatString: 0
+		lineageTag: 12576c5e-775d-4c15-93a0-0894ab69c726
+		summarizeBy: sum
+		sourceColumn: CodigoAseguradoraAnterior
+
+		annotation SummarizationSetBy = Automatic
+
+	column AseguradoraAnterior
+		dataType: string
+		lineageTag: 0aa5108d-9941-4240-9d9f-4634208d36be
+		summarizeBy: none
+		sourceColumn: AseguradoraAnterior
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Lista Codigo Aseguradora-5401ede1-fd2b-4a56-88fa-c33c9ee63853' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "Codigo aseguradora anterior.xlsx")),
+				    #"Codigo aseguradora anterior xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/" = #"Filtered Rows"{[Name="Codigo aseguradora anterior.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Tablas Insumos Reportes/"]}[Content],
+				    Personalizado3 = Excel.Workbook(#"Codigo aseguradora anterior xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/"),
+				    Hoja1_Sheet = Personalizado3{[Item="Hoja1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Hoja1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"CodigoAseguradoraAnterior", Int64.Type}, {"AseguradoraAnterior", type text}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navegación
+

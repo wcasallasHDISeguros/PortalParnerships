@@ -1,0 +1,364 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 961.33331298828125,
+        "y": 519.33331298828125
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 896.28409863531522,
+            "y": 454.81361373610076
+          },
+          "nodeIndex": "Calendar2",
+          "size": {
+            "height": 208.02575452716303,
+            "width": 234
+          },
+          "zIndex": 22
+        },
+        {
+          "location": {
+            "x": 2059.76323943662,
+            "y": 9.35050301810865
+          },
+          "nodeIndex": "Ciudad",
+          "size": {
+            "height": 141.8969818913481,
+            "width": 238
+          },
+          "zIndex": 27
+        },
+        {
+          "location": {
+            "x": 1296.5962889208931,
+            "y": 533.24971364345834
+          },
+          "nodeIndex": "Conversion Data",
+          "nodeLineageTag": "b921c3ee-02cf-43fb-b717-e224b391b870",
+          "size": {
+            "height": 629.857142857143,
+            "width": 309.71428571428578
+          },
+          "zIndex": 28
+        },
+        {
+          "location": {
+            "x": 911.43460748900429,
+            "y": 841.0370039526324
+          },
+          "nodeIndex": "EdadVehiculoSort",
+          "size": {
+            "height": 137,
+            "width": 234
+          },
+          "zIndex": 17
+        },
+        {
+          "location": {
+            "x": 908.11944985706475,
+            "y": 683.30253678076838
+          },
+          "nodeIndex": "ModelVersionSort",
+          "size": {
+            "height": 137,
+            "width": 234
+          },
+          "zIndex": 14
+        },
+        {
+          "location": {
+            "x": 2314.4632929700115,
+            "y": 4.6752515090543287
+          },
+          "nodeIndex": "Notification Message",
+          "size": {
+            "height": 187,
+            "width": 254
+          },
+          "zIndex": 25
+        },
+        {
+          "location": {
+            "x": 2333.879881196729,
+            "y": 428.40417986829578
+          },
+          "nodeIndex": "PriceTestToggle",
+          "size": {
+            "height": 141,
+            "width": 238
+          },
+          "zIndex": 20
+        },
+        {
+          "location": {
+            "x": 2312.2755018163093,
+            "y": 211.94847048392046
+          },
+          "nodeIndex": "Refresh Timestamps",
+          "size": {
+            "height": 187,
+            "width": 254
+          },
+          "zIndex": 24
+        },
+        {
+          "location": {
+            "x": 2597.4310895801805,
+            "y": 0
+          },
+          "nodeIndex": "Release Information",
+          "size": {
+            "height": 187,
+            "width": 254
+          },
+          "zIndex": 21
+        },
+        {
+          "location": {
+            "x": 2595.9520594672995,
+            "y": 202.18803098768947
+          },
+          "nodeIndex": "Report Information",
+          "size": {
+            "height": 187,
+            "width": 254
+          },
+          "zIndex": 19
+        },
+        {
+          "location": {
+            "x": 916.35033768248127,
+            "y": 1011.9656819195462
+          },
+          "nodeIndex": "Measure Dimensions",
+          "size": {
+            "height": 173,
+            "width": 234
+          },
+          "zIndex": 15
+        },
+        {
+          "location": {
+            "x": 1852.2174388537894,
+            "y": 689.89687975328491
+          },
+          "nodeIndex": "NB Opt Groups",
+          "nodeLineageTag": "072a08e6-5374-4900-a058-210829b57412",
+          "size": {
+            "height": 245,
+            "width": 234
+          },
+          "zIndex": 26
+        },
+        {
+          "location": {
+            "x": 1747.6607645875251,
+            "y": 1093.8812877263581
+          },
+          "nodeIndex": "DPNR Bridge",
+          "size": {
+            "height": 245,
+            "width": 234
+          },
+          "zIndex": 18
+        },
+        {
+          "location": {
+            "x": 1485.7142857142856,
+            "y": 1262
+          },
+          "nodeIndex": "Credit Score Bridge",
+          "size": {
+            "height": 223.57142857142844,
+            "width": 239.71428571428578
+          },
+          "zIndex": 16
+        },
+        {
+          "location": {
+            "x": 1490.923486682809,
+            "y": 66.193220338983053
+          },
+          "nodeIndex": "Pricing Versions Automated",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 23
+        },
+        {
+          "location": {
+            "x": 1166.4752515090543,
+            "y": 74.804024144869217
+          },
+          "nodeIndex": "Conversion Data Unpivot",
+          "size": {
+            "height": 160,
+            "width": 234
+          },
+          "zIndex": 13
+        },
+        {
+          "location": {
+            "x": 822.84426559356154,
+            "y": 177.65955734406441
+          },
+          "nodeIndex": "New Variables Unpivot",
+          "size": {
+            "height": 160,
+            "width": 234
+          },
+          "zIndex": 12
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 0
+          },
+          "nodeIndex": "Pricing versions unidenfied",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 11
+        },
+        {
+          "location": {
+            "x": 2361.36116464181,
+            "y": 739.23963133640564
+          },
+          "nodeIndex": "Coverage List",
+          "size": {
+            "height": 160,
+            "width": 234
+          },
+          "zIndex": 10
+        },
+        {
+          "location": {
+            "x": 3021.5,
+            "y": 0
+          },
+          "nodeIndex": "Guia Fasecolda",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 6
+        },
+        {
+          "location": {
+            "x": 3425.6,
+            "y": 74
+          },
+          "nodeIndex": "Lista Regiones",
+          "size": {
+            "height": 152,
+            "width": 234
+          },
+          "zIndex": 7
+        },
+        {
+          "location": {
+            "x": 3789.4,
+            "y": 0
+          },
+          "nodeIndex": "Lista Codigo Aseguradora",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 8
+        },
+        {
+          "location": {
+            "x": 4652.2,
+            "y": 0
+          },
+          "nodeIndex": "Liberty",
+          "size": {
+            "height": 296,
+            "width": 234
+          },
+          "zIndex": 9
+        },
+        {
+          "location": {
+            "x": 4936.2,
+            "y": 592.78571428571422
+          },
+          "nodeIndex": "APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS",
+          "nodeLineageTag": "5772d95e-a66e-4a9e-994f-d1c0212bdac0",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 5504.2,
+            "y": 678.78571428571422
+          },
+          "nodeIndex": "ACP-recotizado",
+          "size": {
+            "height": 128,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 5788.2,
+            "y": 592.78571428571422
+          },
+          "nodeIndex": "Acciones Comerciales Marzo a Septiembre 2024",
+          "nodeLineageTag": "17408701-0cbc-4958-a722-71294e9ee2e2",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 6072.2,
+            "y": 592.78571428571422
+          },
+          "nodeIndex": "Historico Segmentación 2024",
+          "nodeLineageTag": "21a98a4c-eb79-446c-b13b-4cc18deb491a",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 1650.1177567813979,
+            "y": 421.0924110944913
+          },
+          "nodeIndex": "Migradas_HDI",
+          "nodeLineageTag": "72049e2f-7c67-46a2-b03b-9ddd4540a394",
+          "size": {
+            "height": 248,
+            "width": 234
+          },
+          "zIndex": 5
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 100,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

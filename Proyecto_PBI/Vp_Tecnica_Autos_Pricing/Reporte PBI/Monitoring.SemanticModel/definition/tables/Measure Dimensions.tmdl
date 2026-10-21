@@ -1,0 +1,37 @@
+table 'Measure Dimensions'
+	lineageTag: 97e84fdc-9f10-49c0-ae68-038984b1818c
+
+	column Measure
+		dataType: string
+		lineageTag: 33d9dcf3-52f9-47b3-ba5f-c51b431d50ee
+		summarizeBy: none
+		sourceColumn: Measure
+
+		annotation SummarizationSetBy = Automatic
+
+	column Index
+		dataType: int64
+		formatString: 0
+		lineageTag: 4d9aabee-7c81-4fbc-8bef-d75373d37c65
+		summarizeBy: sum
+		sourceColumn: Index
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'NB Measure' = IF('Measure Dimensions'[Index]=1,"NB Opt Category","Modelo")
+		lineageTag: 2d687a29-ac02-4c66-ad56-c7cf341669e2
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Measure Dimensions-7c815c3e-a40e-430b-9a85-d2994e37b405' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WCizNL0lVcM4vzStR0lEyVIrViVYKyM/JTK6ECxopxcYCAA==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Measure = _t, Index = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Measure", type text}, {"Index", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

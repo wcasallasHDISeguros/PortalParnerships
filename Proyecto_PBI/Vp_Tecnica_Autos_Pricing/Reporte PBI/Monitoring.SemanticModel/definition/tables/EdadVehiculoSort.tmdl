@@ -1,0 +1,32 @@
+table EdadVehiculoSort
+	lineageTag: 39ca8d44-bfef-4b2d-8a29-ecabeacab4b3
+
+	column 'Edad Vehiculo'
+		dataType: string
+		lineageTag: 7abb6b87-2fd9-4d8c-9109-3ff86346a150
+		summarizeBy: none
+		sourceColumn: Edad Vehiculo
+		sortByColumn: 'Sort Order'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sort Order'
+		dataType: int64
+		formatString: 0
+		lineageTag: 50e18204-296c-4670-95c2-e9b445693e0b
+		summarizeBy: none
+		sourceColumn: Sort Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition EdadVehiculoSort-911fe00c-8e27-4c0f-843a-23ebad872e29 = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45WMtQ1UtJRMlSK1YlWMtY1BbKNwGwzXUsg2xjMNjTQBrJNlGJjAQ==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type text) meta [Serialized.Text = true]) in type table [#"Edad Vehiculo" = _t, #"Sort Order" = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Edad Vehiculo", type text}, {"Sort Order", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

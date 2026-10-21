@@ -1,0 +1,18 @@
+table 'DPNR Bridge'
+	lineageTag: 841f7efe-08e3-42bb-b946-fa8cec252377
+
+	column 'Technical Discount'
+		formatString: 0
+		lineageTag: e07c87b9-d131-41fd-976a-fa112c6aca08
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Conversion Data[Technical Discount]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'DPNR Bridge-9a69675c-6581-4203-b2c1-488448ba5869' = calculated
+		mode: import
+		source = SUMMARIZE('Conversion Data', 'Conversion Data'[Technical Discount])
+
+	annotation PBI_Id = e1376507e333414f89a8eec28dc35aa8
+

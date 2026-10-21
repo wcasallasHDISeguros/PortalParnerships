@@ -1,0 +1,31 @@
+table PriceTestToggle
+	lineageTag: 4db5b3c5-0889-41fc-8f64-2bcfada8e079
+
+	column Measure
+		dataType: string
+		lineageTag: c44b331e-d34e-48d4-a1d1-8bfcdab8d583
+		summarizeBy: none
+		sourceColumn: Measure
+
+		annotation SummarizationSetBy = Automatic
+
+	column Order
+		dataType: int64
+		formatString: 0
+		lineageTag: c9065717-1184-4faa-94b4-b54635850175
+		summarizeBy: sum
+		sourceColumn: Order
+
+		annotation SummarizationSetBy = Automatic
+
+	partition PriceTestToggle-f4fbff66-04e3-4224-a90b-68523d32f064 = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("i45W8ktNDyjKTE4NSS0uUdJRMlSK1QEK5iOLGYHFAvKLkQWNlWJjAQ==", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Measure = _t, Order = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Measure", type text}, {"Order", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

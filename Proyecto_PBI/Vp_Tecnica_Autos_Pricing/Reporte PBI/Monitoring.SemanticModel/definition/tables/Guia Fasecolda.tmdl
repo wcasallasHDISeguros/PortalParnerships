@@ -1,0 +1,285 @@
+table 'Guia Fasecolda'
+	lineageTag: 551d60e5-6589-405f-bb47-87cfbb1dda4e
+
+	column MOD
+		dataType: string
+		lineageTag: 7781cbf1-ea15-42fb-b1d3-de5688592d66
+		summarizeBy: none
+		sourceColumn: MOD
+
+		annotation SummarizationSetBy = Automatic
+
+	column CODIGO
+		dataType: int64
+		formatString: 0
+		lineageTag: 7d98a419-f8f1-4988-85ec-2483a7be2acb
+		summarizeBy: sum
+		sourceColumn: CODIGO
+
+		annotation SummarizationSetBy = Automatic
+
+	column MARCA
+		dataType: string
+		lineageTag: ab86be73-138c-4a37-aed3-8eade603adb5
+		summarizeBy: none
+		sourceColumn: MARCA
+
+		annotation SummarizationSetBy = Automatic
+
+	column CLASE
+		dataType: string
+		lineageTag: 5199c56a-a636-42d0-9b3c-c4e1f6867242
+		summarizeBy: none
+		sourceColumn: CLASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'TIPO 1'
+		dataType: string
+		lineageTag: b6f5076d-0300-4495-b3f9-a552cff2cf13
+		summarizeBy: none
+		sourceColumn: TIPO 1
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'TIPO 2'
+		dataType: string
+		lineageTag: 038413d8-d5ec-40bf-9dca-869eadadf325
+		summarizeBy: none
+		sourceColumn: TIPO 2
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'TIPO 3'
+		dataType: string
+		lineageTag: 4da0d652-1f97-4d25-b6d0-fa0f31458bcf
+		summarizeBy: none
+		sourceColumn: TIPO 3
+
+		annotation SummarizationSetBy = Automatic
+
+	column PESO
+		dataType: int64
+		formatString: 0
+		lineageTag: 831b2482-2f80-4e83-a942-cedbd559de6f
+		summarizeBy: sum
+		sourceColumn: PESO
+
+		annotation SummarizationSetBy = Automatic
+
+	column SERV
+		dataType: int64
+		formatString: 0
+		lineageTag: 689a9a3c-6109-4ada-82c9-595be8451cf6
+		summarizeBy: sum
+		sourceColumn: SERV
+
+		annotation SummarizationSetBy = Automatic
+
+	column UM
+		dataType: string
+		lineageTag: ad1db1c3-684c-4ea1-98b9-a77a0c015662
+		summarizeBy: none
+		sourceColumn: UM
+
+		annotation SummarizationSetBy = Automatic
+
+	column IMP
+		dataType: string
+		lineageTag: 70f73b7c-e381-41d6-b6f3-bb25cce2c3ed
+		summarizeBy: none
+		sourceColumn: IMP
+
+		annotation SummarizationSetBy = Automatic
+
+	column BCPP
+		dataType: int64
+		formatString: 0
+		lineageTag: 2ab0fbc3-4df8-425f-b9dd-39a0abb3c6e4
+		summarizeBy: sum
+		sourceColumn: BCPP
+
+		annotation SummarizationSetBy = Automatic
+
+	column PESOKg
+		dataType: int64
+		formatString: 0
+		lineageTag: 8d4fd46f-d044-4c71-850d-66fc9509117c
+		summarizeBy: sum
+		sourceColumn: PESOKg
+
+		annotation SummarizationSetBy = Automatic
+
+	column POTENCIA
+		dataType: int64
+		formatString: 0
+		lineageTag: c58dba0d-76c2-4148-ad5e-5ba55a4e8a9c
+		summarizeBy: sum
+		sourceColumn: POTENCIA
+
+		annotation SummarizationSetBy = Automatic
+
+	column NAC
+		dataType: string
+		lineageTag: 892741db-cd7e-4dfd-9a18-225bc06223e6
+		summarizeBy: none
+		sourceColumn: NAC
+
+		annotation SummarizationSetBy = Automatic
+
+	column PTAS
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f294262-aecb-4b96-b7fc-dd3147e27c31
+		summarizeBy: sum
+		sourceColumn: PTAS
+
+		annotation SummarizationSetBy = Automatic
+
+	column AIRE
+		dataType: string
+		lineageTag: 8193fc6e-eab7-4455-a5c4-3aca804c9abe
+		summarizeBy: none
+		sourceColumn: AIRE
+
+		annotation SummarizationSetBy = Automatic
+
+	column EJES
+		dataType: int64
+		formatString: 0
+		lineageTag: 253ead73-1715-4b5a-bcd9-c385c3ff0a6f
+		summarizeBy: sum
+		sourceColumn: EJES
+
+		annotation SummarizationSetBy = Automatic
+
+	column CAJA
+		dataType: string
+		lineageTag: 3783c22c-57de-403e-9416-c6c4d3fb58a1
+		summarizeBy: none
+		sourceColumn: CAJA
+
+		annotation SummarizationSetBy = Automatic
+
+	column CILINDRAJE
+		dataType: int64
+		formatString: 0
+		lineageTag: ac4b4613-4056-40d4-9675-1db885b6d3b0
+		summarizeBy: sum
+		sourceColumn: CILINDRAJE
+
+		annotation SummarizationSetBy = Automatic
+
+	column TRANSMISION
+		dataType: string
+		lineageTag: d8068879-7f92-40f1-b492-c3cb7e6d77c0
+		summarizeBy: none
+		sourceColumn: TRANSMISION
+
+		annotation SummarizationSetBy = Automatic
+
+	column COMBUSTIBLE
+		dataType: string
+		lineageTag: bdae6a03-faf6-4463-bdf0-1e70528f19bc
+		summarizeBy: none
+		sourceColumn: COMBUSTIBLE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'CAPACIDAD PASAJEROS'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4a0c9748-dc3e-46af-9f59-b640897911eb
+		summarizeBy: sum
+		sourceColumn: CAPACIDAD PASAJEROS
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'CAPACIDAD KILOGRAMOS'
+		dataType: int64
+		formatString: 0
+		lineageTag: 9630edc0-0137-4e5b-8139-8b5e00d052ae
+		summarizeBy: sum
+		sourceColumn: CAPACIDAD KILOGRAMOS
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'COLUMNA RELACIONAL'
+		dataType: int64
+		formatString: 0
+		lineageTag: c2f09e67-df02-4ef9-a7e2-e39f2418ec11
+		summarizeBy: sum
+		sourceColumn: COLUMNA RELACIONAL
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'CORRECION DE CLASE'
+		dataType: string
+		lineageTag: 6c30c876-ceda-47a8-b97d-2d10dff5b9b1
+		summarizeBy: none
+		sourceColumn: CORRECION DE CLASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'INFORMACION ADICIONAL DE CLASE'
+		dataType: string
+		lineageTag: 19a39746-a556-4d7a-89e5-f3b2236e70f7
+		summarizeBy: none
+		sourceColumn: INFORMACION ADICIONAL DE CLASE
+
+		annotation SummarizationSetBy = Automatic
+
+	column Atributo
+		dataType: int64
+		formatString: 0
+		lineageTag: e5c3f604-58b3-4f26-9e83-429f3f63d4ee
+		summarizeBy: sum
+		sourceColumn: Atributo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Valor
+		dataType: int64
+		formatString: 0
+		lineageTag: 41fec5eb-a68d-4790-ba32-1217f035969a
+		summarizeBy: sum
+		sourceColumn: Valor
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna1
+		dataType: int64
+		formatString: 0
+		lineageTag: 297ed129-4ef5-4bc5-958d-654b354f4c98
+		summarizeBy: sum
+		sourceColumn: Columna1
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna2
+		dataType: int64
+		formatString: 0
+		lineageTag: 6ce97400-b3fe-4cf2-83e1-7fdabd632668
+		summarizeBy: sum
+		sourceColumn: Columna2
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Guia Fasecolda-a77bd9fb-496a-47bf-991c-ce51bbba4cd9' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "Guia Fasecolda Abril.xlsx")),
+				    #"Guia Fasecolda Abril xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/" = #"Filtered Rows"{[Name="Guia Fasecolda Abril.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Tablas Insumos Reportes/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Guia Fasecolda Abril xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/"),
+				    Tabla1_Sheet = #"Imported Excel Workbook"{[Item="Tabla1",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(Tabla1_Sheet, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"MOD", type text}, {"CODIGO", Int64.Type}, {"MARCA", type text}, {"CLASE", type text}, {"TIPO 1", type text}, {"TIPO 2", type text}, {"TIPO 3", type text}, {"PESO", Int64.Type}, {"SERV", Int64.Type}, {"UM", type text}, {"IMP", type text}, {"BCPP", Int64.Type}, {"PESOKg", Int64.Type}, {"POTENCIA", Int64.Type}, {"NAC", type text}, {"PTAS", Int64.Type}, {"AIRE", type text}, {"EJES", Int64.Type}, {"CAJA", type text}, {"CILINDRAJE", Int64.Type}, {"TRANSMISION", type text}, {"COMBUSTIBLE", type text}, {"CAPACIDAD PASAJEROS", Int64.Type}, {"CAPACIDAD KILOGRAMOS", Int64.Type}, {"COLUMNA RELACIONAL", Int64.Type}, {"CORRECION DE CLASE", type text}, {"INFORMACION ADICIONAL DE CLASE", type text}, {"Atributo", Int64.Type}, {"Valor", Int64.Type}, {"Columna1", Int64.Type}, {"Columna2", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navegación
+

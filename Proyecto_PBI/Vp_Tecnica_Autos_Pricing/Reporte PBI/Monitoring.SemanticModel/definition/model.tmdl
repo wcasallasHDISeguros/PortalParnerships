@@ -1,0 +1,57 @@
+model Model
+	culture: en-US
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: es-CO
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup 'DO NOT DELETE'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup 'Transform File from Query1'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup 'Transform File from Query1\Helper Queries'
+
+	annotation PBI_QueryGroupOrder = 0
+
+annotation __PBI_TimeIntelligenceEnabled = 0
+
+annotation PBI_QueryOrder = ["Template Control SharePoint Root URL","Template Control File Name","Report Information","Notification Message","Release Information","Conversion Data","Conversion Data Unpivot","New Variables Unpivot","EdadVehiculoSort","ModelVersionSort","PriceTestToggle","Measure Dimensions","Parameter1","Transform Sample File","Sample File","Transform File","Pricing Versions Automated","Pricing versions unidenfied","Coverage List","Lista Regiones","Guia Fasecolda","Lista Codigo Aseguradora","Liberty","APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS","ACP-recotizado","Historico Segmentación 2024","Acciones Comerciales Marzo a Septiembre 2024","Migradas_HDI"]
+
+annotation PBI_ProTooling = ["WebModelingEdit","DevMode"]
+
+ref table 'Notification Message'
+ref table 'Refresh Timestamps'
+ref table 'Report Information'
+ref table 'Release Information'
+ref table 'Conversion Data'
+ref table Calendar2
+ref table EdadVehiculoSort
+ref table ModelVersionSort
+ref table Ciudad
+ref table PriceTestToggle
+ref table 'Measure Dimensions'
+ref table 'NB Opt Groups'
+ref table 'DPNR Bridge'
+ref table 'Credit Score Bridge'
+ref table 'Pricing Versions Automated'
+ref table 'Conversion Data Unpivot'
+ref table 'New Variables Unpivot'
+ref table 'Pricing versions unidenfied'
+ref table 'Coverage List'
+ref table 'Lista Regiones'
+ref table 'Guia Fasecolda'
+ref table 'Lista Codigo Aseguradora'
+ref table Liberty
+ref table 'APOYO DWH_REDCOMERCIAL_BASE_CLAVES_ACTIVAS'
+ref table ACP-recotizado
+ref table 'Historico Segmentación 2024'
+ref table 'Acciones Comerciales Marzo a Septiembre 2024'
+ref table Migradas_HDI
+
+ref cultureInfo en-US
+

@@ -1,0 +1,15 @@
+table Ciudad
+	lineageTag: f749a177-a957-4367-b71f-68cb0befda00
+
+	column City
+		lineageTag: 29ba3c4e-5c47-4d10-8e17-bb0e4b0abec2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Conversion Data[City]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Ciudad-43a8eeb8-b0fa-427d-adce-59032183aa6f = calculated
+		mode: import
+		source = SUMMARIZE('Conversion Data', 'Conversion Data'[City])
+

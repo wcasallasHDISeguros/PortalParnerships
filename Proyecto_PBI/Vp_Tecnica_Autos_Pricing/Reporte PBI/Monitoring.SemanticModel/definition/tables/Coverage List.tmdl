@@ -1,0 +1,42 @@
+table 'Coverage List'
+	lineageTag: 3859d8b4-1654-46d5-af7d-3ca664f7d331
+
+	column 'Cód. Amparo'
+		dataType: int64
+		formatString: 0
+		lineageTag: 4963f46b-2147-4838-87c6-32c24efc0188
+		summarizeBy: sum
+		sourceColumn: Cód. Amparo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Desc. Amparo'
+		dataType: string
+		lineageTag: 268c4e3d-5405-47c1-949c-0ca9a6525e9f
+		summarizeBy: none
+		sourceColumn: Desc. Amparo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Basic Coverages'
+		dataType: int64
+		formatString: 0
+		lineageTag: 5d701fb2-2ebc-4efe-81f4-34196b6927a4
+		summarizeBy: sum
+		sourceColumn: Basic Coverages
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Coverage List-3d864822-6e13-458d-bb59-f67087100357' = m
+		mode: import
+		source =
+				let
+				    Source = Table.FromRows(Json.Document(Binary.Decompress(Binary.FromText("lZNLbttADIavQngdtH7Elr1s5TRB0SBCYHRjZEGPWJeFNOPOw0iPk6UXXRQ+gi5WjhzXIzQGkp1m5uNP/iS1XPbyZl++gw/1Bq3pXfTm5FRy/IiOFeRmSxbX5HoPF8teNhnKy4Kspdr4SPWf70fyfQiFAr3l2mjGKgEu5fsanTcOSoKFRe02xnqCYnGTYOPz2DzBJjGdY+dJK0b4HGzzu2SFQBoKaxQ5qYN0p4LsFTE5bzmNmXZjhNwy/iB4D8ktVnBj1miTuNmZuKIK7oRloy52VxrtTdXs11JWgl12satH+hk63c3GLSEOxBPCL5CBeW72OjbR2+apZk/ueNCO09llsZlf6TurUBlwQSJ96ACxC/e0ZcdGw6LZKc3KwC0p0epUOo09vs+j36vH2NDkKYp8CUoWJCeH2tO/t9lwEPuVmxVZHyzGOrdcWjZpr/rRolJcko5eCrLOyIApZQZtobIx2uGKKy6xPIwUrknLHlfwCWu5T2c1TVbuttnJRqRpp7Gyu1XFa1TiXhJ/Y40yBlFziYNh/2zqEps/oo2wYtLPUyCryLZ5BgeB/mhyVkA8HlIbqAPFnwEhaITNoQWpSPYmkdK0x+bJHbVOFWXjOLCi2dlSVGBhfFzzYNvFOCKz/5F56/bETPopU6CVDX6BGrxEJeke/gI=", BinaryEncoding.Base64), Compression.Deflate)), let _t = ((type nullable text) meta [Serialized.Text = true]) in type table [Column1 = _t, Column2 = _t, Column3 = _t]),
+				    #"Changed Type" = Table.TransformColumnTypes(Source,{{"Column1", type text}, {"Column2", type text}, {"Column3", type text}}),
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Changed Type", [PromoteAllScalars=true]),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Promoted Headers",{{"Cód. Amparo", Int64.Type}, {"Desc. Amparo", type text}, {"Basic Coverages", Int64.Type}})
+				in
+				    #"Changed Type1"
+
+	annotation PBI_ResultType = Table
+

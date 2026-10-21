@@ -1,0 +1,224 @@
+table Calendar2
+	lineageTag: 656b133f-9a4d-4b11-8c5e-94aaf68c8cc7
+
+	column Date
+		formatString: Long Date
+		lineageTag: 65b4d8e5-b85e-47fc-b01d-60100504dbed
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Year
+		formatString: 0
+		lineageTag: 66c9deb3-28be-4319-9caa-c1d8b235fbe1
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column MonthSort
+		formatString: 0
+		lineageTag: 27084f21-0222-4be5-83c0-2f8f8f071aae
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [MonthSort]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Date'
+		formatString: General Date
+		lineageTag: 5da38d3a-122d-4d85-b16a-fbb883f9ca04
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month of Year'
+		formatString: 0
+		lineageTag: 277be30b-e254-477f-9bb3-62666d213df9
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month of Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Year Name'
+		lineageTag: 16503564-9f5a-4f8b-bbee-9efee382c087
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Year Name]
+		sortByColumn: MonthSort
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Month Name'
+		lineageTag: 96da456f-b147-4c74-a54f-74d1f906c8a2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Month Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Month'
+		formatString: 0
+		lineageTag: fc64fb4a-1836-44b3-814c-0bc6c384e794
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Month]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day of Week'
+		formatString: 0
+		lineageTag: 860d8ccd-625b-415f-acf3-db66ab7a920a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day of Week]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Day Name'
+		lineageTag: 7b453df8-f450-4d48-82f6-183e594744f0
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Day Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week of Year'
+		formatString: 0
+		lineageTag: 097fbc58-a626-4eaa-a868-7d0912cb4c85
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week of Year]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Date'
+		formatString: General Date
+		lineageTag: 0d71e4c2-e325-4509-a6df-37d0d481aba7
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Week Name'
+		lineageTag: ca3c63cc-2ae2-4fd0-afcc-5094eb67028b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Week Name]
+		sortByColumn: 'Week Date'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Date'
+		formatString: General Date
+		lineageTag: d3d83aca-873b-4a03-b553-95fe5269619a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Name'
+		lineageTag: cca9bfe3-aff0-4d54-bc1d-89c55f7b3799
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Quarter Year Name'
+		lineageTag: 799af913-6d6f-4ca3-b817-b009b3e3983a
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Quarter Year Name]
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Year Date'
+		formatString: General Date
+		lineageTag: 0701a45a-18b7-462c-91a9-7f97b577018b
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Year Date]
+
+		annotation SummarizationSetBy = Automatic
+
+	hierarchy 'Year Hierarchy'
+		lineageTag: fb1a4787-9c78-4848-bb3a-3e65667eac63
+
+		level Year
+			lineageTag: 75a2d17c-7aef-4119-9e2f-9d3dbe5c1f24
+			column: Year
+
+		level 'Month Year Name'
+			lineageTag: e00e1805-952a-4516-a993-eaead3666679
+			column: 'Month Year Name'
+
+		level 'Week Name'
+			lineageTag: 14747174-ae13-4ddb-aa23-f1075a28340c
+			column: 'Week Name'
+
+		level Date
+			lineageTag: bb1794c8-8009-48fe-a06e-662cd05fe5cb
+			column: Date
+
+	hierarchy 'Year Hierarchy 2'
+		lineageTag: 9ac857f8-dce5-4cbf-8f6d-b05a43537f23
+
+		level Year
+			lineageTag: b79460d0-dc1a-4b84-95b0-178d6c1fc34e
+			column: Year
+
+		level 'Quarter Year Name'
+			lineageTag: c6dbe5f2-76ee-4716-b4e2-36ab18d9fe48
+			column: 'Quarter Year Name'
+
+		level 'Month Year Name'
+			lineageTag: e2bd2172-d4f6-47f4-9650-5a4c2a769e6e
+			column: 'Month Year Name'
+
+	hierarchy 'Year Hierarchy 3'
+		lineageTag: 090d6c30-4709-4b6e-a7d3-c57753ac8088
+
+		level Year
+			lineageTag: 352f2f08-6511-4165-8562-6ca8ced12dec
+			column: Year
+
+		level 'Week of Year'
+			lineageTag: d638d37b-0a1e-46a5-816e-2f1b064f1cec
+			column: 'Week of Year'
+
+	partition Calendar2-67fb0c3b-a5fe-4e6b-8555-81010e38b701 = calculated
+		mode: import
+		source = ```
+				
+					  ADDCOLUMNS(
+					   CALENDAR(DATE(2023,10,1),TODAY())
+					     ,"Year",YEAR([Date])
+					     ,"MonthSort",(100*year([Date])+MONTH([Date]))
+					     ,"Month Date",DATE(YEAR([Date]),MONTH([Date]),1)
+					     ,"Month of Year",MONTH([Date])
+					     ,"Month Year Name",FORMAT([Date],"MMM") & " " & YEAR([Date])
+					     ,"Month Name",FORMAT([Date],"MMMM")
+					     ,"Day of Month",DAY([Date])
+					     ,"Day of Week",WEEKDAY([Date],1)
+					     ,"Day Name",FORMAT([Date],"DDDD")
+					     ,"Week of Year",WEEKNUM([Date],1)
+					     ,"Week Date",(DATE(YEAR([Date]),MONTH([Date]),DAY([Date]))-(WEEKDAY([Date],1)-1))
+					     ,"Week Name","Week of " & (DATE(YEAR([Date]),MONTH([Date]),DAY([Date]))-(WEEKDAY([Date],1)-1))
+					     ,"Quarter Date",DATE(YEAR([Date]),SWITCH(ROUNDUP(DIVIDE(MONTH([Date]),3,1),0),1,1,2,4,3,7,4,10),1)
+					     ,"Quarter Name","Q" & ROUNDUP(MONTH([Date])/3,0)
+					     ,"Quarter Year Name","Q" & ROUNDUP(MONTH([Date])/3,0) & " " & YEAR([Date])
+					     ,"Year Date", DATE(YEAR([Date]),1,1)
+				    )
+				```
+

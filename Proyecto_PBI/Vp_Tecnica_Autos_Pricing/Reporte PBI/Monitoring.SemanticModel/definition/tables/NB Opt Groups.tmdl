@@ -1,0 +1,28 @@
+table 'NB Opt Groups'
+	lineageTag: 072a08e6-5374-4900-a058-210829b57412
+
+	column 'NB Category Sort' =
+			SWITCH(TRUE,
+			    'NB Opt Groups'[NB_Opt_Category_New_2022] = "Control Group", 1,
+			    'NB Opt Groups'[NB_Opt_Category_New_2022] = "Optimized Group", 2,
+			    'NB Opt Groups'[NB_Opt_Category_New_2022] = "N/A", 3)
+		formatString: 0
+		lineageTag: ff4e7100-2133-43e7-b208-abbef798c6b6
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+	column NB_Opt_Category_New_2022
+		lineageTag: 3bbacc0d-a359-4b23-bc18-bf96bc1db503
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: Conversion Data[NB_Opt_Category_New_2022]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'NB Opt Groups-661f2df3-ecba-4d69-a66a-207f8c2ab5de' = calculated
+		mode: import
+		source = SUMMARIZE('Conversion Data', 'Conversion Data'[NB_Opt_Category_New_2022])
+
+	annotation PBI_Id = 21e81bb209ab45738ae5b93ce544e856
+

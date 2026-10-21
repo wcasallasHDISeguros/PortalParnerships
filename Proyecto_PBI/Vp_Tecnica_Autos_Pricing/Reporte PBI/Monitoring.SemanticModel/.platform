@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "CDP-GP-Post-Launch Monitoring"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "d0f023d5-a740-4ae0-bc79-5d6daed5a211"
+  }
+}

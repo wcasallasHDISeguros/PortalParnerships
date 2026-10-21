@@ -1,0 +1,176 @@
+table 'Acciones Comerciales Marzo a Septiembre 2024'
+	lineageTag: 17408701-0cbc-4958-a722-71294e9ee2e2
+
+	column 'Nombre de la cuenta'
+		dataType: string
+		lineageTag: d6287568-a251-40e1-9e90-d61fb937933c
+		summarizeBy: none
+		sourceColumn: Nombre de la cuenta
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Segmentación Año Anterior'
+		dataType: string
+		lineageTag: 741e9b30-011b-45a4-a33e-ddf7da822266
+		summarizeBy: none
+		sourceColumn: Segmentación Año Anterior
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Segmentación Actual'
+		dataType: string
+		lineageTag: 5d2f6f6a-d7ff-4b9a-8a8a-8561734b851b
+		summarizeBy: none
+		sourceColumn: Segmentación Actual
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Clave intermediario'
+		dataType: int64
+		formatString: 0
+		lineageTag: a9b31195-83ec-44e9-b0d4-af29715b09a1
+		summarizeBy: sum
+		sourceColumn: Clave intermediario
+
+		annotation SummarizationSetBy = Automatic
+
+	column Asunto
+		dataType: string
+		lineageTag: 94fcf20e-3652-4090-835d-0e8482df8d5b
+		summarizeBy: none
+		sourceColumn: Asunto
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Fecha de creación'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: e7e8ee4f-5329-49c0-90d8-1a502012077e
+		summarizeBy: none
+		sourceColumn: Fecha de creación
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column Fecha
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 18923876-c87f-4b45-bae6-cd429ffd4621
+		summarizeBy: none
+		sourceColumn: Fecha
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Tipo de Acciones'
+		dataType: string
+		lineageTag: bc30f3a1-6458-4a69-9500-a3084752ae24
+		summarizeBy: none
+		sourceColumn: Tipo de Acciones
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'E-mail corporativo'
+		dataType: string
+		lineageTag: d800347d-8331-4178-ba48-2450d8d1ee45
+		summarizeBy: none
+		sourceColumn: E-mail corporativo
+
+		annotation SummarizationSetBy = Automatic
+
+	column Teléfono
+		dataType: string
+		lineageTag: ce8048fc-7bf0-4263-a687-43522e5e8601
+		summarizeBy: none
+		sourceColumn: Teléfono
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Celular representante legal'
+		dataType: int64
+		formatString: 0
+		lineageTag: f175c03a-a205-4c32-bd6e-807d00cc898a
+		summarizeBy: sum
+		sourceColumn: Celular representante legal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Comentarios
+		dataType: string
+		lineageTag: f14aebef-ea10-4838-9ce9-d6bdc0d20390
+		summarizeBy: none
+		sourceColumn: Comentarios
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Sucursal Nombre'
+		dataType: string
+		lineageTag: 63381845-99e4-4aaf-9e87-25f6f0b5840d
+		summarizeBy: none
+		sourceColumn: Sucursal Nombre
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Asignado a: Nombre completo'
+		dataType: string
+		lineageTag: c10af55a-5cc1-4631-90ce-8b013293a37b
+		summarizeBy: none
+		sourceColumn: Asignado a: Nombre completo
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Tipo de registro de Tarea/Evento'
+		dataType: string
+		lineageTag: 9a9975fe-86f7-41b2-9d77-8d00a45fb67a
+		summarizeBy: none
+		sourceColumn: Tipo de registro de Tarea/Evento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Estado
+		dataType: string
+		lineageTag: f2b627d7-c8fe-498a-bdd3-923cfa502f77
+		summarizeBy: none
+		sourceColumn: Estado
+
+		annotation SummarizationSetBy = Automatic
+
+	column Columna3
+		dataType: int64
+		formatString: 0
+		lineageTag: 7415c158-3cdd-410d-aab1-fd809a031f3e
+		summarizeBy: sum
+		sourceColumn: Columna3
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigointermediario
+		dataType: int64
+		formatString: 0
+		lineageTag: 46ce9d44-2919-4ebd-a589-7360161db092
+		summarizeBy: sum
+		sourceColumn: codigointermediario
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Acciones Comerciales Marzo a Septiembre 2024' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Acciones Comerciales Marzo a Septiembre 2024.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/" = Source{[Name="Acciones Comerciales Marzo a Septiembre 2024.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"]}[Content],
+				    #"Libro de Excel importado" = Excel.Workbook(#"Acciones Comerciales Marzo a Septiembre 2024.xlsx_https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Motor NB/"),
+				    BD_Sheet = #"Libro de Excel importado"{[Item="BD",Kind="Sheet"]}[Data],
+				    #"Encabezados promovidos" = Table.PromoteHeaders(BD_Sheet, [PromoteAllScalars=true]),
+				    #"Tipo cambiado" = Table.TransformColumnTypes(#"Encabezados promovidos",{{"Nombre de la cuenta", type text}, {"Segmentación Año Anterior", type text}, {"Segmentación Actual", type text}, {"Clave intermediario", Int64.Type}, {"Asunto", type text}, {"Fecha de creación", type date}, {"Fecha", type date}, {"Tipo de Acciones", type text}, {"E-mail corporativo", type text}, {"Teléfono", type text}, {"Celular representante legal", Int64.Type}, {"Comentarios", type text}, {"Sucursal Nombre", type text}, {"Asignado a: Nombre completo", type text}, {"Tipo de registro de Tarea/Evento", type text}, {"Estado", type text}, {"Columna3", Int64.Type}, {"codigointermediario", Int64.Type}}),
+				    #"Filas ordenadas" = Table.Buffer(Table.Sort(#"Tipo cambiado",{{"Fecha", Order.Descending}})),
+				    #"Duplicados quitados" = Table.Distinct(#"Filas ordenadas", {"codigointermediario"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Exception
+

@@ -1,0 +1,33 @@
+table Migradas_HDI
+	lineageTag: 72049e2f-7c67-46a2-b03b-9ddd4540a394
+
+	column llave_migracion
+		dataType: string
+		lineageTag: d932e2cc-b804-4809-95a4-fc4a55f9db22
+		summarizeBy: none
+		sourceColumn: llave_migracion
+
+		annotation SummarizationSetBy = Automatic
+
+	column placa
+		dataType: string
+		lineageTag: ac84d32f-fb98-4324-98b5-f42a541b0d52
+		summarizeBy: none
+		sourceColumn: placa
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Migradas_HDI = m
+		mode: import
+		source =
+				let
+				    Origen = Value.NativeQuery(AmazonRedshift.Database("corshftanltc-dprogramp.hdicolombia.com.co:9519","adp_dwh"), "with cte_ttotal as (#(lf)    select c.llave_pdfi, sum(c.cotizacion) as cotizacion, c.periodo_contable#(lf)           , c.placa, c.sistema_origen, sum(c.emision) as emision, sum(c.SSEGURO) as SSEGURO#(lf)    from gde_adp_dwh_spvw_general.vw_cotizacion_auto_individual c#(lf)    where c.periodo_contable >= 202501 ----and c.placa in ('KRY919', 'ZZN523')#(lf)    group by c.llave_pdfi, c.periodo_contable, c.placa, c.sistema_origen#(lf)    order by c.periodo_contable desc, c.placa#(lf)), cte_t1 as (#(lf)    -- 1. Tabla de emisiones donde no tengen cotizacion en el mismo més#(lf)    select *#(lf)    from cte_ttotal#(lf)    where emision = 1 and cotizacion = 0#(lf)), cte_t2 as (#(lf)    -- 2. Tabla de cotizaciones con periodo_contable = periodo_contable - 1#(lf)    select c.llave_pdfi, c.cotizacion, c.periodo_contable --+ 1 as periodo_contable#(lf)           , c.placa, c.sistema_origen, c.emision,C.sseguro #(lf)    from cte_ttotal c#(lf)    where cotizacion = 1#(lf)),-- 3. Cruzar la tabla 1 con la tabla 2 y remarcar las que si cruzaron con cotizacion = 1#(lf) cte_t3 as (select DISTINCT#(lf)    t1.llave_pdfi#(lf)    ,T1.sseguro #(lf)    , t1.cotizacion#(lf)    , t2.periodo_contable#(lf)    , t1.placa#(lf)    , t1.sistema_origen#(lf)    , t1.emision#(lf)    , t2.cotizacion as cotizacion_otro_periodo#(lf)from cte_t1 t1#(lf)    inner join cte_t2 t2 on t1.llave_pdfi = t2.llave_pdfi and t1.periodo_contable = t2.periodo_contable+1)#(lf)#(lf)#(lf)#(lf)----- en preguntas internas la 4824 me dice el aplicativo de origen, la respuesta 3 = SISE, la pregunta 9690 me dice el ramo tecnico anterior #(lf)#(tab)#(tab)SELECT distinct CONVERT(INT,A.sseguro) as SSEGURO,concat(B.llave_pdfi,B.periodo_contable) as llave_migracion,B.PLACA#(lf)#(tab)#(tab)FROM gde_adp_ods.axis_pregunpolseg A#(lf)#(tab)#(tab)left join (select sseguro,llave_pdfi,periodo_contable,PLACA#(lf)#(tab)#(tab)from gde_adp_dwh_spvw_general.vw_cotizacion_auto_individual WHERE PERIODO_CONTABLE>= 202501#(lf)#(tab)#(tab)UNION all#(lf)#(tab)#(tab)select sseguro,llave_pdfi,periodo_contable,PLACA#(lf)#(tab)#(tab)from cte_t3 )B on (A.SSEGURO=B.SSEGURO)#(lf)#(tab)#(tab)where cpregun = 4824 and crespue=3 and B.llave_pdfi is not null", null, [EnableFolding=true]),
+				    #"Columnas quitadas" = Table.RemoveColumns(Origen,{"sseguro"}),
+				    #"Duplicados quitados" = Table.Distinct(#"Columnas quitadas", {"llave_migracion"})
+				in
+				    #"Duplicados quitados"
+
+	annotation PBI_NavigationStepName = Navegación
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,47 @@
+table 'Lista Regiones'
+	lineageTag: 7c8560f1-6883-4b45-9d9c-ba18460dc978
+
+	column 'Ubicación completa'
+		dataType: string
+		lineageTag: 35d5adc7-917f-4121-a8b3-876908a79f7f
+		summarizeBy: none
+		sourceColumn: Ubicación completa
+
+		annotation SummarizationSetBy = Automatic
+
+	column Agrupación
+		dataType: string
+		lineageTag: 52fca99f-d53a-4942-8c75-950e4dd6c97b
+		summarizeBy: none
+		sourceColumn: Agrupación
+
+		annotation SummarizationSetBy = Automatic
+
+	column peso
+		dataType: double
+		lineageTag: 72b36c8d-86f8-4d1e-a53a-678f6d9e7c95
+		summarizeBy: sum
+		sourceColumn: peso
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	partition 'Lista Regiones-930b01a6-a04b-4f9c-890e-95511954c7dd' = m
+		mode: import
+		source =
+				let
+				    Source = SharePoint.Files("https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto", [ApiVersion = 15]),
+				    #"Filtered Rows" = Table.SelectRows(Source, each ([Name] = "Lista Regiones Territorio.xlsx")),
+				    #"Lista Regiones Territorio xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/" = #"Filtered Rows"{[Name="Lista Regiones Territorio.xlsx",#"Folder Path"="https://hdiseguroscom.sharepoint.com/teams/EquipoPricingAuto/Shared Documents/Equipo Pricing Auto/Colombia/Monitoreo/Tablas Insumos Reportes/"]}[Content],
+				    #"Imported Excel Workbook" = Excel.Workbook(#"Lista Regiones Territorio xlsx_https://libertymutual sharepoint com/sites/AndesPricingMotorTeam/Shared Documents/General/Colombia/Monitoreo/Tablas Insumos Reportes/"),
+				    #"Resumen Agrupacion_Sheet" = #"Imported Excel Workbook"{[Item="Resumen Agrupacion",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Resumen Agrupacion_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"Ubicación completa", type text}, {"Agrupación", type text}, {"peso", type number}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+
+	annotation PBI_NavigationStepName = Navegación
+

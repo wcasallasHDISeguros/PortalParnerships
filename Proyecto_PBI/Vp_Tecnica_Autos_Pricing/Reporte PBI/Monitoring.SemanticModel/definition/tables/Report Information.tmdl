@@ -1,0 +1,118 @@
+table 'Report Information'
+	lineageTag: 465e9e52-4201-4b3b-9328-9329ae5e63d8
+
+	/// Display measure to show report contact information
+	measure 'Contact Email Display' =
+			
+			"<-click here to contact " & VALUES ( 'Report Information'[Contact Email] )
+		displayFolder: Contact Email
+		lineageTag: 82fa7b39-3461-4170-8649-3825b09cff3d
+
+	/// Display measure containing instructions for acquiring access to this report
+	measure 'Access Instructions Display' =
+			
+			VALUES ( 'Report Information'[Access Instructions] )
+		displayFolder: Access Instructions
+		lineageTag: 6aab8f2e-d057-440f-a201-6df1f467948d
+
+	/// Display measure used to show planned refresh schedule for the dataset used in this report
+	measure 'Refresh Schedule Display' =
+			
+			VALUES('Report Information'[Refresh Schedule])
+		displayFolder: Refresh Schedule
+		lineageTag: cec8e651-ac4c-4c26-8cba-c42e549e6de3
+
+	/// Display measure to show Report Description in this report
+	measure 'Report Description Display' =
+			
+			VALUES('Report Information'[Report Description])
+		displayFolder: Report Description
+		lineageTag: b220ccb0-5346-41e8-acbd-ffb74dd1b14e
+
+	/// Display measure to show Report Title in report
+	measure 'Report Title Display' =
+			
+			VALUES('Report Information'[Report Title])
+		displayFolder: Report Title
+		lineageTag: 8831b2ae-0a16-4e19-acaf-7e360189be59
+
+	/// Title of Report, as determined by report author
+	column 'Report Title'
+		dataType: string
+		displayFolder: Report Title
+		lineageTag: eef1093f-f410-4339-98ee-734a2b31c211
+		summarizeBy: none
+		sourceColumn: Report Title
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Description of information available in this report, as written by report author
+	column 'Report Description'
+		dataType: string
+		displayFolder: Report Description
+		lineageTag: 17abbf60-2e75-4b68-a4cd-59f08af90dc9
+		summarizeBy: none
+		sourceColumn: Report Description
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Planned refresh schedule for the dataset used in this report
+	column 'Refresh Schedule'
+		dataType: string
+		displayFolder: Refresh Schedule
+		lineageTag: fffc33f4-d990-4725-a243-6758fabee68c
+		summarizeBy: none
+		sourceColumn: Refresh Schedule
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Instructions for acquiring access to this report
+	column 'Access Instructions'
+		dataType: string
+		displayFolder: Access Instructions
+		lineageTag: 115c4ad6-b747-4955-b2b3-902199505b5f
+		summarizeBy: none
+		sourceColumn: Access Instructions
+
+		annotation SummarizationSetBy = Automatic
+
+	/// Email Address to contact with questions, issues, requests, etc.
+	column 'Contact Email'
+		dataType: string
+		displayFolder: Contact Email
+		lineageTag: 01c901b8-2e15-45b4-b155-862e86e51ca2
+		summarizeBy: none
+		sourceColumn: Contact Email
+
+		annotation SummarizationSetBy = Automatic
+
+	/// mailto URL of Contact Email
+	column 'Contact Email URL'
+		dataType: string
+		displayFolder: Contact Email
+		lineageTag: 39a021de-cc0f-431c-be05-c30e7d22bf68
+		dataCategory: WebUrl
+		summarizeBy: none
+		sourceColumn: Contact Email URL
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Report Information-2a7a6cf3-07b4-4cf6-b451-4064f8bb4e17' = m
+		mode: import
+		queryGroup: 'DO NOT DELETE'
+		source =
+				let
+				    Source = SharePoint.Files(#"Template Control SharePoint Root URL", [ApiVersion = 15]),
+				    FileID = Source{[Name=#"Template Control File Name"&".xlsx"]}[Content],
+				    #"Import Excel to display table and sheets" = Excel.Workbook(FileID),
+				    #"Point to Notification Header table" = #"Import Excel to display table and sheets"{[Item="ReportInformation",Kind="Table"]}[Data],
+				    #"Append ""Mailto:"" to Contact Email for clickable URL" = Table.AddColumn(#"Point to Notification Header table", "Contact Email URL", each "mailto:"&[Contact Email])
+				in
+				    #"Append ""Mailto:"" to Contact Email for clickable URL"
+
+	annotation PBI_QueryRelationships = {"columnCount":6,"keyColumnNames":[],"queryRelationships":[],"columnIdentities":["Section1/Report Information/Point to Notification Header table.{Report Title,0}","Section1/Report Information/Point to Notification Header table.{Report Description,1}","Section1/Report Information/Point to Notification Header table.{Contact Email,2}","Section1/Report Information/Point to Notification Header table.{Refresh Schedule,3}","Section1/Report Information/Point to Notification Header table.{Access Instructions,4}","Section1/Report Information/Append \"Mailto:\" to Contact Email for clickable URL.{Contact Email URL,5}"],"ColumnCount":6,"KeyColumnNames":[],"ColumnIdentities":["Section1/Report Information/Point to Notification Header table.{Report Title,0}","Section1/Report Information/Point to Notification Header table.{Report Description,1}","Section1/Report Information/Point to Notification Header table.{Contact Email,2}","Section1/Report Information/Point to Notification Header table.{Refresh Schedule,3}","Section1/Report Information/Point to Notification Header table.{Access Instructions,4}","Section1/Report Information/Append \"Mailto:\" to Contact Email for clickable URL.{Contact Email URL,5}"],"RelationshipInfo":[]}
+
+	annotation PBI_ResultType = Exception
+
+	annotation PBI_NavigationStepName = Navegación
+

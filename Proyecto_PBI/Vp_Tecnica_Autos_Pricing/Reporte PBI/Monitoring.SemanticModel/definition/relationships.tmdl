@@ -1,0 +1,48 @@
+relationship 6e74cad4-865d-41d1-8b47-54453b56d9ca
+	fromColumn: 'Conversion Data'.'Vehicle Age'
+	toColumn: EdadVehiculoSort.'Edad Vehiculo'
+
+relationship 41e498ca-949c-40f3-bbb9-e2b044f71de3
+	fromColumn: 'Conversion Data'.'A/B Indicator'
+	toColumn: ModelVersionSort.'A/B Indicator'
+
+relationship 01e4561d-ab68-41db-be4b-c13ad483b84f
+	fromColumn: 'Conversion Data'.'Credit Score'
+	toColumn: 'Credit Score Bridge'.'Credit Score'
+
+relationship 63ed7153-9201-4db3-912e-5c38bf448876
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Conversion Data'.Rule-Version
+	toColumn: 'Pricing Versions Automated'.Rule-Version
+
+relationship 9100e30e-21aa-4d39-8f4a-7a5999b83f16
+	isActive: false
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'Measure Dimensions'.Index
+	toColumn: 'Conversion Data'.Index
+
+relationship 51df44fc-95dd-4314-841b-90b359d1aa19
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'Conversion Data Unpivot'.Index
+	toColumn: 'Conversion Data'.Index
+
+relationship 212c6787-4ea2-43b8-9a39-f813b3561ae9
+	crossFilteringBehavior: bothDirections
+	fromColumn: 'New Variables Unpivot'.Index
+	toColumn: 'Conversion Data'.Index
+
+relationship 297facdc-f9d7-4b85-a4f5-b01591cc2841
+	fromColumn: 'Conversion Data'.'Technical Discount'
+	toColumn: 'DPNR Bridge'.'Technical Discount'
+
+relationship 1616aa62-d5de-e873-6233-7398a81024fe
+	crossFilteringBehavior: bothDirections
+	securityFilteringBehavior: bothDirections
+	fromColumn: 'Conversion Data'.llave_migracion
+	toColumn: Migradas_HDI.llave_migracion
+
+relationship 5b79b7af-1b69-fa90-62f5-83d7508f0852
+	fromColumn: 'Conversion Data'.execution_date_ini
+	toColumn: Calendar2.Date
+
