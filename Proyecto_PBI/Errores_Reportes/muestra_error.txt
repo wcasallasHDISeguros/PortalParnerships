@@ -31,36 +31,72 @@ let
 in
     Consulta
 
-    let
-    Origen = AmazonRedshift.Database(
-        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
-        "liberty",
-        [ProviderName = null, BatchSize = null]
-    ),
+   
 
-    Consulta = Value.NativeQuery(
-        Origen,
-        "
-        SELECT *
-        FROM apoyo.dwh_redcomercial_base_claves_activas
-        "
-    ),
 
-    #"Adición insertada" = Table.AddColumn(
-        Consulta,
-        "clave-llave",
-        each [CLAVE] + 4000000,
-        type number
-    )
+   let
+    Source = PowerPlatform.Dataflows(null),
+    Workspaces = Source{[Id="Workspaces"]}[Data],
+    #"9894abb4-490b-4772-bd3b-3f729d315111" = Workspaces{[workspaceId="9894abb4-490b-4772-bd3b-3f729d315111"]}[Data],
+    #"bc4159fe-9062-4e25-8cfd-e3599c0ca9d9" = #"9894abb4-490b-4772-bd3b-3f729d315111"{[dataflowId="bc4159fe-9062-4e25-8cfd-e3599c0ca9d9"]}[Data],
+    post_launch_monitoring_ = #"bc4159fe-9062-4e25-8cfd-e3599c0ca9d9"{[entity="post_launch_monitoring",version=""]}[Data],
+    #"Changed Type" = Table.TransformColumnTypes(post_launch_monitoring_,{{"clasificacion_mor", type text}, {"fuente", type text}, {"periodo_contable", Int64.Type}, {"llave_pfdi", type text}, {"poliza", Int64.Type}, {"ramo", type text}, {"comparador", Int64.Type}, {"emitidas", Int64.Type}, {"idtransaccion", Int64.Type}, {"producto", type text}, {"idquotation", type text}, {"ruleid", type text}, {"serverip", type text}, {"fecha_ejecucion", type datetime}, {"tiponegocio", Int64.Type}, {"cerokmsino", Int64.Type}, {"diascotizacionvigente", Int64.Type}, {"ocupacion", Int64.Type}, {"antiguedadvehiculo", Int64.Type}, {"comisionintermediario", Int64.Type}, {"equipoespecial", Int64.Type}, {"uso", Int64.Type}, {"marca", Int64.Type}, {"pesovehiculo", Int64.Type}, {"tipolicencia", type any}, {"numerohijos", Int64.Type}, {"transmision", Int64.Type}, {"genero", type text}, {"aseguradoraanterior", Int64.Type}, {"dispositivoseguridad", Int64.Type}, {"agrupadorvehiculo", type text}, {"procedencia", Int64.Type}, {"tipocampero", Int64.Type}, {"valoraseguradoacceanterior", Int64.Type}, {"anosaseguradoraanterior", Int64.Type}, {"gravedadmultas", Int64.Type}, {"siniestro", Int64.Type}, {"cancelacionlicencia", Int64.Type}, {"codigointermediario", Int64.Type}, {"antiguedadconductor", Int64.Type}, {"potencia", Int64.Type}, {"suavizacion", type number}, {"ciudad", Int64.Type}, {"tipocaja", Int64.Type}, {"anossinsiniestro", Int64.Type}, {"acierta", Int64.Type}, {"factorprorrata", Int64.Type}, {"semilla", Int64.Type}, {"vinculacion", Int64.Type}, {"clase", Int64.Type}, {"valoraseguradovehi", Int64.Type}, {"puertas", Int64.Type}, {"cilindraje", Int64.Type}, {"valoraseguradoacce", Int64.Type}, {"codigofasecolda", Int64.Type}, {"blindaje", Int64.Type}, {"localidad", type text}, {"estrato", Int64.Type}, {"canal", Int64.Type}, {"numeromultas", Int64.Type}, {"barrio", Int64.Type}, {"servicio", Int64.Type}, {"capacidadocupantes", type any}, {"formapagopol", Int64.Type}, {"transportecombustible", Int64.Type}, {"pesocategoria", Int64.Type}, {"descuentocomercial", Int64.Type}, {"estadocivil", Int64.Type}, {"actividadeconomica", Int64.Type}, {"edadconductor", Int64.Type}, {"combustible", Int64.Type}, {"valoraseguradovehianterior", Int64.Type}, {"antiguedadlicencia", Int64.Type}, {"factorbancario", Int64.Type}, {"numeromultasviganterior", Int64.Type}, {"sucursal", Int64.Type}, {"departamento", Int64.Type}, {"antiguedadliberty", Int64.Type}, {"siniestroshistoricos", Int64.Type}, {"paisorigen", Int64.Type}, {"dpnr", Int64.Type}, {"anossinmulta", Int64.Type}, {"ultimotipomulta", type text}, {"tuvomulta", Int64.Type}, {"anosentremultas", Int64.Type}, {"numcompaniasdif", Int64.Type}, {"tiempoasegurado", Int64.Type}, {"tiempopromedioaseg", Int64.Type}, {"versionid", type text}, {"primatotal", Int64.Type}, {"totalimpuesto", Int64.Type}, {"priceoptfactor", type number}, {"primaanual", Int64.Type}, {"impuestoprima", Int64.Type}, {"pricetest", type number}, {"valorcuotafinanciacion", Int64.Type}, {"totalpago", Int64.Type}, {"priorprimatotal", type any}, {"impuestogastosexpedicion", Int64.Type}, {"originationdemand", type number}, {"actuarialcostparameter", type number}, {"renewaldemand", type any}, {"ranuniparameter", type number}, {"renewalcancel", type any}, {"primapurachangev67", type number}, {"gastosexpedicion", Int64.Type},{"competitormodel", type number},{"competitormax", type number}, {"competitorcapflag", type number}}),
+    #"Changed Type3" = Table.TransformColumnTypes(#"Changed Type",{{"fecha_ejecucion", type date}}),
+    #"Renamed Columns" = Table.RenameColumns(#"Changed Type3",{{"fecha_ejecucion", "Fecha_Cotizacion"}}),
+    #"Removed Columns5" = Table.RemoveColumns(#"Renamed Columns",{"actividadeconomica", "cilindraje", "comisionintermediario", "equipoespecial", "factorbancario", "factorprorrata", "gastosexpedicion", "impuestogastosexpedicion", "numerohijos", "ocupacion", "serverip", "servicio"}),
+    #"Changed Type2" = Table.TransformColumnTypes(#"Removed Columns5",{{"Fecha_Cotizacion", type date}, {"emitidas", Int64.Type}}),
+    #"Replaced Value" = Table.ReplaceValue(#"Changed Type2",null,#date(2018, 1, 1),Replacer.ReplaceValue,{"Fecha_Cotizacion"}),
+    #"Replaced Value2" = Table.ReplaceValue(#"Replaced Value",null,-1,Replacer.ReplaceValue,{"edadconductor"}),
+    #"Added Conditional Column" = Table.AddColumn(#"Replaced Value2", "Pre-Post Indicator", each if [Fecha_Cotizacion] < #date(2018, 1, 2) then "Null Quote Date" else if [Fecha_Cotizacion] < #date(2021, 1, 13) then "Pre-Implementation" else if [Fecha_Cotizacion] >= #date(2021, 1, 13) then "Post-Implementation" else "Null Quote Date", type text),
+    #"Customer Age Bandings" = Table.AddColumn(#"Added Conditional Column", "Edad Cliente", each if [edadconductor] < 0 then "NA" else if [edadconductor] < 25 then "<25" else if [edadconductor] < 40 then "25-40" else if [edadconductor] < 50 then "40-50" else if [edadconductor] < 60 then "50-60" else if [edadconductor] < 110 then ">60" else "NA", type text),
+    #"Removed Columns" = Table.RemoveColumns(#"Customer Age Bandings",{"edadconductor", "semilla", "priorprimatotal", "renewaldemand", "renewalcancel"}),
+    #"Vehicle Age Bandings" = Table.AddColumn(#"Removed Columns", "Edad Vehiculo", each if [antiguedadvehiculo] < -1 then "N/A" else if [antiguedadvehiculo] <= 0 then "0" else if [antiguedadvehiculo] < 3 then "1-2" else if [antiguedadvehiculo] < 6 then "3-5" else if [antiguedadvehiculo] < 10 then "6-9" else "10+", type text),
+    #"Replaced Value1" = Table.ReplaceValue(#"Vehicle Age Bandings",null,-1,Replacer.ReplaceValue,{"acierta"}),
+    #"Credit Score Bandings" = Table.AddColumn(#"Replaced Value1", "Credit Score", each if [acierta] < 0 then "NA" else if [acierta] = 0 then "0" else if [acierta] < 150 then "0-150" else if [acierta] < 500 then "150-500" else if [acierta] < 750 then "500-750" else if [acierta] < 800 then "750-800" else if [acierta] < 850 then "800-850" else if [acierta] >= 850 then "850+" else "NA", type text),
+    #"Version Mapping" = Table.AddColumn(#"Credit Score Bandings", "A/B Indicator", each if [versionid] = 7282256 then "Old" else if [versionid] = 8841213 then "Old" else if [versionid] = 7940531 then "Old" else if [versionid] = 13828982 then "Old" else if [versionid] = 15499903 then "Old" else if [versionid] = 17893916 then "Old" else if [versionid] = 19224233 then "Old" else if [versionid] = 21365057 then "Old" else if [versionid] = 22115064 then "Old" else if [versionid] = 22114771 then "Old" else if [versionid] = 32382873 then "Old" else if [versionid] = 32413440 then "Old" else if [versionid] = 31214581 then "Old" else if [versionid] = 31214928 then "Old" else if [versionid] = 33805240 then "Old" else if [versionid] = 33805639 then "Old" else if [versionid] = 33816451 then "Old" else if [versionid] = 36713755 then "Old" else if [versionid] = 38816451 then "Restricted" else if [versionid] = 39731176 then "Optimized" else if [versionid] = 44057625 then "Unrestricted" else if [versionid] = 44108161 then "Unrestricted" else if [versionid] = 44551899 then "Restricted" else if [versionid] = 44552345 then "Unrestricted" else if [versionid] = 47077619 then "Restricted" else if [versionid] = 47078676 then "Unrestricted" else if [versionid] = 52658767 then "Restricted" else if [versionid] = 52659177 then "Unrestricted" else "Other", type text),
+    #"Prima Groupings" = Table.AddColumn(#"Version Mapping", "Prima_Band", each if [primaanual] < 300000 then "<300k" else if [primaanual] < 400000 then "300k-400k" else if [primaanual] < 500000 then "400k-500k" else if [primaanual] < 600000 then "500k-600k" else if [primaanual] < 700000 then "600k-700k" else if [primaanual] < 800000 then "700k-800k" else ">800k"),
+    #"Changed Type1" = Table.TransformColumnTypes(#"Prima Groupings",{{"Prima_Band", type text}}),
+    #"Added Conditional Column1" = Table.AddColumn(#"Changed Type1", "NB Opt Versionid?", each if [versionid] = "39731176" then "Yes" else if [versionid] = "57760902" then "Yes" else if [versionid] = "61076481" then "Yes" else if [versionid] = "63416793" then "Yes" else if [versionid] = "71938288" then "Yes" else if [versionid] = "72732844" then "Yes" else if [versionid] = "75999820" then "Yes" else if [versionid] = "80535582" then "Yes" else if [versionid] = "91983830" then "Yes" else if [versionid] = "104785297" then "Yes" else if [versionid] = "106928622" then "Yes" else if [versionid] = "117953978" then "Yes" else if [versionid] = "122467070" then "Yes" else if [versionid] = "137443753" then "Yes" else if [versionid] = "140176874" then "Yes" else "No", type text),
+    #"Added Conditional Column2" = Table.AddColumn(#"Added Conditional Column1", "Price Opt Ruleid?", each if [ruleid] = "30466" then "Yes" else if [ruleid] = "30595" then "Yes" else if [ruleid] = "30455" then "Yes" else if [ruleid] = "30500" then "Yes" else if [ruleid] = "30532" then "Yes" else if [ruleid] = "30582" then "Yes" else if [ruleid] = "30584" then "Yes" else if [ruleid] = "30596" then "Yes" else if [ruleid] = "30642" then "Yes" else if [ruleid] = "30734" then "Yes" else if [ruleid] = "30722" then "Yes" else if [ruleid] = "30724" then "Yes" else if [ruleid] = "30720" then "Yes" else if [ruleid] = "30491" then "Yes" else if [ruleid] = "30665" then "Yes" else if [ruleid] = "30742" then "Yes" else if [ruleid] = "30785" then "Yes" else if [ruleid] = "30786" then "Yes" else if [ruleid] = "30794" then "Yes" else if [ruleid] = "30800" then "Yes" else if [ruleid] = "30820" then "Yes" else if [ruleid] = "30824" then "Yes" else if [ruleid] = "30835" then "Yes" else if [ruleid] = "30881" then "Yes" else if [ruleid] = "30461" then "Yes" else if [ruleid] = "30464" then "Yes" else if [ruleid] = "30897" then "Yes" else "No", type text),
+    #"Added Custom1" = Table.AddColumn(#"Added Conditional Column2", "NB_Opt_Category", each if [#"NB Opt Versionid?"] = "No" and [#"Price Opt Ruleid?"] = "Yes" then "Not Optimized"
+else if [#"NB Opt Versionid?"] = "Yes" and [primaanual] < 100000 then "Control"
+else if [#"NB Opt Versionid?"] = "Yes" and [ranuniparameter] <= 0.5 then "Control"
+else if [#"NB Opt Versionid?"] = "Yes" and [primaanual] >= 100000 and [ranuniparameter] > 0.5 then "Optimized"
+else "N/A"),
+    #"Removed Columns1" = Table.RemoveColumns(#"Added Custom1",{"cerokmsino", "diascotizacionvigente", "pesovehiculo", "tipolicencia", "transmision", "dispositivoseguridad", "agrupadorvehiculo", "procedencia", "tipocampero", "valoraseguradoacceanterior", "potencia", "tipocaja", "vinculacion", "puertas", "valoraseguradoacce", "capacidadocupantes", "formapagopol", "transportecombustible", "estadocivil", "valoraseguradovehianterior", "paisorigen"}),
+    #"Changed Type4" = Table.TransformColumnTypes(#"Removed Columns1",{{"NB_Opt_Category", type text}}),
+    #"Added Custom" = Table.AddColumn(#"Changed Type4", "Rule-Version", each [ruleid] & "-" & [versionid]),
+    #"Changed Type5" = Table.TransformColumnTypes(#"Added Custom",{{"Rule-Version", type text}}),
+    #"Added Conditional Column3" = Table.AddColumn(#"Changed Type5", "PrimaAnual<100k", each if [primaanual] < 100000 then "Yes" else "No"),
+    #"Changed Type6" = Table.TransformColumnTypes(#"Added Conditional Column3",{{"PrimaAnual<100k", type text}}),
+    #"Added Conditional Column4" = Table.AddColumn(#"Changed Type6", "RanuniInd", each if [ranuniparameter] <= 0.5 then "<=0.5" else ">0.5"),
+    #"Changed Type7" = Table.TransformColumnTypes(#"Added Conditional Column4",{{"RanuniInd", type text}, {"periodo_contable", type text}}),
+    #"Added Custom2" = Table.AddColumn(#"Changed Type7", "Join_Key", each [llave_pfdi] & "-" & [idquotation] & "-" & [periodo_contable]),
+    #"Removed Duplicates" = Table.Distinct(#"Added Custom2", {"Join_Key"}),
+    #"Added Conditional Column5" = Table.AddColumn(#"Removed Duplicates", "Prima_UseForNBOpt", each if [versionid] = "63416793" then [primatotal] else [primaanual]),
+    #"Changed Type8" = Table.TransformColumnTypes(#"Added Conditional Column5",{{"Prima_UseForNBOpt", Int64.Type}}),
+    #"Added Conditional Column6" = Table.AddColumn(#"Changed Type8", "Roboquotes", each if [comparador] = 0 then "No" else if [comparador] = 1 then "Yes" else "NA"),
+    #"Added Index" = Table.AddIndexColumn(#"Added Conditional Column6", "Index", 0, 1, Int64.Type),
+    #"Changed Type9" = Table.TransformColumnTypes(#"Added Index",{{"fecha_emision", type date}}),
+    #"Columna condicional agregada" = Table.AddColumn(#"Changed Type9", "Personalizado", each if [valoraseguradovehi] <= 30000000 then "A. 0-30M" else if [valoraseguradovehi] <= 50000000 then "B. 30M-50M" else if [valoraseguradovehi] <= 80000000 then "C. 50M-80M" else if [valoraseguradovehi] <= 100000000 then "D. 80M-100M" else if [valoraseguradovehi] <= 200000000 then "E. 100M-200M" else if [valoraseguradovehi] > 200000000 then "F. 200M+" else "NA"),
+    #"Renamed Columns1" = Table.RenameColumns(#"Columna condicional agregada",{{"clasificacion_mor", "Channel"}, {"ramo", "Ramo"}, {"siniestro", "Prior Claim"}, {"dpnr", "Technical Discount"}, {"nombremarca", "Vehicle Make"}, {"nombreciudad", "City"}, {"zona", "Region"}, {"Edad Cliente", "Client Age"}, {"Edad Vehiculo", "Vehicle Age"}, {"Prima_Band", "Premium (Band)"}, {"estrato", "Estrato"}, {"Personalizado", "Total Sum Insured"}}),
+    #"Added Conditional Column7" = Table.AddColumn(#"Renamed Columns1", "Prior Ticket", each if [tuvomulta] = 0 then "No" else if [tuvomulta] = 1 then "Yes" else null),
+    #"Added Conditional Column8" = Table.AddColumn(#"Added Conditional Column7", "Fuel type", each if [combustible] = 1 then "DSL" else if [combustible] = 2 then "ELT" else if [combustible] = 3 then "GAS" else if [combustible] = 4 then "GSL" else if [combustible] = 5 then "HBD" else if [combustible] = 8 then "HEV" else if [combustible] = 9 then "MHEV" else if [combustible] = 10 then "PHEV" else if [combustible] = 11 then "EREV" else "Desconocido"),
+    #"Filtered Rows1" = Table.SelectRows(#"Added Conditional Column8", each [Fecha_Cotizacion] >= #date(2024, 1, 1)),
+    #"Filtered Rows" = Table.SelectRows(#"Filtered Rows1", each ([periodo_contable] > "202401")),
+    #"Tipo cambiado con configuración regional" = Table.TransformColumnTypes(#"Filtered Rows", {{"coordenadax", type number}}, "en-CH"),
+    #"Tipo cambiado con configuración regional1" = Table.TransformColumnTypes(#"Tipo cambiado con configuración regional", {{"coordenaday", type number}}, "en-CH"),
+    #"Valor reemplazado" = Table.ReplaceValue(#"Tipo cambiado con configuración regional1",null,-999,Replacer.ReplaceValue,{"coordenadax","coordenaday"}),
+    #"Personalizada agregada" = Table.AddColumn(#"Valor reemplazado", "Departamento_coordenada", each if [coordenadax] >= -75.993782 and [coordenadax] <= -74.631947 and [coordenaday] <= 7.341924 and [coordenaday] >= 5.884342 then "ANTIOQUIA"
+   else if [coordenadax] >= -74.390874 and [coordenadax] <= -73.881065 and [coordenaday] >= 4.45398 and [coordenaday] <= 5.010449 then "BOGOTA DISTRITO CA"
+   else if [coordenadax] >= -77.263034 and [coordenadax] <= -76.068743 and [coordenaday] >= 3.211766 and [coordenaday] <= 4.244578 then "VALLE"
+   else if [coordenadax] >= -75.236444 and [coordenadax] <= -74.719838 and [coordenaday] >= 10.563933 and [coordenaday] <= 11.11737 then "ATLANTICO"
+   else if [coordenadax] >= -73.921128 and [coordenadax] <= -72.887917 and [coordenaday] >= 6.129758 and [coordenaday] <= 7.27933 then "SANTANDER"
+   else if [coordenadax] >= -75.891307 and [coordenadax] <= -75.648921 and [coordenaday] >= 4.769438 and [coordenaday] <= 4.914653 then "RISARALDA"
+   else if [coordenadax] >= -75.632658 and [coordenadax] <= -75.407292 and [coordenaday] >= 4.968276 and [coordenaday] <= 5.183269 then "CALDAS"
+   else if [coordenadax] >= -75.723059 and [coordenadax] <= -75.62981 and [coordenaday] >= 4.496117 and [coordenaday] <= 4.593678 then "QUINDIO"
+   else if [coordenadax] >= -75.577543 and [coordenadax] <= -75.328899 and [coordenaday] >= 10.239633 and [coordenaday] <= 10.5 then "BOLIVAR"
+   else if [coordenadax] = -999 or [coordenadax] = -3 or [coordenadax] = -2 or [coordenadax] = 0 or List.IsEmpty([coordenadax]) then "Otherwise"
+   else "OTRO")
 in
-    #"Adición insertada"
-
-
-    DataSource.Error: ODBC: ERROR [08S01] [Microsoft][Amazon Redshift] (10) Error occurred while trying to connect: [SQLState 08S01] connection to server at "corshftanltc-dprogramp.hdicolombia.com.co" (172.16.6.89), port 9519 failed: server certificate for "*.cui4m6jnnkyr.us-east-1.redshift.amazonaws.com" does not match host name "corshftanltc-dprogramp.hdicolombia.com.co"
-
-Details:
-    DataSourceKind=AmazonRedshift
-    DataSourcePath=corshftanltc-dprogramp.hdicolombia.com.co:9519;liberty
-    OdbcErrors=[Table]
-    NativeError=10
-    SQLState=08S01
+    #"Personalizada agregada"
