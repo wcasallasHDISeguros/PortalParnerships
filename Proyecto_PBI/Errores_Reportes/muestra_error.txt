@@ -32,126 +32,36 @@ in
     Consulta
 
    
-section Section1;
 
-shared Seguimiento_Prod =
+
+
+
+
 let
     Origen = AmazonRedshift.Database(
         "corshftanltc-dprogramp.hdicolombia.com.co:9519",
         "liberty",
-        [ProviderName = null, BatchSize = null]
+        [ProviderName=null, BatchSize=null]
     ),
-    Resultado = Value.NativeQuery(Origen, "
-WITH cliente_agrupado AS (
-    SELECT razon_social, nombre_1, nombre_2, apellido_1,
-           MIN(apellido_2) AS apellido_2, nro_unico_persona
-    FROM cliente.dwh_cliente_unico
-    GROUP BY razon_social, nombre_1, nombre_2, apellido_1, nro_unico_persona
-),
-produccion AS (
-    SELECT
-        a.sseguro, a.ramo_prod, a.periodo_contable, a.sbu,
-        a.usuario_mov, a.intermediario_lide, a.sucursal_prod,
-        a.nro_identifi_tom, a.fi_certificado, a.ff_certificado,
-        a.fecha_expe, a.fi_anexo, a.poliza, a.certificado, a.recibo,
-        SUM(a.vr_prima_mn_orig) AS vr_prima_mn_orig,
-        SUM(a.vr_prima_pesos_coa) AS vr_prima_pesos_coa,
-        a.tipo_transac, a.cod_transac, a.altura_poliza,
-        a.cod_modalidad, a.frec_pago,
-        CASE
-            WHEN a.sucursal_prod = 177 AND a.ramo_prod = '900753' THEN 'COOMEVA'
-            WHEN a.sucursal_prod = 233 THEN 'RCI'
-            WHEN a.sucursal_prod = 226 THEN 'CREDIORBE'
-            WHEN a.sucursal_prod = 214 AND a.ramo_prod = '900753' THEN 'BANCO DE OCCIDENTE'
-            WHEN a.sucursal_prod IN (200,230,231) AND a.ramo_prod IN ('900753','6041','6042','6045','6046','6047','6049') THEN 'OTROS BANCOS'
-            WHEN a.ramo_prod = '6039' AND a.sucursal_prod NOT IN (177,200,214,230,231,226) THEN 'PESADOS INDIVIDUAL'
-            WHEN a.ramo_prod IN ('6038','6046') AND a.sucursal_prod NOT IN (177,200,214,230,231,226) THEN 'TAXIS'
-            WHEN a.ramo_prod IN ('6047','6049') AND a.sucursal_prod NOT IN (177,200,214,230,231,226) THEN 'PESADOS COLECTIVO'
-            WHEN a.ramo_prod IN ('6041','6042','6045','900753') AND a.sucursal_prod NOT IN (177,200,214,230,231,226) THEN 'LIVIANOS'
-            ELSE 'PRIVATE'
-        END AS segmento,
-        CASE WHEN t3.razon_social = '' THEN
-            TRIM(t3.nombre_1) || ' ' || TRIM(t3.nombre_2) || ' ' || TRIM(t3.apellido_1) || ' ' || TRIM(t3.apellido_2)
-            ELSE t3.razon_social END AS nombre_tom,
-        a.fcontabilizacion, a.fadministracion
-    FROM prod.dwh_polizas_h a
-    LEFT JOIN cliente_agrupado t3 ON a.nro_unico_tomador = t3.nro_unico_persona
-    WHERE a.periodo_contable >= 202501
-      AND a.periodo_contable <= CAST(TO_CHAR(GETDATE(), 'YYYYMM') AS INTEGER)
-      AND a.sbu = 'AUT'
-    GROUP BY a.sseguro, a.ramo_prod, a.periodo_contable, a.sbu,
-        a.usuario_mov, a.intermediario_lide, a.sucursal_prod,
-        a.nro_identifi_tom, a.fi_certificado, a.ff_certificado,
-        a.fecha_expe, a.fi_anexo, a.poliza, a.certificado, a.recibo,
-        a.tipo_transac, a.cod_transac, a.altura_poliza,
-        a.cod_modalidad, a.frec_pago, t3.razon_social, t3.nombre_1,
-        t3.nombre_2, t3.apellido_1, t3.apellido_2,
-        a.fcontabilizacion, a.fadministracion
-),
-ultima_respuesta AS (
-    SELECT sseguro, trespue
-    FROM (
-        SELECT p.sseguro, r.trespue,
-               ROW_NUMBER() OVER (PARTITION BY p.sseguro ORDER BY p.nmovimi DESC) AS indice
-        FROM axis.pregunpolseg p
-        LEFT JOIN axis.respuestas r
-          ON p.cpregun = r.cpregun AND p.crespue = r.crespue AND r.cidioma = 8
-        WHERE p.cpregun = 4790
-    ) x WHERE indice = 1
-),
-ultima_placa AS (
-    SELECT sseguro, cmatric
-    FROM (
-        SELECT sseguro, cmatric,
-               ROW_NUMBER() OVER (PARTITION BY sseguro ORDER BY nmovimi DESC) AS indice
-        FROM axis.autriesgos
-    ) x WHERE indice = 1
-)
-SELECT
-    p.sseguro AS ""SSEGURO"", p.ramo_prod AS ""RAMO_PROD"",
-    p.periodo_contable AS ""PERIODO_CONTABLE"", p.sbu AS ""SBU"",
-    p.usuario_mov AS ""USUARIO_MOV"", p.intermediario_lide AS ""INTERMEDIARIO_LIDE"",
-    p.sucursal_prod AS ""SUCURSAL_PROD"", p.nro_identifi_tom AS ""NRO_IDENTIFI_TOM"",
-    p.fi_certificado AS ""FI_CERTIFICADO"", p.ff_certificado AS ""FF_CERTIFICADO"",
-    p.fecha_expe AS ""FECHA_EXPE"", p.fi_anexo AS ""FI_ANEXO"",
-    p.poliza AS ""POLIZA"", p.certificado AS ""certificado"", p.recibo AS ""RECIBO"",
-    p.vr_prima_mn_orig AS ""VR_PRIMA_MN_ORIG"",
-    p.vr_prima_pesos_coa AS ""VR_PRIMA_PESOS_COA"",
-    p.tipo_transac AS ""TIPO_TRANSAC"", p.cod_transac AS ""COD_TRANSAC"",
-    p.altura_poliza AS ""ALTURA_POLIZA"", p.cod_modalidad AS ""COD_MODALIDAD"",
-    p.frec_pago AS ""frec_pago"", p.segmento AS ""SEGMENTO"",
-    p.nombre_tom AS ""NOMBRE_TOM"", p.fcontabilizacion AS ""FCONTABILIZACION"",
-    p.fadministracion AS ""FADMINISTRACION"",
-    r.trespue AS ""TRESPUE"", v.cmatric AS ""CMATRIC"",
-    s.oficina_fusion AS ""OFICINA_FUSION""
-FROM produccion p
-LEFT JOIN ultima_respuesta r ON p.sseguro = r.sseguro
-LEFT JOIN ultima_placa v ON p.sseguro = v.sseguro
-LEFT JOIN as400.maestro_intermediarios i ON p.intermediario_lide = i.interm
-LEFT JOIN apoyo.dwh_redcomercial_sucursal s ON i.sucursal = s.sucursal
-")
-in
-    Resultado;
 
-shared #"Sucursal_Fusión" =
-let
-    Origen = AmazonRedshift.Database(
-        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
-        "liberty",
-        [ProviderName = null, BatchSize = null]
-    ),
-    Resultado = Value.NativeQuery(Origen, "
-SELECT
-    sucursal AS ""SUCURSAL"",
-    sucursal_fusion AS ""SUCURSAL_FUSION"",
-    oficina_fusion AS ""OFICINA_FUSION"",
-    tipo_oficina AS ""TIPO_OFICINA"",
-    agrupacion_comercial AS ""AGRUPACION_COMERCIAL"",
-    zona AS ""ZONA"", ciudad AS ""CIUDAD"",
-    canal AS ""CANAL"", subcanal AS ""SUBCANAL"",
-    linea AS ""LINEA"",
-    fecha_ejecucion_dwh AS ""FECHA_EJECUCION_DWH""
-FROM apoyo.dwh_redcomercial_sucursal
-")
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT
+            ramo_prod,
+            llave_sin AS nsinies,
+            siniestro,
+            id_tomador,
+            nombre_tomador AS nombre_tom,
+            id_asegurado AS nr_ide_aseg,
+            nombre_asegurado AS nombre_aseg,
+            id_pers_rel,
+            nombre_pers_rel,
+            sis_origen,
+            sucursal_prod,
+            sbu_prod
+        FROM liberty_pruebas_actuaria.tomador_asegurado
+        "
+    )
 in
-    Resultado;
+    Consulta
