@@ -36,6 +36,70 @@ in
 
 
 
+--------
+let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName=null, BatchSize=null]
+    ),
+
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT
+            llave_pol,
+            nro_placa,
+            periodo_contable_analisis,
+            sseguro,
+            ramo_1,
+            poliza_1,
+            certificado_1,
+            doc,
+            ded_rce,
+            ded_pth,
+            ded_ptd,
+            ded_ppd,
+            ded_pph,
+            ded_terr,
+            ded_rgf,
+            ded_rce_u
+        FROM liberty_pruebas_actuaria.vigentes_autos_deducibles
+        WHERE periodo_contable_analisis = (
+            SELECT MAX(periodo_contable_analisis)
+            FROM liberty_pruebas_actuaria.vigentes_autos_deducibles
+        )
+        "
+    )
+in
+    Consulta
+
+
+
+
+let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName=null, BatchSize=null]
+    ),
+
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT *
+        FROM liberty_pruebas_actuaria.vigentes_autos_principal
+        WHERE periodo_contable_analisis = (
+            SELECT MAX(periodo_contable_analisis)
+            FROM liberty_pruebas_actuaria.vigentes_autos_principal
+        )
+        "
+    )
+in
+    Consulta
+
+
+
 
 let
     Origen = AmazonRedshift.Database(
@@ -48,19 +112,52 @@ let
         Origen,
         "
         SELECT
-            ramo_prod,
-            llave_sin AS nsinies,
-            siniestro,
-            id_tomador,
-            nombre_tomador AS nombre_tom,
-            id_asegurado AS nr_ide_aseg,
-            nombre_asegurado AS nombre_aseg,
-            id_pers_rel,
-            nombre_pers_rel,
-            sis_origen,
-            sucursal_prod,
-            sbu_prod
-        FROM liberty_pruebas_actuaria.tomador_asegurado
+            llave_pol,
+            nro_placa,
+            periodo_contable_analisis,
+            sseguro,
+            ramo_1,
+            poliza_1,
+            certificado_1,
+            doc,
+            ded_rce,
+            ded_pth,
+            ded_ptd,
+            ded_ppd,
+            ded_pph,
+            ded_terr,
+            ded_rgf,
+            ded_rce_u
+        FROM liberty_pruebas_actuaria.vigentes_autos_deducibles
+        WHERE periodo_contable_analisis = (
+            SELECT MAX(periodo_contable_analisis) - 1
+            FROM liberty_pruebas_actuaria.vigentes_autos_deducibles
+        )
+        "
+    )
+in
+    Consulta
+
+
+
+
+
+let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName=null, BatchSize=null]
+    ),
+
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT *
+        FROM liberty_pruebas_actuaria.vigentes_autos_principal
+        WHERE periodo_contable_analisis = (
+            SELECT MAX(periodo_contable_analisis) - 1
+            FROM liberty_pruebas_actuaria.vigentes_autos_principal
+        )
         "
     )
 in
