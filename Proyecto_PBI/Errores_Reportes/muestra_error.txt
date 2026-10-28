@@ -45,7 +45,6 @@ in
 
 ----------
 
-
 let
     Origen = AmazonRedshift.Database(
         "corshftanltc-dprogramp.hdicolombia.com.co:9519",
@@ -57,14 +56,21 @@ let
         Origen,
         "
         SELECT
-            a.ramo_prod AS RAMO_PROD,
-            a.periodo_contable AS PERIODO_CONTABLE,
-            a.nro_identifi_tom AS NRO_IDENTIFI_TOM,
-            a.sucursal_prod,
-            a.poliza AS POLIZA,
-            SUM(a.vr_prima_mn_orig) AS VR_PRIMA_MN_ORIG,
-            SUM(a.vr_prima_pesos_coa) AS VR_PRIMA_PESOS_COA,
-            SUM(a.vr_prima_anual) AS VR_PRIMA_ANUAL,
+            a.ramo_prod AS ""RAMO_PROD"",
+            a.periodo_contable AS ""PERIODO_CONTABLE"",
+            a.nro_identifi_tom AS ""NRO_IDENTIFI_TOM"",
+            a.sucursal_prod AS ""sucursal_prod"",
+            a.poliza AS ""POLIZA"",
+
+            SUM(a.vr_prima_mn_orig)
+                AS ""VR_PRIMA_MN_ORIG"",
+
+            SUM(a.vr_prima_pesos_coa)
+                AS ""VR_PRIMA_PESOS_COA"",
+
+            SUM(a.vr_prima_anual)
+                AS ""VR_PRIMA_ANUAL"",
+
             CASE
                 WHEN t3.razon_social = ''
                 THEN
@@ -73,8 +79,10 @@ let
                     TRIM(COALESCE(t3.apellido_1, '')) || ' ' ||
                     TRIM(COALESCE(t3.apellido_2, ''))
                 ELSE t3.razon_social
-            END AS NOMBRE_TOM
+            END AS ""NOMBRE_TOM""
+
         FROM prod.dwh_polizas_h a
+
         LEFT JOIN (
             SELECT
                 razon_social,
@@ -92,16 +100,24 @@ let
                 nro_unico_persona
         ) t3
             ON a.nro_unico_tomador = t3.nro_unico_persona
+
         WHERE
-            a.periodo_contable BETWEEN 201909 AND 222222
+            a.periodo_contable >= 201909
+            AND a.periodo_contable <= 222222
             AND a.sbu = 'AUT'
-            AND a.poliza IN (450195, 466192, 483535)
+            AND a.poliza IN (
+                450195, 466192, 483535, 483943,
+                512514, 396714, 457394, 489401,
+                452792, 486249, 419197, 465142,
+                497664, 400953, 469851, 470070
+            )
+
         GROUP BY
             a.ramo_prod,
             a.periodo_contable,
             a.nro_identifi_tom,
-            a.sucursal_prod,
             a.poliza,
+            a.sucursal_prod,
             t3.razon_social,
             t3.nombre_1,
             t3.nombre_2,
