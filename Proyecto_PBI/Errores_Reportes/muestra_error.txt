@@ -121,3 +121,25 @@ in
     Error subyacente {"error":{"code":"DMTS_MonikerWithUnboundDataSources","pbi.error":{"code":"DMTS_MonikerWithUnboundDataSources","details":[{"code":"Url","detail":{"type":1,"value":"AmazonRedshift"}},{"code":"ConnectionType","detail":{"type":0,"value":"Extension"}}],"exceptionCulprit":1}}}
 Identificador de actividad f72e5219-2ca4-4e40-82c1-aa7da44b4af7
 Hora 2026-10-29T14:39:07.6051825Z
+
+
+
+Conexiones de puerta de enlace
+Use una puerta de enlace de datos local o VNet
+
+Activar
+Puerta de enlace	Departamento	Información de contacto	Estado	Acciones
+
+prod_Colombia
+powerBIservice@hdiseguros.com.co	
+Ejecutando en WAPANAL-PBIWP02
+
+Orígenes de datos incluidos en este modelo semántico:
+Extension{"extensionDataSourceKind":"AmazonRedshift","extensionDataSourcePath":"corshftanltc-dprogramp.hdicolombia.com.co:9519;liberty"}	
+Asignación:
+LIBERTY_DWH_CDP
+SharePointList{"sharePointSiteUrl":"https://hdiseguroscom.sharepoint.com/sites/vp_tecnica_auto_y_pricing/"}	
+Opcional: agregar a la puerta de enlace
+Web{"url":"https://hdiseguroscom.sharepoint.com/:x:/r/sites/VP_Tecnica_Auto_y_Pricing/Documentos%20compartidos/Gerencia_de_Excelencia_T%C3%A9cnica/AUTOMATIZACION%20DE%20PROCESOS/PROVISIONES/BASEDATOS.xlsx"}	
+Opcional: agregar a la puerta de enlace
+
