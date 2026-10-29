@@ -114,3 +114,10 @@ let
     )
 in
     Resultado
+
+
+
+
+    Error subyacente {"error":{"code":"DMTS_MonikerWithUnboundDataSources","pbi.error":{"code":"DMTS_MonikerWithUnboundDataSources","details":[{"code":"Url","detail":{"type":1,"value":"AmazonRedshift"}},{"code":"ConnectionType","detail":{"type":0,"value":"Extension"}}],"exceptionCulprit":1}}}
+Identificador de actividad f72e5219-2ca4-4e40-82c1-aa7da44b4af7
+Hora 2026-10-29T14:39:07.6051825Z
