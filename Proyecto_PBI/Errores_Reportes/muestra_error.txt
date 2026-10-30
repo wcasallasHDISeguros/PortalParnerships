@@ -146,18 +146,9 @@ Opcional: agregar a la puerta de enlace
 
 
 
----Error reporte de ssrs paginado
-There was an error contacting an underlying data source. Manage your credentials or gateway settings on the management page. Please verify that the data source is available, your credentials are correct and that your gateway settings are valid.
-
-Si se pone en contacto con el soporte técnico, indique al agente estos detalles.
-Ocultar detalles
-Marca de tiempo (UTC)2026-10-29T16:19:24.554Z
-Id. de actividad raíz8fa162d2-4908-4563-9f38-32bb813e8d34
-Id. de sesión00000bdcac17416e86e5cf8e91c1b572
-Identificador de inquilino35681c81-d5eb-4c9e-8171-6e66bc263a82
-URI de clústerhttps://wabi-south-central-us-c-primary-redirect.analysis.windows.net/
-Id. del informe08c4b2bc-0369-49e7-9712-7ba3292a1a13
-Id. de capacidad
-Versión del visor2026.10.4.2264
+--
+obtengo este error del ulitmo reporte migrado, este ya esta publicado en PowerBI Services y cuando voy al modelo semantico y actualizo la  consultas de redshift "DevengadoSQL" y "EmitidaSQL" --> Error subyacente {"error":{"code":"DMTS_MonikerWithUnboundDataSources","pbi.error":{"code":"DMTS_MonikerWithUnboundDataSources","details":[{"code":"Url","detail":{"type":1,"value":"AmazonRedshift"}},{"code":"ConnectionType","detail":{"type":0,"value":"Extension"}}],"exceptionCulprit":1}}}
+Identificador de actividad f72e5219-2ca4-4e40-82c1-aa7da44b4af7
+Hora 2026-10-29T14:39:07.6051825Z
 
 
