@@ -45,54 +45,35 @@ let
         Origen,
         "
         SELECT
-            s.llave AS ""LLAVE"",
-            a.aut_autos_ramo_prod AS ""AUT_AUTOS_RAMO_PROD"",
-            a.aut_autos_poliza AS ""AUT_AUTOS_POLIZA"",
-            a.aut_autos_certificado AS ""AUT_AUTOS_CERTIFICADO"",
-            a.aut_autos_llave_pol AS ""AUT_AUTOS_LLAVE_POL"",
-            a.aut_autos_nro_placa AS ""AUT_AUTOS_NRO_PLACA"",
-            a.aut_autos_nro_chasis AS ""AUT_AUTOS_NRO_CHASIS"",
-            a.aut_autos_nro_serie AS ""AUT_AUTOS_NRO_SERIE"",
-            a.aut_autos_ann_modelo AS ""AUT_AUTOS_ANN_MODELO"",
-            a.ta_clases_desc_clase AS ""TA_CLASES_DESC_CLASE"",
-            a.ta_aut_tecnicos_desc_clase AS ""TA_AUT_TECNICOS_DESC_CLASE"",
-            a.ta_aut_tecnicos_desc_tipo AS ""TA_AUT_TECNICOS_DESC_TIPO"",
-            a.ta_color_basico_descripcion AS ""TA_COLOR_BASICO_DESCRIPCION"",
-            a.ta_aut_tecnicos_desc_agrup_clase AS ""TA_AUT_TECNICOS_DESC_AGRUP_CLASE"",
-            a.ta_aut_tecnicos_desc_agrup_tipo AS ""TA_AUT_TECNICOS_DESC_AGRUP_TIPO"",
-            a.ta_marcas_desc_marca AS ""TA_MARCAS_DESC_MARCA"",
-            a.ta_cod_servicio_descripcion AS ""TA_COD_SERVICIO_DESCRIPCION"",
-            a.ta_clases_cod_clase AS ""TA_CLASES_COD_CLASE"",
-            a.ta_aut_tecnicos_cod_clase AS ""TA_AUT_TECNICOS_COD_CLASE"",
-            a.aut_autos_servicio AS ""AUT_AUTOS_SERVICIO"",
-            a.aut_autos_llave_pol AS ""aut_autos_llave_pol 1""
-        FROM dt.vista_dim_dt_autos a
-        LEFT JOIN sini.dwh_s_maestro_d s
-            ON s.llave = a.aut_autos_llave_pol
-        WHERE s.ramo_prod IN (
-            '6031', '6032', '6033', '6034', '6035',
-            '6036', '6037', '6038', '6039', '6040',
-            '6041', '6042', '6043', '6044', '6045',
-            '6046', '6047', '6048', '6049', '6054',
-            '6055', '6056', '6057', '6060', '6061',
-            '900761', 'AL', 'AT', 'AU', 'AW',
-            'AWL', 'AWS', 'AX', 'ET', 'LF',
-            'LM', 'LO', 'ME', 'MF', 'MO',
-            'MT', 'MU', 'MW', 'MWT', 'PE',
-            'PI', 'PM', 'PO', 'TI', 'TP',
-            'TT', 'TU', 'TO', '900753', '900792'
-        )
+            llave_pol,
+            nro_placa,
+            RIGHT('00' || CAST(cod_marca AS VARCHAR), 3) ||
+            RIGHT('00' || CAST(cod_clase AS VARCHAR), 2) ||
+            RIGHT('00' || CAST(cod_tipo AS VARCHAR), 3)
+                AS ""COD_Fasecolda"",
+            CAST(
+                CAST(ann_contable AS VARCHAR) ||
+                RIGHT('00' || CAST(mes_contable AS VARCHAR), 2)
+                AS INTEGER
+            ) AS ""PER""
+        FROM dt.dwh_dt_aut_autos
+        WHERE ann_contable >= 1800
+          AND CAST(
+                CAST(ann_contable AS VARCHAR) ||
+                RIGHT('00' || CAST(mes_contable AS VARCHAR), 2)
+                AS INTEGER
+              ) >= CAST(
+                TO_CHAR(
+                    DATEADD(month, -1000, GETDATE()),
+                    'YYYYMM'
+                ) AS INTEGER
+              )
         ",
         null,
         [EnableFolding=false]
-    ),
-
-    #"Duplicados quitados" = Table.Distinct(
-        Consulta,
-        {"LLAVE"}
     )
 
 in
-    #"Duplicados quitados"
+    Consulta
 
 
