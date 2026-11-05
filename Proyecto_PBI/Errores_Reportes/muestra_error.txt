@@ -33,7 +33,7 @@ in
 
 
 
---------------------------------
+--------------------------------DIM_TOMADOR_ASEGURADO_AS400
 let
     Origen = AmazonRedshift.Database(
         "corshftanltc-dprogramp.hdicolombia.com.co:9519",
@@ -45,29 +45,97 @@ let
         Origen,
         "
         SELECT
-            llave_pol,
-            nro_placa,
-            RIGHT('00' || CAST(cod_marca AS VARCHAR), 3) ||
-            RIGHT('00' || CAST(cod_clase AS VARCHAR), 2) ||
-            RIGHT('00' || CAST(cod_tipo AS VARCHAR), 3)
-                AS ""COD_Fasecolda"",
-            CAST(
-                CAST(ann_contable AS VARCHAR) ||
-                RIGHT('00' || CAST(mes_contable AS VARCHAR), 2)
-                AS INTEGER
-            ) AS ""PER""
-        FROM dt.dwh_dt_aut_autos
-        WHERE ann_contable >= 1800
-          AND CAST(
-                CAST(ann_contable AS VARCHAR) ||
-                RIGHT('00' || CAST(mes_contable AS VARCHAR), 2)
-                AS INTEGER
-              ) >= CAST(
-                TO_CHAR(
-                    DATEADD(month, -1000, GETDATE()),
-                    'YYYYMM'
-                ) AS INTEGER
-              )
+            TRIM(CAST(w8racg AS VARCHAR)) || '-' ||
+            CAST(w8ansn AS VARCHAR) || '-' ||
+            CAST(w8scpr AS VARCHAR) || '-' ||
+            CAST(w8rcnu AS VARCHAR) AS ""SINIESTRO"",
+
+            '1' ||
+            LEFT(CAST(w8racg AS VARCHAR) || ' ', 3) ||
+            CAST(w8ansn AS VARCHAR) ||
+            RIGHT('000' || CAST(w8scpr AS VARCHAR), 3) ||
+            RIGHT('0000000' || CAST(w8rcnu AS VARCHAR), 7)
+                AS ""LLAVE_SIN"",
+
+            1 AS ""CIA"",
+            w8racg AS ""RAMO_PROD"",
+            w8ansn AS ""ANNO_RADICACION"",
+            w8scpr AS ""SUCURSAL_PROD"",
+            w8rcnu AS ""RADICACION"",
+            w8tdnt AS ""NIT_TOM"",
+            w8tdnb AS ""NOMBRE_TOM"",
+            w8asnt AS ""NIT_ASEG"",
+            w8asnb AS ""NOMBRE_ASEG"",
+            w8vhph AS ""PLACA"",
+            w8vhmk AS ""Marca_Vehiculo"",
+            w8vhml AS ""Modelo_Vehiculo"",
+            w8mrnu AS ""Numero_Motor""
+
+        FROM as400.atfsnpol
+
+        WHERE w8racg IN (
+            '6031', '6032', '6033', '6034', '6035',
+            '6036', '6037', '6038', '6039', '6040',
+            '6041', '6042', '6043', '6044', '6045',
+            '6046', '6047', '6048', '6049', '6054',
+            '6055', '6056', '6057', '6060', '6061',
+            '900761', 'AL', 'AT', 'AU', 'AW',
+            'AWL', 'AWS', 'AX', 'ET', 'LF',
+            'LM', 'LO', 'ME', 'MF', 'MO',
+            'MT', 'MU', 'MW', 'MWT', 'PE',
+            'PI', 'PM', 'PO', 'TI', 'TP',
+            'TT', 'TU', 'TO', '900753', '900792'
+        )
+        ",
+        null,
+        [EnableFolding=false]
+    )
+
+in
+    Consulta
+
+
+
+
+---------------------DIM_ASEGURADO_IAXIS    
+let
+    Origen = AmazonRedshift.Database(
+        "corshftanltc-dprogramp.hdicolombia.com.co:9519",
+        "liberty",
+        [ProviderName=null, BatchSize=null]
+    ),
+
+    Consulta = Value.NativeQuery(
+        Origen,
+        "
+        SELECT
+            t.llave_sin AS ""LLAVE_SIN"",
+            t.siniestro AS ""SINIESTRO"",
+            t.id_tomador AS ""ID_TOMADOR"",
+            t.nombre_tomador AS ""NOMBRE_TOMADOR"",
+            t.id_asegurado AS ""ID_ASEGURADO"",
+            t.nombre_asegurado AS ""NOMBRE_ASEGURADO"",
+            t.id_pers_rel AS ""ID_PERS_REL"",
+            t.nombre_pers_rel AS ""NOMBRE_PERS_REL"",
+            t.sis_origen AS ""SIS_ORIGEN"",
+            s.ramo_prod AS ""RAMO_prod""
+
+        FROM cierre.tomador_asegurado t
+        LEFT JOIN sini.dwh_s_maestro_d s
+            ON t.llave_sin = s.llave_sin
+        WHERE s.ramo_prod IN (
+            '6031', '6032', '6033', '6034', '6035',
+            '6036', '6037', '6038', '6039', '6040',
+            '6041', '6042', '6043', '6044', '6045',
+            '6046', '6047', '6048', '6049', '6054',
+            '6055', '6056', '6057', '6060', '6061',
+            '900761', 'AL', 'AT', 'AU', 'AW',
+            'AWL', 'AWS', 'AX', 'ET', 'LF',
+            'LM', 'LO', 'ME', 'MF', 'MO',
+            'MT', 'MU', 'MW', 'MWT', 'PE',
+            'PI', 'PM', 'PO', 'TI', 'TP',
+            'TT', 'TU', 'TO', '900753', '900792'
+        )
         ",
         null,
         [EnableFolding=false]
